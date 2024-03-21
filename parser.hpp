@@ -10,27 +10,21 @@
 
 namespace json {
 
-class ParserReachedEnd : public std::runtime_error {
+class reached_end : public std::runtime_error {
 public:
-    explicit ParserReachedEnd()
-        : runtime_error{"Parser reached end of file"} {}
+    explicit reached_end()
+        : runtime_error{"Reached end of file"} {}
 };
 
-class ParserUnexpectedToken : public std::runtime_error {
+class unexpected_token : public std::runtime_error {
 public:
-    explicit ParserUnexpectedToken()
-        : runtime_error{"Parser found unexpected token"} {}
+    explicit unexpected_token()
+        : runtime_error{"Found unexpected token"} {}
 };
 
-class ParserUnexpectedEnd : public std::runtime_error {
+class type_mismatch : public std::runtime_error {
 public:
-    explicit ParserUnexpectedEnd()
-        : runtime_error{"Parser reached end of file unexpectedly"} {}
-};
-
-class TypeMismatch : public std::runtime_error {
-public:
-    explicit TypeMismatch() : runtime_error{"Type mismatch"} {}
+    explicit type_mismatch() : runtime_error{"Type mismatch"} {}
 };
 
 enum class value_type {
@@ -42,11 +36,6 @@ enum class value_type {
     null
 };
 
-struct location {
-    size_t index{};
-    size_t length{};
-};
-
 struct value;
 struct string;
 struct object;
@@ -55,7 +44,6 @@ struct number;
 struct boolean;
 
 using value_owned_ptr = std::unique_ptr<value>;
-using value_ptr = value*;
 
 struct value {
     value(value_type type) : type{type} {}
@@ -63,8 +51,8 @@ struct value {
     value_type type{};
 
     const std::string& as_string() const;
-    const object* as_object() const;
-    const array* as_array() const;
+    const std::map<std::string, value_owned_ptr>& as_object() const;
+    const std::vector<value_owned_ptr>& as_array() const;
     double as_number() const;
     bool as_boolean() const;
     bool is_null() const;
@@ -104,35 +92,35 @@ struct null : public value {
 
 inline const std::string& value::as_string() const {
     if (type != value_type::string) {
-        throw TypeMismatch{};
+        throw type_mismatch{};
     }
     return dynamic_cast<const string *>(this)->data;
 }
 
-inline const object* value::as_object() const {
+inline const std::map<std::string, value_owned_ptr>& value::as_object() const {
     if (type != value_type::object) {
-        throw TypeMismatch{};
+        throw type_mismatch{};
     }
-    return dynamic_cast<const object *>(this);
+    return dynamic_cast<const object *>(this)->members;
 }
 
-inline const array * value::as_array() const {
+inline const std::vector<value_owned_ptr>& value::as_array() const {
     if (type != value_type::array) {
-        throw TypeMismatch{};
+        throw type_mismatch{};
     }
-    return dynamic_cast<const array*>(this);
+    return dynamic_cast<const array*>(this)->elements;
 }
 
 inline double value::as_number() const {
     if (type != value_type::number) {
-        throw TypeMismatch{};
+        throw type_mismatch{};
     }
     return dynamic_cast<const number *>(this)->data;
 }
 
 inline bool value::as_boolean() const {
     if (type != value_type::boolean) {
-        throw TypeMismatch{};
+        throw type_mismatch{};
     }
     return dynamic_cast<const boolean *>(this)->data;
 }
@@ -142,8 +130,6 @@ inline bool value::is_null() const {
 }
 
 namespace detail {
-
-using traits = std::istream::traits_type;
 
 struct eol { constexpr bool operator()(char c) const { return c == '\r' || c == '\n'; } };
 struct ws { constexpr bool operator()(char c) const { return c == ' ' || c == '\t' || eol{}(c); }; };
@@ -167,19 +153,21 @@ struct negate {
 };
 
 inline char peek_next(std::istream& is) {
+    using std_traits = std::istream::traits_type;
     auto i{is.peek()};
-    if (traits::eq_int_type(i, traits::eof())) {
-        throw ParserReachedEnd{};
+    if (std_traits::eq_int_type(i, std_traits::eof())) {
+        throw reached_end{};
     }
-    return traits::to_char_type(i);
+    return std_traits::to_char_type(i);
 }
 
 inline char get_next(std::istream& is) {
+    using std_traits = std::istream::traits_type;
     auto i{is.get()};
-    if (traits::eq_int_type(i, traits::eof())) {
-        throw ParserReachedEnd{};
+    if (std_traits::eq_int_type(i, std_traits::eof())) {
+        throw reached_end{};
     }
-    return traits::to_char_type(i);
+    return std_traits::to_char_type(i);
 }
 
 template<typename Predicate>
@@ -217,14 +205,14 @@ bool next(std::istream& is, Predicate predicate) {
 template<typename Predicate>
 void expect(std::istream& is) {
     if (!next<Predicate>(is)) {
-        throw ParserUnexpectedToken{};
+        throw unexpected_token{};
     }
 }
 
 template<typename Predicate>
 void expect(std::istream& is, Predicate predicate) {
     if (!next(is, predicate)) {
-        throw ParserUnexpectedToken{};
+        throw unexpected_token{};
     }
 }
 
@@ -309,7 +297,7 @@ inline double parse_number(std::istream& is) {
     } else {
         char first_digit{};
         if (!next<digit_1_through_9>(is, first_digit)) {
-            throw ParserUnexpectedToken{};
+            throw unexpected_token{};
         }
         number_digits.push_back(first_digit);
         read_while<digit>(is, number_digits);
@@ -370,7 +358,7 @@ inline value_owned_ptr parse_object_value(std::istream& is) {
     }
     while (true) {
         if (!peek<dquote>(is)) {
-            throw ParserUnexpectedToken{};
+            throw unexpected_token{};
         }
         auto member_name{parse_string(is)};
         skip_while<ws>(is);
