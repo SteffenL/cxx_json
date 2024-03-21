@@ -225,22 +225,12 @@ void skip_while(std::istream& is) {
 }
 
 template<typename Predicate>
-void skip_until(std::istream& is) {
-    skip_while<negate<Predicate>>(is);
-}
-
-template<typename Predicate>
 void read_while(std::istream& is, std::string& s) {
     char c;
     while (next<Predicate>(is, c)) {
         s += c;
     }
     is.unget();
-}
-
-template<typename Predicate>
-void read_until(std::istream& is, std::string& s) {
-    read_while<negate<Predicate>>(is, s);
 }
 
 inline void expect_exact(std::istream& is, const std::string &expected) {
