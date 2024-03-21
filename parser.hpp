@@ -62,16 +62,6 @@ struct boolean;
 
 using value_owned_ptr = std::unique_ptr<value>;
 using value_ptr = value*;
-using string_owned_ptr = std::unique_ptr<string>;
-using string_ptr = string*;
-using object_owned_ptr = std::unique_ptr<object>;
-using object_ptr = object*;
-using array_owned_ptr = std::unique_ptr<array>;
-using array_ptr = array*;
-using number_owned_ptr = std::unique_ptr<number>;
-using number_ptr = number*;
-using boolean_owned_ptr = std::unique_ptr<boolean>;
-using boolean_ptr = boolean*;
 
 struct value {
     value(value_type type) : type{type} {}
@@ -84,9 +74,13 @@ struct value {
     double as_number() const;
     bool as_boolean() const;
     bool is_null() const;
+
+    template<typename T>
+    void get_data(T& data) const;
 };
 
 struct string : public value {
+    string() : value{value_type::string} {}
     string(std::string &&data) : value{value_type::string}, data{std::move(data)} {}
     std::string data;
 };
@@ -102,13 +96,15 @@ struct array : public value {
 };
 
 struct number : public value {
+    number() : value{value_type::number} {}
     number(double data) : value{value_type::number}, data{data} {}
-    double data;
+    double data{};
 };
 
 struct boolean : public value {
+    boolean() : value{value_type::boolean} {}
     boolean(bool data) : value{value_type::boolean}, data{data} {}
-    bool data;
+    bool data{};
 };
 
 struct null : public value {
@@ -152,6 +148,21 @@ inline bool value::as_boolean() const {
 
 inline bool value::is_null() const {
     return type == value_type::null;
+}
+
+template<>
+inline void value::get_data(std::string& data) const {
+    data = as_string();
+}
+
+template<>
+inline void value::get_data(object& data) const {
+    data = as_object();
+}
+
+template<>
+inline void value::get_data(double& data) const {
+    data = as_number();
 }
 
 namespace detail {
@@ -272,19 +283,6 @@ inline void expect_exact(std::istream& is, const std::string &expected) {
     for (size_t i{}; i < expected.size(); ++i) {
         expect(is, [&] (char c) { return c == expected[i]; });
     }
-}
-
-template<typename T>
-std::string str(const T& n) {
-    return std::to_string(n);
-}
-
-inline size_t get_offset(std::istream& is) {
-    auto pos{is.tellg()};
-    if (pos < 0) {
-        throw ParserUnexpectedEnd{};
-    }
-    return static_cast<size_t>(pos);
 }
 
 value_owned_ptr parse_value(std::istream& is);
