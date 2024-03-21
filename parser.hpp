@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+//#include <variant>
 
 namespace json {
 
@@ -47,53 +48,71 @@ struct location {
     size_t length{};
 };
 
-struct string {
-    location outer;
-    location inner;
-};
-
-struct value {
-    value_type type{};
-    location outer;
-    location inner;
-};
-
 struct member {
-    string name;
+    location name;
+    location value;
+};
+
+struct string {
     location value;
 };
 
 struct object {
-    location outer;
     std::vector<member> members;
 };
 
-struct array {
-    location outer;
+struct value {
+    value_type type{};
+    location loc;
+    struct object object;
+    struct string string;
+};
+
+/*struct string : public location {
+    location value;
+};
+
+struct member : public location {
+    string name;
+    location value;
+};
+
+struct number : public location {};
+struct boolean : public location {};
+struct null : public location {};
+
+struct object : public location {
+    std::vector<member> members;
+};
+
+struct array : public location {
     std::vector<location> elements;
 };
+*/
+
+//using value = std::variant<object, array, string, number, boolean, null>;
 
 namespace detail {
 
 using traits = std::istream::traits_type;
 
-struct is_eol { constexpr bool operator()(char c) { return c == '\r' || c == '\n'; } };
-struct is_ws { constexpr bool operator()(char c) { return c == ' ' || c == '\t' || is_eol{}(c); }; };
-struct is_double_quote { constexpr bool operator()(char c) { return c == '"'; } };
-struct is_digit { constexpr bool operator()(char c) { return c >= '0' && c <= '9'; } };
-struct is_escape { constexpr bool operator()(char c) { return c == '\\'; } };
-struct is_object_open { constexpr bool operator()(char c) { return c == '{'; } };
-struct is_object_close { constexpr bool operator()(char c) { return c == '}'; } };
-struct is_array_open { constexpr bool operator()(char c) { return c == '['; } };
-struct is_array_close { constexpr bool operator()(char c) { return c == ']'; } };
-struct is_value_separator { constexpr bool operator()(char c) { return c == ','; } };
-struct is_member_separator { constexpr bool operator()(char c) { return c == ':'; } };
+struct eol { constexpr bool operator()(char c) const { return c == '\r' || c == '\n'; } };
+struct ws { constexpr bool operator()(char c) const { return c == ' ' || c == '\t' || eol{}(c); }; };
+struct dquote { constexpr bool operator()(char c) const { return c == '"'; } };
+struct digit { constexpr bool operator()(char c) const { return c >= '0' && c <= '9'; } };
+struct escape { constexpr bool operator()(char c) const { return c == '\\'; } };
+struct object_open { constexpr bool operator()(char c) const { return c == '{'; } };
+struct object_close { constexpr bool operator()(char c) const { return c == '}'; } };
+struct array_open { constexpr bool operator()(char c) const { return c == '['; } };
+struct array_close { constexpr bool operator()(char c) const { return c == ']'; } };
+struct value_separator { constexpr bool operator()(char c) const { return c == ','; } };
+struct member_separator { constexpr bool operator()(char c) const { return c == ':'; } };
 
 //bool is(bool(*pred)(char c))
 
 template<typename What>
 struct negate {
-    constexpr bool operator()(char c) {
+    constexpr bool operator()(char c) const {
         return !What{}(c);
     }
 };
@@ -184,71 +203,91 @@ inline size_t get_offset(std::istream& is) {
 
 value read_value(std::istream& is);
 
-inline string read_string(std::istream& is) {
-    string v;
-    v.outer.index = get_offset(is);
-    expect<is_double_quote>(is);
-    v.inner.index = get_offset(is);
+inline value read_string(std::istream& is) {
+    value v;
+    v.type = value_type::string;
+    v.loc.index = get_offset(is);
+    expect<dquote>(is);
+    v.string.value.index = get_offset(is);
     for (char c{get_next(is)};; c = get_next(is)) {
-        if (is_escape{}(c)) {
+        if (escape{}(c)) {
             get_next(is);
-            v.inner.length += 2;
             continue;
         }
-        if (is_double_quote{}(c)) {
+        if (dquote{}(c)) {
             is.unget();
-            v.inner.length = get_offset(is) - v.inner.index;
             break;
         }
     }
-    expect<is_double_quote>(is);
-    v.outer.length = get_offset(is) - v.outer.index;
+    v.string.value.length = get_offset(is) - v.string.value.index;
+    expect<dquote>(is);
+    v.loc.length = get_offset(is) - v.loc.index;
     return v;
 }
 
-inline object read_object(std::istream& is) {
-    object v;
-    std::vector<member> members;
-    expect<is_object_open>(is);
-    skip_while<is_ws>(is);
-    bool done{};
-    while (!done) {
-        if (peek<is_double_quote>(is)) {
-            auto member_name{read_string(is)};
-            skip_while<is_ws>(is);
-            expect<is_member_separator>(is);
-            auto member_value{read_value(is)};
-            done = !peek<is_value_separator>(is);
-            members.push_back(member{member_name, member_value});
-        }
+inline value read_object(std::istream& is) {
+    value v;
+    v.type = value_type::object;
+    v.loc.index = get_offset(is);
+    expect<object_open>(is);
+    skip_while<ws>(is);
+    if (peek<object_close>(is)) {
+        expect<object_close>(is);
+        v.loc.length = get_offset(is) - v.loc.index;
+        return v;
     }
-    expect<is_object_close>(is);
-    return {};
+    while (true) {
+        if (!peek<dquote>(is)) {
+            throw ParserUnexpectedToken{};
+        }
+        member m;
+        m.name = read_string(is).loc;
+        skip_while<ws>(is);
+        expect<member_separator>(is);
+        m.value = read_value(is).loc;
+        v.object.members.push_back(std::move(m));
+        if (peek<value_separator>(is)) {
+            skip(is);
+            skip_while<ws>(is);
+            continue;
+        }
+        break;
+    }
+    skip_while<ws>(is);
+    expect<object_close>(is);
+    v.loc.length = get_offset(is) - v.loc.index;
+    return v;
 }
 
-inline array read_array(std::istream& is) {
-    expect<is_array_open>(is);
-    expect<is_array_close>(is);
+/*inline array read_array(std::istream& is) {
+    array v;
+    v.index = get_offset(is);
+    expect<array_open>(is);
+    expect<array_close>(is);
+    v.length = get_offset(is) - v.index;
     return {};
-}
+}*/
 
 inline value read_value(std::istream& is) {
-    value v;
-    skip_while<is_ws>(is);
-    if (peek<is_double_quote>(is)) {
-        v.type = value_type::string;
-        //v.outer = read_string(is).outer;
-    } else if (peek<is_object_open>(is)) {
-        v.type = value_type::object;
-        //v.outer = read_object(is).outer;
-    } else if (peek<is_array_open>(is)) {
-        v.type = value_type::array;
-        //v.outer = read_array(is);
+    skip_while<ws>(is);
+    if (peek<dquote>(is)) {
+        return read_string(is);
+    } else if (peek<object_open>(is)) {
+        return read_object(is);
+    } else if (peek<array_open>(is)) {
+        //return read_array(is);
     }
-    skip_while<is_ws>(is);
-    return v;
+    throw ParserUnexpectedToken{};
 }
 
+}
+
+inline std::string get_data(const location& loc, std::istream& is) {
+    std::string data;
+    data.resize(loc.length);
+    is.seekg(loc.index, std::ios::beg);
+    is.read(&data[0], data.size());
+    return data;
 }
 
 inline value parse(std::istream& is) {
