@@ -18,13 +18,6 @@ public:
         : runtime_error{"Found unexpected token"} {}
 };
 
-template<typename What>
-struct negate {
-    constexpr bool operator()(char c) const {
-        return !What{}(c);
-    }
-};
-
 inline char peek_next(std::istream& is) {
     using std_traits = std::istream::traits_type;
     auto i{is.peek()};
@@ -49,11 +42,6 @@ bool peek(std::istream& is, Predicate&& predicate) {
     return predicate(is, c);
 }
 
-template<typename Predicate>
-bool peek(std::istream& is) {
-    return peek<Predicate>(is, Predicate{});
-}
-
 inline void skip(std::istream& is) {
     get_next(is);
 }
@@ -64,58 +52,27 @@ bool next(std::istream& is, char& c, Predicate&& predicate) {
 }
 
 template<typename Predicate>
-bool next(std::istream& is, char& c) {
-    return next<Predicate>(is, c, Predicate{});
-}
-
-template<typename Predicate>
-bool next(std::istream& is, Predicate predicate) {
-    char c;
-    return next(is, c, predicate);
-}
-
-template<typename Predicate>
-bool next(std::istream& is) {
-    return next<Predicate>(is, Predicate{});
-}
-
-template<typename Predicate>
-void expect(std::istream& is, Predicate predicate) {
-    if (!next(is, predicate)) {
+void expect(std::istream& is, Predicate&& predicate) {
+    if (!predicate(is, get_next(is))) {
         throw unexpected_token{};
     }
 }
 
 template<typename Predicate>
-void expect(std::istream& is) {
-    next<Predicate>(is, Predicate{});
-}
-
-template<typename Predicate>
-void skip_while(std::istream& is, Predicate predicate) {
-    while (next<Predicate>(is, predicate)) {
+void skip_while(std::istream& is, Predicate&& predicate) {
+    while (predicate(is, get_next(is))) {
         // Do nothing
     }
     is.unget();
 }
 
 template<typename Predicate>
-void skip_while(std::istream& is) {
-    skip_while<Predicate>(is, Predicate{});
-}
-
-template<typename Predicate>
 void read_while(std::istream& is, std::string& s, Predicate predicate) {
     char c;
-    while (next<Predicate>(is, c)) {
+    while (predicate(is, c = get_next(is))) {
         s += c;
     }
     is.unget();
-}
-
-template<typename Predicate>
-void read_while(std::istream& is, std::string& s) {
-    read_while<Predicate>(is, s, Predicate{});
 }
 
 inline void expect_exact(std::istream& is, const std::string &expected) {

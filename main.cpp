@@ -1,13 +1,11 @@
 #include "json.hpp"
-#include <fstream>
 #include <iostream>
 #include <sstream>
 
 int main(int argc, char **argv) {
-    //std::ifstream is{argv[1], std::ios::in | std::ios::binary};
     std::stringstream json{R"({
     "name": "John",
-    "age": 3e1,
+    "age": 3.5e1,
     "alias": null,
     "appearance": {
         "tall": true,

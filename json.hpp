@@ -5,6 +5,7 @@
 #include <cmath>
 #include <map>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -142,11 +143,14 @@ JSON_PARSING_RULE(member_separator) { return c == ':'; }
 
 value_owned_ptr parse_value(std::istream& is);
 
-inline std::string parse_string(std::istream& is) {
+inline std::optional<std::string> try_parse_string(std::istream& is) {
     using namespace parsing;
     using namespace rules;
+    if (!peek(is, dquote)) {
+        return std::nullopt;
+    }
+    skip(is);
     std::string data;
-    expect(is, dquote);
     for (char c{get_next(is)};; c = get_next(is)) {
         if (escape(is, c)) {
             get_next(is);
@@ -159,20 +163,39 @@ inline std::string parse_string(std::istream& is) {
         data.push_back(c);
     }
     expect(is, dquote);
-    return data;
+    return {data};
+}
+
+inline std::string parse_string(std::istream& is) {
+    using namespace parsing;
+    if (auto s{try_parse_string(is)}) {
+        return *s;
+    }
+    throw unexpected_token{};
+}
+
+inline std::optional<bool> try_parse_boolean(std::istream& is) {
+    using namespace parsing;
+    if (peek_next(is) == 't') {
+        expect_exact(is, "true");
+        return {true};
+    }
+    if (peek_next(is) == 'f') {
+        expect_exact(is, "false");
+        return {false};
+    }
+    return std::nullopt;
 }
 
 inline bool parse_boolean(std::istream& is) {
     using namespace parsing;
-    if (peek_next(is) == 't') {
-        expect_exact(is, "true");
-        return true;
+    if (auto v{try_parse_boolean(is)}) {
+        return *v;
     }
-    expect_exact(is, "false");
-    return false;
+    throw unexpected_token{};
 }
 
-inline double parse_number(std::istream& is) {
+inline std::optional<double> try_parse_number(std::istream& is) {
     using namespace parsing;
     using namespace rules;
     int number_sign{1};
@@ -186,10 +209,6 @@ inline double parse_number(std::istream& is) {
     int exponent_sign{1};
     if (peek_next(is) == '0') {
         number_digits.push_back(get_next(is));
-        if (peek_next(is) == '.') {
-            skip(is);
-            read_while(is, fraction_digits, digit);
-        }
     } else {
         char first_digit{};
         if (!next(is, first_digit, digit_1_through_9)) {
@@ -197,6 +216,15 @@ inline double parse_number(std::istream& is) {
         }
         number_digits.push_back(first_digit);
         read_while(is, number_digits, digit);
+    }
+    if (peek_next(is) == '.') {
+        skip(is);
+        char first_digit{};
+        if (!next(is, first_digit, digit)) {
+            throw unexpected_token{};
+        }
+        fraction_digits.push_back(first_digit);
+        read_while(is, fraction_digits, digit);
     }
     auto c{peek_next(is)};
     if (c == 'e' || c == 'E') {
@@ -227,30 +255,33 @@ inline double parse_number(std::istream& is) {
     return number;
 }
 
-inline value_owned_ptr parse_string_value(std::istream& is) {
-    return std::make_unique<string>(parse_string(is));
-}
-
-inline value_owned_ptr parse_boolean_value(std::istream& is) {
-    return std::make_unique<boolean>(parse_boolean(is));
-}
-
-inline value_owned_ptr parse_number_value(std::istream& is) {
-    return std::make_unique<number>(parse_number(is));
-}
-
-inline value_owned_ptr parse_null_value(std::istream& is) {
+inline double parse_number(std::istream& is) {
     using namespace parsing;
-    expect_exact(is, "null");
-    return std::make_unique<null>();
+    if (auto v{try_parse_number(is)}) {
+        return *v;
+    }
+    throw unexpected_token{};
 }
 
-inline value_owned_ptr parse_object_value(std::istream& is) {
+inline bool try_parse_null(std::istream& is) {
+    using namespace parsing;
+    if (peek_next(is) == 'n') {
+        expect_exact(is, "null");
+        return true;
+    }
+    return false;
+}
+
+
+inline std::optional<object> try_parse_object(std::istream& is) {
     using namespace parsing;
     using namespace rules;
-    expect(is, object_open);
+    if (!peek(is, object_open)) {
+        return std::nullopt;
+    }
+    skip(is);
     skip_while(is, ws);
-    auto result{std::make_unique<object>()};
+    object result;
     if (peek(is, object_close)) {
         expect(is, object_close);
         return result;
@@ -263,7 +294,7 @@ inline value_owned_ptr parse_object_value(std::istream& is) {
         skip_while(is, ws);
         expect(is, member_separator);
         auto member_value{parse_value(is)};
-        result->members.emplace(std::move(member_name), std::move(member_value));
+        result.members.emplace(std::move(member_name), std::move(member_value));
         if (peek(is, value_separator)) {
             skip(is);
             skip_while(is, ws);
@@ -276,19 +307,22 @@ inline value_owned_ptr parse_object_value(std::istream& is) {
     return result;
 }
 
-inline value_owned_ptr parse_array_value(std::istream& is) {
+inline std::optional<array> try_parse_array(std::istream& is) {
     using namespace parsing;
     using namespace rules;
-    expect(is, array_open);
+    if (!peek(is, array_open)) {
+        return std::nullopt;
+    }
+    skip(is);
     skip_while(is, ws);
-    auto result{std::make_unique<array>()};
+    array result;
     if (peek(is, array_close)) {
         expect(is, array_close);
         return result;
     }
     while (true) {
         auto element_value{parse_value(is)};
-        result->elements.push_back(std::move(element_value));
+        result.elements.push_back(std::move(element_value));
         if (peek(is, value_separator)) {
             skip(is);
             skip_while(is, ws);
@@ -305,21 +339,25 @@ inline value_owned_ptr parse_value(std::istream& is) {
     using namespace parsing;
     using namespace rules;
     skip_while(is, ws);
-    auto c{peek_next(is)};
-    if (dquote(is, c)) {
-        return parse_string_value(is);
-    } else if (peek(is, object_open)) {
-        return parse_object_value(is);
-    } else if (peek(is, array_open)) {
-        return parse_array_value(is);
+    if (auto v{try_parse_string(is)}) {
+        return std::make_unique<string>(std::move(*v));
     }
-    if (c == 't' || c == 'f') {
-        return parse_boolean_value(is);
+    if (auto v{try_parse_object(is)}) {
+        return std::make_unique<object>(std::move(*v));
     }
-    if (c == 'n') {
-        return parse_null_value(is);
+    if (auto v{try_parse_array(is)}) {
+        return std::make_unique<array>(std::move(*v));
     }
-    return parse_number_value(is);
+    if (auto v{try_parse_boolean(is)}) {
+        return std::make_unique<boolean>(std::move(*v));
+    }
+    if (try_parse_null(is)) {
+        return std::make_unique<null>();
+    }
+    if (auto v{try_parse_number(is)}) {
+        return std::make_unique<number>(std::move(*v));
+    }
+    throw unexpected_token{};
 }
 
 }
