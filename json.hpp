@@ -17,6 +17,38 @@ public:
     explicit type_mismatch() : runtime_error{"Type mismatch"} {}
 };
 
+template<typename Key, typename Value>
+class dict {
+    using container = std::map<Key, Value>;
+    using const_iterator = typename container::const_iterator;
+    using iterator = typename container::iterator;
+    using key_type = Key;
+    using value_type = Value;
+
+public:
+    const Value& operator[](const std::string& key) const {
+        return m_data.at(key);
+    }
+
+    Value& operator[](const std::string& key) { return m_data.at(key); }
+
+    size_t size() const { return m_data.size(); }
+    iterator begin() const { return m_data.begin(); }
+    const_iterator cbegin() const { return m_data.cbegin(); }
+    iterator end() const { return m_data.end(); }
+    const_iterator cend() const { return m_data.cend(); }
+    bool empty() const { return m_data.empty(); }
+    size_t count(const std::string& key) const { return m_data.count(key); }
+
+    template<typename... Args>
+	std::pair<iterator, bool> emplace(Args&&... args) {
+        return m_data.emplace(std::forward<Args>(args)...);
+    }
+
+private:
+    container m_data;
+};
+
 namespace detail {
 
 enum class value_type {
@@ -35,11 +67,18 @@ public:
     value(std::unique_ptr<value_impl_base> &&impl) : m_impl{std::move(impl)} {}
 
     const std::string& as_string() const;
-    const std::map<std::string, value>& as_object() const;
+    const dict<std::string, value>& as_object() const;
     const std::vector<value>& as_array() const;
     double as_number() const;
     bool as_boolean() const;
     bool is_null() const;
+
+    std::string& as_string();
+    dict<std::string, value>& as_object();
+    std::vector<value>& as_array();
+    double as_number();
+    bool as_boolean();
+    bool is_null();
 
 private:
     std::unique_ptr<value_impl_base> m_impl;
@@ -59,7 +98,7 @@ struct string_impl : public value_impl_base {
 
 struct object_impl : public value_impl_base {
     object_impl() : value_impl_base{value_type::object} {}
-    std::map<std::string, value> members;
+    dict<std::string, value> members;
 };
 
 struct array_impl : public value_impl_base {
@@ -90,7 +129,7 @@ inline const std::string& value::as_string() const {
     return static_cast<const string_impl *>(m_impl.get())->data;
 }
 
-inline const std::map<std::string, value>& value::as_object() const {
+inline const dict<std::string, value>& value::as_object() const {
     if (m_impl->type != value_type::object) {
         throw type_mismatch{};
     }
@@ -119,6 +158,45 @@ inline bool value::as_boolean() const {
 }
 
 inline bool value::is_null() const {
+    return m_impl->type == value_type::null;
+}
+
+inline std::string& value::as_string() {
+    if (m_impl->type != value_type::string) {
+        throw type_mismatch{};
+    }
+    return static_cast<string_impl *>(m_impl.get())->data;
+}
+
+inline dict<std::string, value>& value::as_object() {
+    if (m_impl->type != value_type::object) {
+        throw type_mismatch{};
+    }
+    return static_cast<object_impl *>(m_impl.get())->members;
+}
+
+inline std::vector<value>& value::as_array() {
+    if (m_impl->type != value_type::array) {
+        throw type_mismatch{};
+    }
+    return static_cast<array_impl*>(m_impl.get())->elements;
+}
+
+inline double value::as_number() {
+    if (m_impl->type != value_type::number) {
+        throw type_mismatch{};
+    }
+    return static_cast<number_impl *>(m_impl.get())->data;
+}
+
+inline bool value::as_boolean() {
+    if (m_impl->type != value_type::boolean) {
+        throw type_mismatch{};
+    }
+    return static_cast<boolean_impl *>(m_impl.get())->data;
+}
+
+inline bool value::is_null() {
     return m_impl->type == value_type::null;
 }
 
