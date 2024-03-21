@@ -46,7 +46,7 @@ inline char get_next(std::istream& is) {
 template<typename Predicate>
 bool peek(std::istream& is, Predicate&& predicate) {
     auto c{peek_next(is)};
-    return predicate(c);
+    return predicate(is, c);
 }
 
 template<typename Predicate>
@@ -60,7 +60,7 @@ inline void skip(std::istream& is) {
 
 template<typename Predicate>
 bool next(std::istream& is, char& c, Predicate&& predicate) {
-    return predicate(c = get_next(is));
+    return predicate(is, c = get_next(is));
 }
 
 template<typename Predicate>
@@ -120,7 +120,7 @@ void read_while(std::istream& is, std::string& s) {
 
 inline void expect_exact(std::istream& is, const std::string &expected) {
     for (size_t i{}; i < expected.size(); ++i) {
-        expect(is, [&] (char c) { return c == expected[i]; });
+        expect(is, [&] (std::istream& is, char c) { return c == expected[i]; });
     }
 }
 

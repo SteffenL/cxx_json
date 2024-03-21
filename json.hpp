@@ -119,33 +119,40 @@ inline bool value::is_null() const {
 }
 
 namespace detail {
+namespace rules {
 
-constexpr inline bool eol(char c) { return c == '\r' || c == '\n'; }
-constexpr inline bool ws(char c) { return c == ' ' || c == '\t' || eol(c); }
-constexpr inline bool dquote(char c) {return c == '"'; }
-struct digit { constexpr bool operator()(char c) const { return c >= '0' && c <= '9'; } };
-struct digit_1_through_9 { constexpr bool operator()(char c) const { return c >= '1' && c <= '9'; } };
-struct decimal_point { constexpr bool operator()(char c) const { return c == '.'; } };
-inline bool escape(char c) { return c == '\\'; }
-struct object_open { constexpr bool operator()(char c) const { return c == '{'; } };
-struct object_close { constexpr bool operator()(char c) const { return c == '}'; } };
-struct array_open { constexpr bool operator()(char c) const { return c == '['; } };
-struct array_close { constexpr bool operator()(char c) const { return c == ']'; } };
-struct value_separator { constexpr bool operator()(char c) const { return c == ','; } };
-struct member_separator { constexpr bool operator()(char c) const { return c == ':'; } };
+#define JSON_PARSING_RULE(name) \
+    constexpr inline bool name(std::istream& is, char c)
+
+JSON_PARSING_RULE(eol) { return c == '\r' || c == '\n'; }
+JSON_PARSING_RULE(ws) { return c == ' ' || c == '\t' || eol(is, c); }
+JSON_PARSING_RULE(dquote) {return c == '"'; }
+JSON_PARSING_RULE(digit) { return c >= '0' && c <= '9'; }
+JSON_PARSING_RULE(digit_1_through_9) { return c >= '1' && c <= '9'; }
+JSON_PARSING_RULE(decimal_point) { return c == '.'; }
+JSON_PARSING_RULE(escape) { return c == '\\'; }
+JSON_PARSING_RULE(object_open) { return c == '{'; }
+JSON_PARSING_RULE(object_close) { return c == '}'; }
+JSON_PARSING_RULE(array_open) { return c == '['; }
+JSON_PARSING_RULE(array_close) { return c == ']'; }
+JSON_PARSING_RULE(value_separator) { return c == ','; }
+JSON_PARSING_RULE(member_separator) { return c == ':'; }
+
+} // namespace rules
 
 value_owned_ptr parse_value(std::istream& is);
 
 inline std::string parse_string(std::istream& is) {
     using namespace parsing;
+    using namespace rules;
     std::string data;
     expect(is, dquote);
     for (char c{get_next(is)};; c = get_next(is)) {
-        if (escape(c)) {
+        if (escape(is, c)) {
             get_next(is);
             continue;
         }
-        if (dquote(c)) {
+        if (dquote(is, c)) {
             is.unget();
             break;
         }
@@ -167,6 +174,7 @@ inline bool parse_boolean(std::istream& is) {
 
 inline double parse_number(std::istream& is) {
     using namespace parsing;
+    using namespace rules;
     int number_sign{1};
     if (peek_next(is) == '-') {
         skip(is);
@@ -180,15 +188,15 @@ inline double parse_number(std::istream& is) {
         number_digits.push_back(get_next(is));
         if (peek_next(is) == '.') {
             skip(is);
-            read_while<digit>(is, fraction_digits);
+            read_while(is, fraction_digits, digit);
         }
     } else {
         char first_digit{};
-        if (!next<digit_1_through_9>(is, first_digit)) {
+        if (!next(is, first_digit, digit_1_through_9)) {
             throw unexpected_token{};
         }
         number_digits.push_back(first_digit);
-        read_while<digit>(is, number_digits);
+        read_while(is, number_digits, digit);
     }
     auto c{peek_next(is)};
     if (c == 'e' || c == 'E') {
@@ -200,7 +208,7 @@ inline double parse_number(std::istream& is) {
                 exponent_sign = -1;
             }
         }
-        read_while<digit>(is, exponent_digits);
+        read_while(is, exponent_digits, digit);
     }
     double number{std::stod(number_digits)};
     if (!fraction_digits.empty()) {
@@ -239,11 +247,12 @@ inline value_owned_ptr parse_null_value(std::istream& is) {
 
 inline value_owned_ptr parse_object_value(std::istream& is) {
     using namespace parsing;
-    expect<object_open>(is);
+    using namespace rules;
+    expect(is, object_open);
     skip_while(is, ws);
     auto result{std::make_unique<object>()};
-    if (peek<object_close>(is)) {
-        expect<object_close>(is);
+    if (peek(is, object_close)) {
+        expect(is, object_close);
         return result;
     }
     while (true) {
@@ -252,10 +261,10 @@ inline value_owned_ptr parse_object_value(std::istream& is) {
         }
         auto member_name{parse_string(is)};
         skip_while(is, ws);
-        expect<member_separator>(is);
+        expect(is, member_separator);
         auto member_value{parse_value(is)};
         result->members.emplace(std::move(member_name), std::move(member_value));
-        if (peek<value_separator>(is)) {
+        if (peek(is, value_separator)) {
             skip(is);
             skip_while(is, ws);
             continue;
@@ -263,23 +272,24 @@ inline value_owned_ptr parse_object_value(std::istream& is) {
         break;
     }
     skip_while(is, ws);
-    expect<object_close>(is);
+    expect(is, object_close);
     return result;
 }
 
 inline value_owned_ptr parse_array_value(std::istream& is) {
     using namespace parsing;
-    expect<array_open>(is);
+    using namespace rules;
+    expect(is, array_open);
     skip_while(is, ws);
     auto result{std::make_unique<array>()};
-    if (peek<array_close>(is)) {
-        expect<array_close>(is);
+    if (peek(is, array_close)) {
+        expect(is, array_close);
         return result;
     }
     while (true) {
         auto element_value{parse_value(is)};
         result->elements.push_back(std::move(element_value));
-        if (peek<value_separator>(is)) {
+        if (peek(is, value_separator)) {
             skip(is);
             skip_while(is, ws);
             continue;
@@ -287,19 +297,20 @@ inline value_owned_ptr parse_array_value(std::istream& is) {
         break;
     }
     skip_while(is, ws);
-    expect<array_close>(is);
+    expect(is, array_close);
     return result;
 }
 
 inline value_owned_ptr parse_value(std::istream& is) {
     using namespace parsing;
+    using namespace rules;
     skip_while(is, ws);
     auto c{peek_next(is)};
-    if (dquote(c)) {
+    if (dquote(is, c)) {
         return parse_string_value(is);
-    } else if (peek<object_open>(is)) {
+    } else if (peek(is, object_open)) {
         return parse_object_value(is);
-    } else if (peek<array_open>(is)) {
+    } else if (peek(is, array_open)) {
         return parse_array_value(is);
     }
     if (c == 't' || c == 'f') {
