@@ -28,12 +28,6 @@ public:
         : runtime_error{"Parser reached end of file unexpectedly"} {}
 };
 
-class ParserUnexpectedVariable : public std::runtime_error {
-public:
-    explicit ParserUnexpectedVariable(const std::string& name)
-        : runtime_error{"Parser found unexpected variable: " + name} {}
-};
-
 class TypeMismatch : public std::runtime_error {
 public:
     explicit TypeMismatch() : runtime_error{"Type mismatch"} {}
@@ -74,9 +68,6 @@ struct value {
     double as_number() const;
     bool as_boolean() const;
     bool is_null() const;
-
-    template<typename T>
-    void get_data(T& data) const;
 };
 
 struct string : public value {
@@ -148,21 +139,6 @@ inline bool value::as_boolean() const {
 
 inline bool value::is_null() const {
     return type == value_type::null;
-}
-
-template<>
-inline void value::get_data(std::string& data) const {
-    data = as_string();
-}
-
-template<>
-inline void value::get_data(object& data) const {
-    data = as_object();
-}
-
-template<>
-inline void value::get_data(double& data) const {
-    data = as_number();
 }
 
 namespace detail {
