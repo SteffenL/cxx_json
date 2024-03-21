@@ -120,9 +120,9 @@ inline bool value::is_null() const {
 
 namespace detail {
 
-inline bool eol(char c) { return c == '\r' || c == '\n'; }
-inline bool ws(char c) { return c == ' ' || c == '\t' || eol(c); }
-inline bool dquote(char c) {return c == '"'; }
+constexpr inline bool eol(char c) { return c == '\r' || c == '\n'; }
+constexpr inline bool ws(char c) { return c == ' ' || c == '\t' || eol(c); }
+constexpr inline bool dquote(char c) {return c == '"'; }
 struct digit { constexpr bool operator()(char c) const { return c >= '0' && c <= '9'; } };
 struct digit_1_through_9 { constexpr bool operator()(char c) const { return c >= '1' && c <= '9'; } };
 struct decimal_point { constexpr bool operator()(char c) const { return c == '.'; } };
@@ -294,14 +294,14 @@ inline value_owned_ptr parse_array_value(std::istream& is) {
 inline value_owned_ptr parse_value(std::istream& is) {
     using namespace parsing;
     skip_while(is, ws);
-    if (peek(is, dquote)) {
+    auto c{peek_next(is)};
+    if (dquote(c)) {
         return parse_string_value(is);
     } else if (peek<object_open>(is)) {
         return parse_object_value(is);
     } else if (peek<array_open>(is)) {
         return parse_array_value(is);
     }
-    auto c{peek_next(is)};
     if (c == 't' || c == 'f') {
         return parse_boolean_value(is);
     }
