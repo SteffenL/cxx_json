@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-//#include <variant>
 
 namespace json {
 
@@ -34,7 +33,7 @@ public:
         : runtime_error{"Parser found unexpected variable: " + name} {}
 };
 
-enum class value_type {
+enum class node_type {
     object,
     array,
     string,
@@ -48,49 +47,10 @@ struct location {
     size_t length{};
 };
 
-struct member {
-    location name;
-    location value;
+struct node {
+    node_type type{};
+    location location;
 };
-
-struct string {
-    location value;
-};
-
-struct object {
-    std::vector<member> members;
-};
-
-struct value {
-    value_type type{};
-    location loc;
-    struct object object;
-    struct string string;
-};
-
-/*struct string : public location {
-    location value;
-};
-
-struct member : public location {
-    string name;
-    location value;
-};
-
-struct number : public location {};
-struct boolean : public location {};
-struct null : public location {};
-
-struct object : public location {
-    std::vector<member> members;
-};
-
-struct array : public location {
-    std::vector<location> elements;
-};
-*/
-
-//using value = std::variant<object, array, string, number, boolean, null>;
 
 namespace detail {
 
@@ -201,14 +161,13 @@ inline size_t get_offset(std::istream& is) {
     return static_cast<size_t>(pos);
 }
 
-value read_value(std::istream& is);
+node parse_value(std::istream& is);
 
-inline value read_string(std::istream& is) {
-    value v;
-    v.type = value_type::string;
-    v.loc.index = get_offset(is);
+inline node parse_string(std::istream& is) {
+    node v;
+    v.type = node_type::string;
+    v.location.index = get_offset(is);
     expect<dquote>(is);
-    v.string.value.index = get_offset(is);
     for (char c{get_next(is)};; c = get_next(is)) {
         if (escape{}(c)) {
             get_next(is);
@@ -219,33 +178,30 @@ inline value read_string(std::istream& is) {
             break;
         }
     }
-    v.string.value.length = get_offset(is) - v.string.value.index;
     expect<dquote>(is);
-    v.loc.length = get_offset(is) - v.loc.index;
+    v.location.length = get_offset(is) - v.location.index;
     return v;
 }
 
-inline value read_object(std::istream& is) {
-    value v;
-    v.type = value_type::object;
-    v.loc.index = get_offset(is);
+inline node parse_object(std::istream& is) {
+    node v;
+    v.type = node_type::object;
+    v.location.index = get_offset(is);
     expect<object_open>(is);
     skip_while<ws>(is);
     if (peek<object_close>(is)) {
         expect<object_close>(is);
-        v.loc.length = get_offset(is) - v.loc.index;
+        v.location.length = get_offset(is) - v.location.index;
         return v;
     }
     while (true) {
         if (!peek<dquote>(is)) {
             throw ParserUnexpectedToken{};
         }
-        member m;
-        m.name = read_string(is).loc;
+        parse_string(is);
         skip_while<ws>(is);
         expect<member_separator>(is);
-        m.value = read_value(is).loc;
-        v.object.members.push_back(std::move(m));
+        parse_value(is);
         if (peek<value_separator>(is)) {
             skip(is);
             skip_while<ws>(is);
@@ -255,7 +211,7 @@ inline value read_object(std::istream& is) {
     }
     skip_while<ws>(is);
     expect<object_close>(is);
-    v.loc.length = get_offset(is) - v.loc.index;
+    v.location.length = get_offset(is) - v.location.index;
     return v;
 }
 
@@ -268,12 +224,12 @@ inline value read_object(std::istream& is) {
     return {};
 }*/
 
-inline value read_value(std::istream& is) {
+inline node parse_value(std::istream& is) {
     skip_while<ws>(is);
     if (peek<dquote>(is)) {
-        return read_string(is);
+        return parse_string(is);
     } else if (peek<object_open>(is)) {
-        return read_object(is);
+        return parse_object(is);
     } else if (peek<array_open>(is)) {
         //return read_array(is);
     }
@@ -290,9 +246,15 @@ inline std::string get_data(const location& loc, std::istream& is) {
     return data;
 }
 
-inline value parse(std::istream& is) {
+inline node parse(std::istream& is) {
     using namespace detail;
-    return read_value(is);
+    return parse_value(is);
+}
+
+inline node parse_at(location loc, std::istream& is) {
+    using namespace detail;
+    is.seekg(static_cast<std::streamoff>(loc.index), std::ios::beg);
+    return parse(is);
 }
 
 }
