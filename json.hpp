@@ -17,6 +17,8 @@ public:
     explicit type_mismatch() : runtime_error{"Type mismatch"} {}
 };
 
+namespace detail {
+
 enum class value_type {
     object,
     array,
@@ -26,100 +28,100 @@ enum class value_type {
     null
 };
 
-struct value;
-struct string;
-struct object;
-struct array;
-struct number;
-struct boolean;
+struct value_impl_base;
 
-using value_owned_ptr = std::unique_ptr<value>;
-
-struct value {
-    value(value_type type) : type{type} {}
-    virtual ~value() = default;
-    value_type type{};
+class value {
+public:
+    value(std::unique_ptr<value_impl_base> &&impl) : m_impl{std::move(impl)} {}
 
     const std::string& as_string() const;
-    const std::map<std::string, value_owned_ptr>& as_object() const;
-    const std::vector<value_owned_ptr>& as_array() const;
+    const std::map<std::string, value>& as_object() const;
+    const std::vector<value>& as_array() const;
     double as_number() const;
     bool as_boolean() const;
     bool is_null() const;
+
+private:
+    std::unique_ptr<value_impl_base> m_impl;
 };
 
-struct string : public value {
-    string() : value{value_type::string} {}
-    string(std::string &&data) : value{value_type::string}, data{std::move(data)} {}
+struct value_impl_base {
+    value_impl_base(value_type type) : type{type} {}
+    virtual ~value_impl_base() = default;
+    value_type type{};
+};
+
+struct string_impl : public value_impl_base {
+    string_impl() : value_impl_base{value_type::string} {}
+    string_impl(std::string &&data) : value_impl_base{value_type::string}, data{std::move(data)} {}
     std::string data;
 };
 
-struct object : public value {
-    object() : value{value_type::object} {}
-    std::map<std::string, value_owned_ptr> members;
+struct object_impl : public value_impl_base {
+    object_impl() : value_impl_base{value_type::object} {}
+    std::map<std::string, value> members;
 };
 
-struct array : public value {
-    array() : value{value_type::array} {}
-    std::vector<value_owned_ptr> elements;
+struct array_impl : public value_impl_base {
+    array_impl() : value_impl_base{value_type::array} {}
+    std::vector<value> elements;
 };
 
-struct number : public value {
-    number() : value{value_type::number} {}
-    number(double data) : value{value_type::number}, data{data} {}
+struct number_impl : public value_impl_base {
+    number_impl() : value_impl_base{value_type::number} {}
+    number_impl(double data) : value_impl_base{value_type::number}, data{data} {}
     double data{};
 };
 
-struct boolean : public value {
-    boolean() : value{value_type::boolean} {}
-    boolean(bool data) : value{value_type::boolean}, data{data} {}
+struct boolean_impl : public value_impl_base {
+    boolean_impl() : value_impl_base{value_type::boolean} {}
+    boolean_impl(bool data) : value_impl_base{value_type::boolean}, data{data} {}
     bool data{};
 };
 
-struct null : public value {
-    null() : value{value_type::null} {}
+struct null : public value_impl_base {
+    null() : value_impl_base{value_type::null} {}
 };
 
 inline const std::string& value::as_string() const {
-    if (type != value_type::string) {
+    if (m_impl->type != value_type::string) {
         throw type_mismatch{};
     }
-    return dynamic_cast<const string *>(this)->data;
+    return static_cast<const string_impl *>(m_impl.get())->data;
 }
 
-inline const std::map<std::string, value_owned_ptr>& value::as_object() const {
-    if (type != value_type::object) {
+inline const std::map<std::string, value>& value::as_object() const {
+    if (m_impl->type != value_type::object) {
         throw type_mismatch{};
     }
-    return dynamic_cast<const object *>(this)->members;
+    return static_cast<const object_impl *>(m_impl.get())->members;
 }
 
-inline const std::vector<value_owned_ptr>& value::as_array() const {
-    if (type != value_type::array) {
+inline const std::vector<value>& value::as_array() const {
+    if (m_impl->type != value_type::array) {
         throw type_mismatch{};
     }
-    return dynamic_cast<const array*>(this)->elements;
+    return static_cast<const array_impl*>(m_impl.get())->elements;
 }
 
 inline double value::as_number() const {
-    if (type != value_type::number) {
+    if (m_impl->type != value_type::number) {
         throw type_mismatch{};
     }
-    return dynamic_cast<const number *>(this)->data;
+    return static_cast<const number_impl *>(m_impl.get())->data;
 }
 
 inline bool value::as_boolean() const {
-    if (type != value_type::boolean) {
+    if (m_impl->type != value_type::boolean) {
         throw type_mismatch{};
     }
-    return dynamic_cast<const boolean *>(this)->data;
+    return static_cast<const boolean_impl *>(m_impl.get())->data;
 }
 
 inline bool value::is_null() const {
-    return type == value_type::null;
+    return m_impl->type == value_type::null;
 }
 
-namespace detail {
 namespace rules {
 
 #define JSON_PARSING_RULE(name) \
@@ -141,7 +143,7 @@ JSON_PARSING_RULE(member_separator) { return c == ':'; }
 
 } // namespace rules
 
-value_owned_ptr parse_value(std::istream& is);
+value parse_value(std::istream& is);
 
 inline std::optional<std::string> try_parse_string(std::istream& is) {
     using namespace parsing;
@@ -273,7 +275,7 @@ inline bool try_parse_null(std::istream& is) {
 }
 
 
-inline std::optional<object> try_parse_object(std::istream& is) {
+inline std::optional<object_impl> try_parse_object(std::istream& is) {
     using namespace parsing;
     using namespace rules;
     if (!peek(is, object_open)) {
@@ -281,7 +283,7 @@ inline std::optional<object> try_parse_object(std::istream& is) {
     }
     skip(is);
     skip_while(is, ws);
-    object result;
+    object_impl result;
     if (peek(is, object_close)) {
         expect(is, object_close);
         return result;
@@ -307,7 +309,7 @@ inline std::optional<object> try_parse_object(std::istream& is) {
     return result;
 }
 
-inline std::optional<array> try_parse_array(std::istream& is) {
+inline std::optional<array_impl> try_parse_array(std::istream& is) {
     using namespace parsing;
     using namespace rules;
     if (!peek(is, array_open)) {
@@ -315,7 +317,7 @@ inline std::optional<array> try_parse_array(std::istream& is) {
     }
     skip(is);
     skip_while(is, ws);
-    array result;
+    array_impl result;
     if (peek(is, array_close)) {
         expect(is, array_close);
         return result;
@@ -335,36 +337,37 @@ inline std::optional<array> try_parse_array(std::istream& is) {
     return result;
 }
 
-inline value_owned_ptr parse_value(std::istream& is) {
+inline value parse_value(std::istream& is) {
     using namespace parsing;
     using namespace rules;
     skip_while(is, ws);
     if (auto v{try_parse_string(is)}) {
-        return std::make_unique<string>(std::move(*v));
+        return {std::make_unique<string_impl>(std::move(*v))};
     }
     if (auto v{try_parse_object(is)}) {
-        return std::make_unique<object>(std::move(*v));
+        return {std::make_unique<object_impl>(std::move(*v))};
     }
     if (auto v{try_parse_array(is)}) {
-        return std::make_unique<array>(std::move(*v));
+        return {std::make_unique<array_impl>(std::move(*v))};
     }
     if (auto v{try_parse_boolean(is)}) {
-        return std::make_unique<boolean>(std::move(*v));
+        return {std::make_unique<boolean_impl>(std::move(*v))};
     }
     if (try_parse_null(is)) {
-        return std::make_unique<null>();
+        return {std::make_unique<null>()};
     }
     if (auto v{try_parse_number(is)}) {
-        return std::make_unique<number>(std::move(*v));
+        return {std::make_unique<number_impl>(std::move(*v))};
     }
     throw unexpected_token{};
 }
 
-}
+} // namespace detail
 
-inline value_owned_ptr parse(std::istream& is) {
-    using namespace detail;
-    return parse_value(is);
+using value = detail::value;
+
+inline value parse(std::istream& is) {
+    return detail::parse_value(is);
 }
 
 }
