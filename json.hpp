@@ -1,7 +1,8 @@
 #pragma once
 
+#include "parsing.hpp"
+
 #include <cmath>
-#include <istream>
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -9,18 +10,6 @@
 #include <vector>
 
 namespace json {
-
-class reached_end : public std::runtime_error {
-public:
-    explicit reached_end()
-        : runtime_error{"Reached end of file"} {}
-};
-
-class unexpected_token : public std::runtime_error {
-public:
-    explicit unexpected_token()
-        : runtime_error{"Found unexpected token"} {}
-};
 
 class type_mismatch : public std::runtime_error {
 public:
@@ -131,13 +120,13 @@ inline bool value::is_null() const {
 
 namespace detail {
 
-struct eol { constexpr bool operator()(char c) const { return c == '\r' || c == '\n'; } };
-struct ws { constexpr bool operator()(char c) const { return c == ' ' || c == '\t' || eol{}(c); }; };
-struct dquote { constexpr bool operator()(char c) const { return c == '"'; } };
+inline bool eol(char c) { return c == '\r' || c == '\n'; }
+inline bool ws(char c) { return c == ' ' || c == '\t' || eol(c); }
+inline bool dquote(char c) {return c == '"'; }
 struct digit { constexpr bool operator()(char c) const { return c >= '0' && c <= '9'; } };
 struct digit_1_through_9 { constexpr bool operator()(char c) const { return c >= '1' && c <= '9'; } };
 struct decimal_point { constexpr bool operator()(char c) const { return c == '.'; } };
-struct escape { constexpr bool operator()(char c) const { return c == '\\'; } };
+inline bool escape(char c) { return c == '\\'; }
 struct object_open { constexpr bool operator()(char c) const { return c == '{'; } };
 struct object_close { constexpr bool operator()(char c) const { return c == '}'; } };
 struct array_open { constexpr bool operator()(char c) const { return c == '['; } };
@@ -145,121 +134,29 @@ struct array_close { constexpr bool operator()(char c) const { return c == ']'; 
 struct value_separator { constexpr bool operator()(char c) const { return c == ','; } };
 struct member_separator { constexpr bool operator()(char c) const { return c == ':'; } };
 
-template<typename What>
-struct negate {
-    constexpr bool operator()(char c) const {
-        return !What{}(c);
-    }
-};
-
-inline char peek_next(std::istream& is) {
-    using std_traits = std::istream::traits_type;
-    auto i{is.peek()};
-    if (std_traits::eq_int_type(i, std_traits::eof())) {
-        throw reached_end{};
-    }
-    return std_traits::to_char_type(i);
-}
-
-inline char get_next(std::istream& is) {
-    using std_traits = std::istream::traits_type;
-    auto i{is.get()};
-    if (std_traits::eq_int_type(i, std_traits::eof())) {
-        throw reached_end{};
-    }
-    return std_traits::to_char_type(i);
-}
-
-template<typename Predicate>
-bool peek(std::istream& is) {
-    auto c{peek_next(is)};
-    return Predicate{}(c);
-}
-
-inline void skip(std::istream& is) {
-    get_next(is);
-}
-
-template<typename Predicate>
-bool next(std::istream& is, char& c) {
-    return Predicate{}(c = get_next(is));
-}
-
-template<typename Predicate>
-bool next(std::istream& is, char& c, Predicate predicate) {
-    return predicate(c = get_next(is));
-}
-
-template<typename Predicate>
-bool next(std::istream& is) {
-    char c;
-    return next<Predicate>(is, c);
-}
-
-template<typename Predicate>
-bool next(std::istream& is, Predicate predicate) {
-    char c;
-    return next(is, c, predicate);
-}
-
-template<typename Predicate>
-void expect(std::istream& is) {
-    if (!next<Predicate>(is)) {
-        throw unexpected_token{};
-    }
-}
-
-template<typename Predicate>
-void expect(std::istream& is, Predicate predicate) {
-    if (!next(is, predicate)) {
-        throw unexpected_token{};
-    }
-}
-
-template<typename Predicate>
-void skip_while(std::istream& is) {
-    while (next<Predicate>(is)) {
-        // Do nothing
-    }
-    is.unget();
-}
-
-template<typename Predicate>
-void read_while(std::istream& is, std::string& s) {
-    char c;
-    while (next<Predicate>(is, c)) {
-        s += c;
-    }
-    is.unget();
-}
-
-inline void expect_exact(std::istream& is, const std::string &expected) {
-    for (size_t i{}; i < expected.size(); ++i) {
-        expect(is, [&] (char c) { return c == expected[i]; });
-    }
-}
-
 value_owned_ptr parse_value(std::istream& is);
 
 inline std::string parse_string(std::istream& is) {
+    using namespace parsing;
     std::string data;
-    expect<dquote>(is);
+    expect(is, dquote);
     for (char c{get_next(is)};; c = get_next(is)) {
-        if (escape{}(c)) {
+        if (escape(c)) {
             get_next(is);
             continue;
         }
-        if (dquote{}(c)) {
+        if (dquote(c)) {
             is.unget();
             break;
         }
         data.push_back(c);
     }
-    expect<dquote>(is);
+    expect(is, dquote);
     return data;
 }
 
 inline bool parse_boolean(std::istream& is) {
+    using namespace parsing;
     if (peek_next(is) == 't') {
         expect_exact(is, "true");
         return true;
@@ -269,6 +166,7 @@ inline bool parse_boolean(std::istream& is) {
 }
 
 inline double parse_number(std::istream& is) {
+    using namespace parsing;
     int number_sign{1};
     if (peek_next(is) == '-') {
         skip(is);
@@ -334,42 +232,45 @@ inline value_owned_ptr parse_number_value(std::istream& is) {
 }
 
 inline value_owned_ptr parse_null_value(std::istream& is) {
+    using namespace parsing;
     expect_exact(is, "null");
     return std::make_unique<null>();
 }
 
 inline value_owned_ptr parse_object_value(std::istream& is) {
+    using namespace parsing;
     expect<object_open>(is);
-    skip_while<ws>(is);
+    skip_while(is, ws);
     auto result{std::make_unique<object>()};
     if (peek<object_close>(is)) {
         expect<object_close>(is);
         return result;
     }
     while (true) {
-        if (!peek<dquote>(is)) {
+        if (!peek(is, dquote)) {
             throw unexpected_token{};
         }
         auto member_name{parse_string(is)};
-        skip_while<ws>(is);
+        skip_while(is, ws);
         expect<member_separator>(is);
         auto member_value{parse_value(is)};
         result->members.emplace(std::move(member_name), std::move(member_value));
         if (peek<value_separator>(is)) {
             skip(is);
-            skip_while<ws>(is);
+            skip_while(is, ws);
             continue;
         }
         break;
     }
-    skip_while<ws>(is);
+    skip_while(is, ws);
     expect<object_close>(is);
     return result;
 }
 
 inline value_owned_ptr parse_array_value(std::istream& is) {
+    using namespace parsing;
     expect<array_open>(is);
-    skip_while<ws>(is);
+    skip_while(is, ws);
     auto result{std::make_unique<array>()};
     if (peek<array_close>(is)) {
         expect<array_close>(is);
@@ -380,19 +281,20 @@ inline value_owned_ptr parse_array_value(std::istream& is) {
         result->elements.push_back(std::move(element_value));
         if (peek<value_separator>(is)) {
             skip(is);
-            skip_while<ws>(is);
+            skip_while(is, ws);
             continue;
         }
         break;
     }
-    skip_while<ws>(is);
+    skip_while(is, ws);
     expect<array_close>(is);
     return result;
 }
 
 inline value_owned_ptr parse_value(std::istream& is) {
-    skip_while<ws>(is);
-    if (peek<dquote>(is)) {
+    using namespace parsing;
+    skip_while(is, ws);
+    if (peek(is, dquote)) {
         return parse_string_value(is);
     } else if (peek<object_open>(is)) {
         return parse_object_value(is);
