@@ -23,7 +23,8 @@ class dict {
     using const_iterator = typename container::const_iterator;
     using iterator = typename container::iterator;
     using key_type = Key;
-    using value_type = Value;
+    using mapped_type = Value;
+    using value_type = std::pair<const Key, Value>;
 
 public:
     const Value& operator[](const std::string& key) const {
@@ -32,12 +33,14 @@ public:
 
     Value& operator[](const std::string& key) { return m_data.at(key); }
 
-    size_t size() const { return m_data.size(); }
-    iterator begin() const { return m_data.begin(); }
-    const_iterator cbegin() const { return m_data.cbegin(); }
-    iterator end() const { return m_data.end(); }
-    const_iterator cend() const { return m_data.cend(); }
-    bool empty() const { return m_data.empty(); }
+    size_t size() const noexcept { return m_data.size(); }
+    iterator begin() noexcept { return m_data.begin(); }
+    const_iterator begin() const noexcept { return m_data.begin(); }
+    const_iterator cbegin() const noexcept { return m_data.cbegin(); }
+    iterator end() noexcept { return m_data.end(); }
+    const_iterator end() const noexcept { return m_data.end(); }
+    const_iterator cend() const noexcept { return m_data.cend(); }
+    bool empty() const noexcept { return m_data.empty(); }
     size_t count(const std::string& key) const { return m_data.count(key); }
 
     template<typename... Args>
@@ -51,19 +54,19 @@ private:
 
 namespace detail {
 
-enum class value_type {
-    object,
-    array,
-    string,
-    number,
-    boolean,
-    null
-};
-
 struct value_impl_base;
 
 class value {
 public:
+    enum class type {
+        object,
+        array,
+        string,
+        number,
+        boolean,
+        null
+    };
+
     value(std::unique_ptr<value_impl_base> &&impl) : m_impl{std::move(impl)} {}
 
     const std::string& as_string() const;
@@ -80,125 +83,129 @@ public:
     bool as_boolean();
     bool is_null();
 
+    type get_type() const;
+
 private:
     std::unique_ptr<value_impl_base> m_impl;
 };
 
 struct value_impl_base {
-    value_impl_base(value_type type) : type{type} {}
+    value_impl_base(value::type type) : type{type} {}
     virtual ~value_impl_base() = default;
-    value_type type{};
+    value::type type{};
 };
 
 struct string_impl : public value_impl_base {
-    string_impl() : value_impl_base{value_type::string} {}
-    string_impl(std::string &&data) : value_impl_base{value_type::string}, data{std::move(data)} {}
+    string_impl() : value_impl_base{value::type::string} {}
+    string_impl(std::string &&data) : value_impl_base{value::type::string}, data{std::move(data)} {}
     std::string data;
 };
 
 struct object_impl : public value_impl_base {
-    object_impl() : value_impl_base{value_type::object} {}
+    object_impl() : value_impl_base{value::type::object} {}
     dict<std::string, value> members;
 };
 
 struct array_impl : public value_impl_base {
-    array_impl() : value_impl_base{value_type::array} {}
+    array_impl() : value_impl_base{value::type::array} {}
     std::vector<value> elements;
 };
 
 struct number_impl : public value_impl_base {
-    number_impl() : value_impl_base{value_type::number} {}
-    number_impl(double data) : value_impl_base{value_type::number}, data{data} {}
+    number_impl() : value_impl_base{value::type::number} {}
+    number_impl(double data) : value_impl_base{value::type::number}, data{data} {}
     double data{};
 };
 
 struct boolean_impl : public value_impl_base {
-    boolean_impl() : value_impl_base{value_type::boolean} {}
-    boolean_impl(bool data) : value_impl_base{value_type::boolean}, data{data} {}
+    boolean_impl() : value_impl_base{value::type::boolean} {}
+    boolean_impl(bool data) : value_impl_base{value::type::boolean}, data{data} {}
     bool data{};
 };
 
 struct null : public value_impl_base {
-    null() : value_impl_base{value_type::null} {}
+    null() : value_impl_base{value::type::null} {}
 };
 
 inline const std::string& value::as_string() const {
-    if (m_impl->type != value_type::string) {
+    if (m_impl->type != value::type::string) {
         throw type_mismatch{};
     }
     return static_cast<const string_impl *>(m_impl.get())->data;
 }
 
 inline const dict<std::string, value>& value::as_object() const {
-    if (m_impl->type != value_type::object) {
+    if (m_impl->type != value::type::object) {
         throw type_mismatch{};
     }
     return static_cast<const object_impl *>(m_impl.get())->members;
 }
 
 inline const std::vector<value>& value::as_array() const {
-    if (m_impl->type != value_type::array) {
+    if (m_impl->type != value::type::array) {
         throw type_mismatch{};
     }
     return static_cast<const array_impl*>(m_impl.get())->elements;
 }
 
 inline double value::as_number() const {
-    if (m_impl->type != value_type::number) {
+    if (m_impl->type != value::type::number) {
         throw type_mismatch{};
     }
     return static_cast<const number_impl *>(m_impl.get())->data;
 }
 
 inline bool value::as_boolean() const {
-    if (m_impl->type != value_type::boolean) {
+    if (m_impl->type != value::type::boolean) {
         throw type_mismatch{};
     }
     return static_cast<const boolean_impl *>(m_impl.get())->data;
 }
 
 inline bool value::is_null() const {
-    return m_impl->type == value_type::null;
+    return m_impl->type == value::type::null;
 }
 
 inline std::string& value::as_string() {
-    if (m_impl->type != value_type::string) {
+    if (m_impl->type != value::type::string) {
         throw type_mismatch{};
     }
     return static_cast<string_impl *>(m_impl.get())->data;
 }
 
 inline dict<std::string, value>& value::as_object() {
-    if (m_impl->type != value_type::object) {
+    if (m_impl->type != value::type::object) {
         throw type_mismatch{};
     }
     return static_cast<object_impl *>(m_impl.get())->members;
 }
 
 inline std::vector<value>& value::as_array() {
-    if (m_impl->type != value_type::array) {
+    if (m_impl->type != value::type::array) {
         throw type_mismatch{};
     }
     return static_cast<array_impl*>(m_impl.get())->elements;
 }
 
 inline double value::as_number() {
-    if (m_impl->type != value_type::number) {
+    if (m_impl->type != value::type::number) {
         throw type_mismatch{};
     }
     return static_cast<number_impl *>(m_impl.get())->data;
 }
 
 inline bool value::as_boolean() {
-    if (m_impl->type != value_type::boolean) {
+    if (m_impl->type != value::type::boolean) {
         throw type_mismatch{};
     }
     return static_cast<boolean_impl *>(m_impl.get())->data;
 }
 
 inline bool value::is_null() {
-    return m_impl->type == value_type::null;
+    return m_impl->type == value::type::null;
 }
+
+inline value::type value::get_type() const { return m_impl->type; }
 
 namespace rules {
 
