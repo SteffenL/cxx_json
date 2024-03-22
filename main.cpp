@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 
-void dump(std::ostream& os, const json::value& v, size_t indent_level) {
+void dump_as_yaml(std::ostream& os, const json::value& v, size_t indent_level) {
     using t = json::value::type;
     auto indent = [] (size_t level) { return std::string(level * 2, ' '); };
     switch (v.get_type()) {
@@ -14,9 +14,9 @@ void dump(std::ostream& os, const json::value& v, size_t indent_level) {
                 auto type{kv.second.get_type()};
                 if (type == t::object || type == t::array) {
                     std::cout << "\n";
-                    dump(os, kv.second, indent_level + 1);
+                    dump_as_yaml(os, kv.second, indent_level + 1);
                 } else {
-                    dump(os, kv.second, 0);
+                    dump_as_yaml(os, kv.second, 0);
                 }
             }
             break;
@@ -25,9 +25,9 @@ void dump(std::ostream& os, const json::value& v, size_t indent_level) {
                 std::cout << indent(indent_level) << "- ";
                 auto type{element.get_type()};
                 if (type == t::object || type == t::array) {
-                    dump(os, element, indent_level + 1);
+                    dump_as_yaml(os, element, indent_level + 1);
                 } else {
-                    dump(os, element, 0);
+                    dump_as_yaml(os, element, 0);
                 }
             }
             break;
@@ -48,13 +48,13 @@ void dump(std::ostream& os, const json::value& v, size_t indent_level) {
     }
 }
 
-void dump(std::ostream& os, const json::value& v) {
-    dump(os, v, 0);
+void dump_as_yaml(std::ostream& os, const json::value& v) {
+    dump_as_yaml(os, v, 0);
 }
 
-std::string dump(const json::value& v) {
+std::string dump_as_yaml(const json::value& v) {
     std::ostringstream os;
-    dump(os, v);
+    dump_as_yaml(os, v);
     return os.str();
 }
 
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     ]
 })"};
     auto root{json::parse(json)};
-    dump(root);
+    dump_as_yaml(root);
     std::cout << "----------------\n";
     const auto& members{root.as_object()};
     std::cout << "name: " << members["name"].as_string() << "\n";
