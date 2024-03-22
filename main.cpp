@@ -10,10 +10,10 @@ void dump_as_yaml(std::ostream& os, const json::value& v, size_t indent_level) {
     switch (v.get_type()) {
         case t::object:
             for (const auto& kv : v.as_object()) {
-                std::cout << indent(indent_level) << kv.first <<  ": ";
+                os << indent(indent_level) << kv.first <<  ": ";
                 auto type{kv.second.get_type()};
                 if (type == t::object || type == t::array) {
-                    std::cout << "\n";
+                    os << "\n";
                     dump_as_yaml(os, kv.second, indent_level + 1);
                 } else {
                     dump_as_yaml(os, kv.second, 0);
@@ -22,7 +22,7 @@ void dump_as_yaml(std::ostream& os, const json::value& v, size_t indent_level) {
             break;
         case t::array:
             for (const auto& element : v.as_array()) {
-                std::cout << indent(indent_level) << "- ";
+                os << indent(indent_level) << "- ";
                 auto type{element.get_type()};
                 if (type == t::object || type == t::array) {
                     dump_as_yaml(os, element, indent_level + 1);
@@ -32,16 +32,16 @@ void dump_as_yaml(std::ostream& os, const json::value& v, size_t indent_level) {
             }
             break;
         case t::string:
-            std::cout << indent(indent_level) << v.as_string() << "\n";
+            os << indent(indent_level) << v.as_string() << "\n";
             break;
         case t::boolean:
-            std::cout << indent(indent_level) << (v.as_boolean() ? "true" : "false") << "\n";
+            os << indent(indent_level) << (v.as_boolean() ? "true" : "false") << "\n";
             break;
         case t::null:
-            std::cout << indent(indent_level) << "null\n";
+            os << indent(indent_level) << "null\n";
             break;
         case t::number:
-            std::cout << indent(indent_level) << v.as_number() << "\n";
+            os << indent(indent_level) << v.as_number() << "\n";
             break;
         default:
             throw std::invalid_argument{"Invalid value type"};
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     ]
 })"};
     auto root{json::parse(json)};
-    dump_as_yaml(root);
+    std::cout << dump_as_yaml(root) << "\n";
     std::cout << "----------------\n";
     const auto& members{root.as_object()};
     std::cout << "name: " << members["name"].as_string() << "\n";
