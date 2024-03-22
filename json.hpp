@@ -2,10 +2,12 @@
 
 #include "parsing.hpp"
 
+#include <cassert>
 #include <cmath>
 #include <map>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -53,6 +55,28 @@ private:
 };
 
 namespace detail {
+
+namespace rules {
+
+#define JSON_PARSING_RULE(name) \
+    constexpr inline bool name(std::istream& is, char c)
+
+JSON_PARSING_RULE(eol) { return c == '\r' || c == '\n'; }
+JSON_PARSING_RULE(ws) { return c == ' ' || c == '\t' || eol(is, c); }
+JSON_PARSING_RULE(dquote) {return c == '"'; }
+JSON_PARSING_RULE(digit) { return c >= '0' && c <= '9'; }
+JSON_PARSING_RULE(digit_1_through_9) { return c >= '1' && c <= '9'; }
+JSON_PARSING_RULE(hex_digit) { return digit(is, c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
+JSON_PARSING_RULE(decimal_point) { return c == '.'; }
+JSON_PARSING_RULE(escape_start) { return c == '\\'; }
+JSON_PARSING_RULE(object_open) { return c == '{'; }
+JSON_PARSING_RULE(object_close) { return c == '}'; }
+JSON_PARSING_RULE(array_open) { return c == '['; }
+JSON_PARSING_RULE(array_close) { return c == ']'; }
+JSON_PARSING_RULE(value_separator) { return c == ','; }
+JSON_PARSING_RULE(member_separator) { return c == ':'; }
+
+} // namespace rules
 
 struct value_impl_base;
 
@@ -207,26 +231,236 @@ inline bool value::is_null() {
 
 inline value::type value::get_type() const { return m_impl->type; }
 
-namespace rules {
+constexpr bool is_json_special_char(char c) {
+  return c == '"' || c == '\\' || c == '\b' || c == '\f' || c == '\n' ||
+         c == '\r' || c == '\t';
+}
 
-#define JSON_PARSING_RULE(name) \
-    constexpr inline bool name(std::istream& is, char c)
+constexpr bool is_ascii_control_char(char c) { return c >= 0 && c <= 0x1f; }
 
-JSON_PARSING_RULE(eol) { return c == '\r' || c == '\n'; }
-JSON_PARSING_RULE(ws) { return c == ' ' || c == '\t' || eol(is, c); }
-JSON_PARSING_RULE(dquote) {return c == '"'; }
-JSON_PARSING_RULE(digit) { return c >= '0' && c <= '9'; }
-JSON_PARSING_RULE(digit_1_through_9) { return c >= '1' && c <= '9'; }
-JSON_PARSING_RULE(decimal_point) { return c == '.'; }
-JSON_PARSING_RULE(escape) { return c == '\\'; }
-JSON_PARSING_RULE(object_open) { return c == '{'; }
-JSON_PARSING_RULE(object_close) { return c == '}'; }
-JSON_PARSING_RULE(array_open) { return c == '['; }
-JSON_PARSING_RULE(array_close) { return c == ']'; }
-JSON_PARSING_RULE(value_separator) { return c == ','; }
-JSON_PARSING_RULE(member_separator) { return c == ':'; }
+inline std::string escape(const std::string &s, bool add_quotes = true) {
+  // Calculate the size of the resulting string.
+  // Add space for the double quotes.
+  size_t required_length = add_quotes ? 2 : 0;
+  for (auto c : s) {
+    if (is_json_special_char(c)) {
+      // '\' and a single following character
+      required_length += 2;
+      continue;
+    }
+    if (is_ascii_control_char(c)) {
+      // '\', 'u', 4 digits
+      required_length += 6;
+      continue;
+    }
+    ++required_length;
+  }
+  // Allocate memory for resulting string only once.
+  std::string result;
+  result.reserve(required_length);
+  if (add_quotes) {
+    result += '"';
+  }
+  // Copy string while escaping characters.
+  for (auto c : s) {
+    if (is_json_special_char(c)) {
+      static constexpr char special_escape_table[257] =
+          "\0\0\0\0\0\0\0\0btn\0fr\0\0"
+          "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+          "\0\0\"\0\0\0\0\0\0\0\0\0\0\0\0\0"
+          "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+          "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+          "\0\0\0\0\0\0\0\0\0\0\0\0\\";
+      result += '\\';
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+      result += special_escape_table[static_cast<unsigned char>(c)];
+      continue;
+    }
+    if (is_ascii_control_char(c)) {
+      // Escape as \u00xx
+      static constexpr char hex_alphabet[]{"0123456789abcdef"};
+      auto uc = static_cast<unsigned char>(c);
+      auto h = (uc >> 4) & 0x0f;
+      auto l = uc & 0x0f;
+      result += "\\u00";
+      // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+      result += hex_alphabet[h];
+      result += hex_alphabet[l];
+      // NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+      continue;
+    }
+    result += c;
+  }
+  if (add_quotes) {
+    result += '"';
+  }
+  // Should have calculated the exact amount of memory needed
+  assert(required_length == result.size());
+  return result;
+}
 
-} // namespace rules
+inline std::string to_utf8_char(size_t c) {
+    std::string s;
+    if (c <= 0x7f) {
+        s.push_back(static_cast<char>(c));
+    } else if (c <= 0x7ff) {
+        s.push_back(static_cast<char>(0xc0 | (c >> 6)));
+        s.push_back(static_cast<char>(0x80 | (c & 0x3f)));
+    } else if (c <= 0xffff) {
+        s.push_back(static_cast<char>(0xe0 | (c >> 12)));
+        s.push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3f)));
+        s.push_back(static_cast<char>(0x80 | (c & 0x3f)));
+    } else if (c <= 0x10ffff) {
+        s.push_back(static_cast<char>(0xe0 | (c >> 18)));
+        s.push_back(static_cast<char>(0x80 | ((c >> 12) & 0x3f)));
+        s.push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3f)));
+        s.push_back(static_cast<char>(0x80 | (c & 0x3f)));
+    } else {
+        throw std::out_of_range{"Invalid code point"};
+    }
+    return s;
+};
+
+inline void unescape_one(std::istream& is, std::ostream& os) {
+    using namespace parsing;
+    using namespace rules;
+    static constexpr char escape_table[20] =
+        "\b\0\0\0\f\0\0\0\0\0\0\0\n\0\0\0\r\0\t";
+    char c{};
+    if (!next(is, c, escape_start)) {
+        os.put(c);
+        return;
+    }
+    c = get_next(is);
+    if (c >= 'b' && c <= 't') {
+        auto unescaped_char{escape_table[c - 'b']};
+        if (unescaped_char != '\0') {
+            os.put(unescaped_char);
+            return;
+        }
+    } else if (c == 'x' || c == 'u') {
+        const auto length{c == 'x' ? 2u : 4u};
+        std::string digits;
+        read_while(is, digits, hex_digit);
+        if (digits.size() != length) {
+            throw unexpected_token{};
+        }
+        auto code_point{std::stoul(digits, 0, 16)};
+        auto utf8_char{to_utf8_char(code_point)};
+        os.write(utf8_char.data(), utf8_char.size());
+        return;
+    }
+    os.put(c);
+}
+
+inline void to_yaml(std::ostream& os, const value& v, size_t indent_level = 0) {
+    using t = value::type;
+    auto indent = [] (size_t level) { return std::string(level * 2, ' '); };
+    switch (v.get_type()) {
+        case t::object:
+            for (const auto& kv : v.as_object()) {
+                os << indent(indent_level) << kv.first <<  ": ";
+                auto type{kv.second.get_type()};
+                if (type == t::object || type == t::array) {
+                    os << "\n";
+                    to_yaml(os, kv.second, indent_level + 1);
+                } else {
+                    to_yaml(os, kv.second, 0);
+                }
+            }
+            break;
+        case t::array:
+            for (const auto& element : v.as_array()) {
+                os << indent(indent_level) << "- ";
+                auto type{element.get_type()};
+                if (type == t::object || type == t::array) {
+                    to_yaml(os, element, indent_level + 1);
+                } else {
+                    to_yaml(os, element, 0);
+                }
+            }
+            break;
+        case t::string: {
+            os << indent(indent_level);
+            auto s{escape(v.as_string())};
+            os.write(s.data(), s.size());
+            os << "\n";
+            break;
+        }
+        case t::boolean:
+            os << indent(indent_level) << (v.as_boolean() ? "true" : "false") << "\n";
+            break;
+        case t::null:
+            os << indent(indent_level) << "null\n";
+            break;
+        case t::number:
+            os << indent(indent_level) << v.as_number() << "\n";
+            break;
+        default:
+            throw std::invalid_argument{"Invalid value type"};
+    }
+}
+
+inline void to_json(std::ostream& os, const value& v) {
+    using t = value::type;
+    switch (v.get_type()) {
+        case t::object: {
+            os.put('{');
+            bool first{true};
+            for (const auto& kv : v.as_object()) {
+                if (first) {
+                    first = false;
+                } else {
+                    os.put(',');
+                }
+                os << "\"" << kv.first <<  "\":";
+                auto type{kv.second.get_type()};
+                if (type == t::object || type == t::array) {
+                    to_json(os, kv.second);
+                } else {
+                    to_json(os, kv.second);
+                }
+            }
+            os.put('}');
+            break;
+        }
+        case t::array: {
+            os.put('[');
+            bool first{true};
+            for (const auto& element : v.as_array()) {
+                if (first) {
+                    first = false;
+                } else {
+                    os.put(',');
+                }
+                auto type{element.get_type()};
+                if (type == t::object || type == t::array) {
+                    to_json(os, element);
+                } else {
+                    to_json(os, element);
+                }
+            }
+            os.put(']');
+            break;
+        }
+        case t::string: {
+            auto s{escape(v.as_string())};
+            os.write(s.data(), s.size());
+            break;
+        }
+        case t::boolean:
+            os << (v.as_boolean() ? "true" : "false");
+            break;
+        case t::null:
+            os << "null";
+            break;
+        case t::number:
+            os << v.as_number();
+            break;
+        default:
+            throw std::invalid_argument{"Invalid value type"};
+    }
+}
 
 value parse_value(std::istream& is);
 
@@ -237,20 +471,21 @@ inline std::optional<std::string> try_parse_string(std::istream& is) {
         return std::nullopt;
     }
     skip(is);
-    std::string data;
+    std::ostringstream os{std::ios::binary};
     for (char c{get_next(is)};; c = get_next(is)) {
-        if (escape(is, c)) {
-            get_next(is);
+        if (escape_start(is, c)) {
+            is.unget();
+            unescape_one(is, os);
             continue;
         }
         if (dquote(is, c)) {
             is.unget();
             break;
         }
-        data.push_back(c);
+        os.put(c);
     }
     expect(is, dquote);
-    return {data};
+    return {os.str()};
 }
 
 inline std::string parse_string(std::istream& is) {
@@ -451,8 +686,35 @@ inline value parse_value(std::istream& is) {
 
 using value = detail::value;
 
-inline value parse(std::istream& is) {
+enum class stored_format { json, yaml };
+
+inline value load(std::istream& is) {
     return detail::parse_value(is);
 }
 
+inline value load(const std::string& s) {
+    // TODO: avoid copy
+    std::istringstream is{s, std::ios::binary};
+    return load(is);
 }
+
+inline void save(std::ostream& os, const value& v, stored_format format = stored_format::json) {
+    switch (format) {
+    case stored_format::json:
+        detail::to_json(os, v);
+        return;
+    case stored_format::yaml:
+        detail::to_yaml(os, v);
+        return;
+    }
+    throw std::invalid_argument{"Invalid format"};
+}
+
+inline std::string save(const value& v, stored_format format = stored_format::json) {
+    // Avoid copy?
+    std::ostringstream os{std::ios::binary};
+    save(os, v, format);
+    return os.str();
+}
+
+} // namespace json
