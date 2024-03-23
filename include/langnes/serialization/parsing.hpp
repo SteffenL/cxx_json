@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <string>
 
+namespace langnes {
+namespace serialization {
 namespace parsing {
 
 class reached_end : public std::runtime_error {
@@ -81,4 +83,6 @@ inline void expect_exact(std::istream& is, const std::string &expected) {
     }
 }
 
-}
+} // namespace langnes
+} // namespace serialization
+} // namespace parsing

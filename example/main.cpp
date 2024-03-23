@@ -1,4 +1,4 @@
-#include "json.hpp"
+#include "langnes/serialization/json/json.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -19,10 +19,13 @@ int main(int argc, char **argv) {
         "be good"
     ]
 })", std::ios::binary};
+    using namespace langnes::serialization;
     auto root{json::load(json)};
+    std::cout << "----- JSON -----\n";
     std::cout << json::save(root) << "\n";
+    std::cout << "----- YAML -----\n";
     std::cout << json::save(root, json::stored_format::yaml);
-    std::cout << "----------------\n";
+    std::cout << "--- Explicit ---\n";
     const auto& members{root.as_object()};
     std::cout << "name: " << members["name"].as_string() << "\n";
     std::cout << "alias: " << (members["alias"].is_null() ? "null" : "?") << "\n";

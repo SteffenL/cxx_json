@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parsing.hpp"
+#include "../parsing.hpp"
 
 #include <cassert>
 #include <cmath>
@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+namespace langnes {
+namespace serialization {
 namespace json {
 
 class type_mismatch : public std::runtime_error {
@@ -58,23 +60,20 @@ namespace detail {
 
 namespace rules {
 
-#define JSON_PARSING_RULE(name) \
-    constexpr inline bool name(std::istream& is, char c)
-
-JSON_PARSING_RULE(eol) { return c == '\r' || c == '\n'; }
-JSON_PARSING_RULE(ws) { return c == ' ' || c == '\t' || eol(is, c); }
-JSON_PARSING_RULE(dquote) {return c == '"'; }
-JSON_PARSING_RULE(digit) { return c >= '0' && c <= '9'; }
-JSON_PARSING_RULE(digit_1_through_9) { return c >= '1' && c <= '9'; }
-JSON_PARSING_RULE(hex_digit) { return digit(is, c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
-JSON_PARSING_RULE(decimal_point) { return c == '.'; }
-JSON_PARSING_RULE(escape_start) { return c == '\\'; }
-JSON_PARSING_RULE(object_open) { return c == '{'; }
-JSON_PARSING_RULE(object_close) { return c == '}'; }
-JSON_PARSING_RULE(array_open) { return c == '['; }
-JSON_PARSING_RULE(array_close) { return c == ']'; }
-JSON_PARSING_RULE(value_separator) { return c == ','; }
-JSON_PARSING_RULE(member_separator) { return c == ':'; }
+constexpr inline bool eol(std::istream& is, char c) { return c == '\r' || c == '\n'; }
+constexpr inline bool ws(std::istream& is, char c) { return c == ' ' || c == '\t' || eol(is, c); }
+constexpr inline bool dquote(std::istream& is, char c) {return c == '"'; }
+constexpr inline bool digit(std::istream& is, char c) { return c >= '0' && c <= '9'; }
+constexpr inline bool digit_1_through_9(std::istream& is, char c) { return c >= '1' && c <= '9'; }
+constexpr inline bool hex_digit(std::istream& is, char c) { return digit(is, c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
+constexpr inline bool decimal_point(std::istream& is, char c) { return c == '.'; }
+constexpr inline bool escape_start(std::istream& is, char c) { return c == '\\'; }
+constexpr inline bool object_open(std::istream& is, char c) { return c == '{'; }
+constexpr inline bool object_close(std::istream& is, char c) { return c == '}'; }
+constexpr inline bool array_open(std::istream& is, char c) { return c == '['; }
+constexpr inline bool array_close(std::istream& is, char c) { return c == ']'; }
+constexpr inline bool value_separator(std::istream& is, char c) { return c == ','; }
+constexpr inline bool member_separator(std::istream& is, char c) { return c == ':'; }
 
 } // namespace rules
 
@@ -717,4 +716,7 @@ inline std::string save(const value& v, stored_format format = stored_format::js
     return os.str();
 }
 
+
+} // namespace langnes
+} // namespace serialization
 } // namespace json
