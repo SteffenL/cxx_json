@@ -41,5 +41,10 @@ int main(int argc, char **argv) {
     std::cout << "  tall: " << std::boolalpha << appearance["tall"].as_boolean() << "\n";
     std::cout << "  short: " << std::boolalpha << appearance["short"].as_boolean() << "\n";
     std::cout << std::flush;
+    std::cout << "---- Modify ----\n";
+    auto& mutable_members{root.as_object()};
+    mutable_members.clear();
+    mutable_members.emplace("name", json::value{"Jane"});
+    std::cout << json::save(root, json::stored_format::yaml);
     return 0;
 }

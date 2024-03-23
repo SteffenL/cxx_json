@@ -31,11 +31,31 @@ class dict {
     using value_type = std::pair<const Key, Value>;
 
 public:
+#if 0
+    class proxy {
+    public:
+        proxy(dict<Key, Value>* inner, const std::string& key)
+            : m_inner{inner}, m_key{key} {}
+
+    template<typename T>
+    proxy& operator=(const T& rhs) noexcept {
+        auto value{create_value_for_type<T>(rhs)};
+        m_inner->emplace(m_key, std::move(value));
+        return *this;
+    }
+
+    private:
+        dict<Key, Value>* m_inner{};
+        std::string m_key;
+    };
+#endif
     const Value& operator[](const std::string& key) const {
         return m_data.at(key);
     }
 
-    Value& operator[](const std::string& key) { return m_data.at(key); }
+    //const Value& operator[](const std::string& key) const { return m_data.at(key); }
+    // TODO: Need to know which concrete value type to instantiate and insert into the map
+    proxy operator[](const std::string& key) { return proxy{m_data, key}; }
 
     size_t size() const noexcept { return m_data.size(); }
     iterator begin() noexcept { return m_data.begin(); }
@@ -46,6 +66,7 @@ public:
     const_iterator cend() const noexcept { return m_data.cend(); }
     bool empty() const noexcept { return m_data.empty(); }
     size_t count(const std::string& key) const { return m_data.count(key); }
+    void clear() noexcept { m_data.clear(); }
 
     template<typename... Args>
 	std::pair<iterator, bool> emplace(Args&&... args) {
@@ -90,21 +111,30 @@ public:
         null
     };
 
-    value(std::unique_ptr<value_impl_base> &&impl) : m_impl{std::move(impl)} {}
+    explicit value(std::unique_ptr<value_impl_base> &&impl) : m_impl{std::move(impl)} {}
+    explicit value(const char* data) noexcept;
+    explicit value(const std::string& data) noexcept;
+    explicit value(std::string&& data) noexcept;
+    explicit value(double data) noexcept;
+    explicit value(bool data) noexcept;
 
     const std::string& as_string() const;
-    const dict<std::string, value>& as_object() const;
-    const std::vector<value>& as_array() const;
     double as_number() const;
     bool as_boolean() const;
     bool is_null() const;
+    const dict<std::string, value>& as_object() const;
+    const std::vector<value>& as_array() const;
 
     std::string& as_string();
+    double& as_number();
+    bool& as_boolean();
+    bool is_null();
     dict<std::string, value>& as_object();
     std::vector<value>& as_array();
-    double as_number();
-    bool as_boolean();
-    bool is_null();
+
+    value& operator=(const std::string& rhs) noexcept;
+    value& operator=(double rhs) noexcept;
+    value& operator=(bool rhs) noexcept;
 
     type get_type() const;
 
@@ -120,8 +150,25 @@ struct value_impl_base {
 
 struct string_impl : public value_impl_base {
     string_impl() : value_impl_base{value::type::string} {}
+    string_impl(const std::string &data) : value_impl_base{value::type::string}, data{data} {}
     string_impl(std::string &&data) : value_impl_base{value::type::string}, data{std::move(data)} {}
     std::string data;
+};
+
+struct number_impl : public value_impl_base {
+    number_impl() : value_impl_base{value::type::number} {}
+    number_impl(double data) : value_impl_base{value::type::number}, data{data} {}
+    double data{};
+};
+
+struct boolean_impl : public value_impl_base {
+    boolean_impl() : value_impl_base{value::type::boolean} {}
+    explicit boolean_impl(bool data) : value_impl_base{value::type::boolean}, data{data} {}
+    bool data{};
+};
+
+struct null_impl : public value_impl_base {
+    null_impl() : value_impl_base{value::type::null} {}
 };
 
 struct object_impl : public value_impl_base {
@@ -134,41 +181,11 @@ struct array_impl : public value_impl_base {
     std::vector<value> elements;
 };
 
-struct number_impl : public value_impl_base {
-    number_impl() : value_impl_base{value::type::number} {}
-    number_impl(double data) : value_impl_base{value::type::number}, data{data} {}
-    double data{};
-};
-
-struct boolean_impl : public value_impl_base {
-    boolean_impl() : value_impl_base{value::type::boolean} {}
-    boolean_impl(bool data) : value_impl_base{value::type::boolean}, data{data} {}
-    bool data{};
-};
-
-struct null : public value_impl_base {
-    null() : value_impl_base{value::type::null} {}
-};
-
 inline const std::string& value::as_string() const {
     if (m_impl->type != value::type::string) {
         throw type_mismatch{};
     }
     return static_cast<const string_impl *>(m_impl.get())->data;
-}
-
-inline const dict<std::string, value>& value::as_object() const {
-    if (m_impl->type != value::type::object) {
-        throw type_mismatch{};
-    }
-    return static_cast<const object_impl *>(m_impl.get())->members;
-}
-
-inline const std::vector<value>& value::as_array() const {
-    if (m_impl->type != value::type::array) {
-        throw type_mismatch{};
-    }
-    return static_cast<const array_impl*>(m_impl.get())->elements;
 }
 
 inline double value::as_number() const {
@@ -189,11 +206,43 @@ inline bool value::is_null() const {
     return m_impl->type == value::type::null;
 }
 
+inline const dict<std::string, value>& value::as_object() const {
+    if (m_impl->type != value::type::object) {
+        throw type_mismatch{};
+    }
+    return static_cast<const object_impl *>(m_impl.get())->members;
+}
+
+inline const std::vector<value>& value::as_array() const {
+    if (m_impl->type != value::type::array) {
+        throw type_mismatch{};
+    }
+    return static_cast<const array_impl*>(m_impl.get())->elements;
+}
+
 inline std::string& value::as_string() {
     if (m_impl->type != value::type::string) {
         throw type_mismatch{};
     }
     return static_cast<string_impl *>(m_impl.get())->data;
+}
+
+inline double& value::as_number() {
+    if (m_impl->type != value::type::number) {
+        throw type_mismatch{};
+    }
+    return static_cast<number_impl *>(m_impl.get())->data;
+}
+
+inline bool& value::as_boolean() {
+    if (m_impl->type != value::type::boolean) {
+        throw type_mismatch{};
+    }
+    return static_cast<boolean_impl *>(m_impl.get())->data;
+}
+
+inline bool value::is_null() {
+    return m_impl->type == value::type::null;
 }
 
 inline dict<std::string, value>& value::as_object() {
@@ -210,25 +259,40 @@ inline std::vector<value>& value::as_array() {
     return static_cast<array_impl*>(m_impl.get())->elements;
 }
 
-inline double value::as_number() {
-    if (m_impl->type != value::type::number) {
-        throw type_mismatch{};
-    }
-    return static_cast<number_impl *>(m_impl.get())->data;
-}
+inline value::value(const char* data) noexcept
+    : m_impl{std::make_unique<string_impl>(data)} {}
 
-inline bool value::as_boolean() {
-    if (m_impl->type != value::type::boolean) {
-        throw type_mismatch{};
-    }
-    return static_cast<boolean_impl *>(m_impl.get())->data;
-}
+inline value::value(const std::string& data) noexcept
+    : m_impl{std::make_unique<string_impl>(data)} {}
 
-inline bool value::is_null() {
-    return m_impl->type == value::type::null;
-}
+inline value::value(std::string&& data) noexcept
+    : m_impl{std::make_unique<string_impl>(std::move(data))} {}
+
+inline value::value(double data) noexcept
+    : m_impl{std::make_unique<number_impl>(data)} {}
+
+inline value::value(bool data) noexcept
+    : m_impl{std::make_unique<boolean_impl>(data)} {}
 
 inline value::type value::get_type() const { return m_impl->type; }
+
+inline value& value::operator=(const std::string& rhs) noexcept {
+    m_impl->type = value::type::string;
+    static_cast<string_impl *>(m_impl.get())->data = rhs;
+    return *this;
+}
+
+inline value& value::operator=(double rhs) noexcept {
+    m_impl->type = value::type::number;
+    static_cast<number_impl *>(m_impl.get())->data = rhs;
+    return *this;
+}
+
+inline value& value::operator=(bool rhs) noexcept {
+    m_impl->type = value::type::boolean;
+    static_cast<boolean_impl *>(m_impl.get())->data = rhs;
+    return *this;
+}
 
 constexpr bool is_json_special_char(char c) {
   return c == '"' || c == '\\' || c == '\b' || c == '\f' || c == '\n' ||
@@ -673,7 +737,7 @@ inline value parse_value(std::istream& is) {
         return {std::make_unique<boolean_impl>(std::move(*v))};
     }
     if (try_parse_null(is)) {
-        return {std::make_unique<null>()};
+        return {std::make_unique<null_impl>()};
     }
     if (auto v{try_parse_number(is)}) {
         return {std::make_unique<number_impl>(std::move(*v))};
