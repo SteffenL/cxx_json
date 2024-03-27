@@ -66,8 +66,8 @@ constexpr inline bool member_separator(std::istream&, char c) {
 }
 
 constexpr bool json_special_char(char c) {
-    return c == '"' || c == '\\' || c == '\b' || c == '\f' || c == '\n'
-           || c == '\r' || c == '\t';
+    return c == '"' || c == '\\' || c == '\b' || c == '\f' || c == '\n' ||
+           c == '\r' || c == '\t';
 }
 
 constexpr bool ascii_control_char(char c) { return c >= 0 && c <= 0x1f; }

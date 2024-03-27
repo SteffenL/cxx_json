@@ -25,18 +25,14 @@ namespace langnes {
 namespace json {
 namespace detail {
 
-inline void to_yaml(std::ostream& os,
-                    const value& v,
-                    size_t indent_level = 0,
+inline void to_yaml(std::ostream& os, const value& v, size_t indent_level = 0,
                     value::type ancestor_type = value::type::null) {
     using t = value::type;
-    auto indent = [](size_t level) {
-        return std::string(level * 2, ' ');
-    };
+    auto indent = [](size_t level) { return std::string(level * 2, ' '); };
     auto type{v.get_type()};
-    if (ancestor_type == t::object
-        && (type != t::object || v.as_object().empty())
-        && (type != t::array || v.as_array().empty())) {
+    if (ancestor_type == t::object &&
+        (type != t::object || v.as_object().empty()) &&
+        (type != t::array || v.as_array().empty())) {
         os << " ";
     }
     switch (type) {

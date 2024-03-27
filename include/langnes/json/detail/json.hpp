@@ -16,13 +16,13 @@
 
 #pragma once
 
-#include "parsing.hpp"
-#include "value.hpp"
-#include "value_impl.hpp"
-#include "parsing_rules.hpp"
-#include "utf8.hpp"
 #include "memory.hpp"
 #include "optional.hpp"
+#include "parsing.hpp"
+#include "parsing_rules.hpp"
+#include "utf8.hpp"
+#include "value.hpp"
+#include "value_impl.hpp"
 
 #include <cassert>
 #include <cmath>

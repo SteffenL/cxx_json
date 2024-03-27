@@ -17,9 +17,9 @@
 #pragma once
 
 #include "detail/json.hpp"
-#include "detail/yaml.hpp"
-#include "detail/stream.hpp"
 #include "detail/memory.hpp"
+#include "detail/stream.hpp"
+#include "detail/yaml.hpp"
 
 #include <memory>
 #include <sstream>
@@ -51,9 +51,8 @@ inline value load(std::istream&& is) {
     return load(static_cast<std::istream&>(is));
 }
 
-template<typename T,
-         typename std::enable_if<
-             !std::is_base_of<std::istream, T>::value>::type* = nullptr>
+template<typename T, typename std::enable_if<!std::is_base_of<
+                         std::istream, T>::value>::type* = nullptr>
 inline value load(T&& input) {
     auto is1{detail::make_istream(std::forward<T>(input))};
     auto is2{detail::make_istream(std::forward<T>(input))};
@@ -61,8 +60,7 @@ inline value load(T&& input) {
     return load(std::move(is));
 }
 
-inline void save(std::ostream& os,
-                 const value& v,
+inline void save(std::ostream& os, const value& v,
                  stored_format format = stored_format::json) {
     switch (format) {
     case stored_format::json:
@@ -82,8 +80,8 @@ inline std::string save(const value& v,
     return os.str();
 }
 
-inline value make_object(
-    std::initializer_list<std::pair<std::string, value>> members) {
+inline value
+make_object(std::initializer_list<std::pair<std::string, value>> members) {
     auto impl{detail::make_unique<detail::object_impl>()};
     for (auto& member : members) {
         impl->members.emplace(std::move(member.first),

@@ -45,10 +45,9 @@ int main() {
     mutable_members["numbers"].as_array().at(0) = 42;
     mutable_members["booleans"] = json::make_array("yes", "no");
     mutable_members["null"] = nullptr;
-    mutable_members["more"] = json::make_object({
-        {"colors", json::make_array("red", "blue")},
-        {"sizes", json::make_array("small", "medium", "large")}
-    });
+    mutable_members["more"] = json::make_object(
+        {{"colors", json::make_array("red", "blue")},
+         {"sizes", json::make_array("small", "medium", "large")}});
 
     std::cout << "----- Modified JSON\n";
     std::cout << json::save(root) << "\n";
@@ -57,9 +56,8 @@ int main() {
     std::cout << json::save(root, json::stored_format::yaml);
 
     std::cout << "----- New JSON\n";
-    auto new_object{json::make_object({
-        {"simple", json::make_array(1, true, nullptr)}
-    })};
+    auto new_object{
+        json::make_object({{"simple", json::make_array(1, true, nullptr)}})};
     std::cout << json::save(new_object) << "\n";
 
     std::cout << "----- New YAML\n";

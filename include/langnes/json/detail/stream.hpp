@@ -62,18 +62,15 @@ private:
 class string_istream : private string_istream_data, public std::istream {
 public:
     string_istream(const char* data, size_t length)
-        : string_istream_data{data, length},
-          std::istream{get_buf()} {}
+        : string_istream_data{data, length}, std::istream{get_buf()} {}
 
     string_istream(const std::string& s) : string_istream{s.data(), s.size()} {}
 
     string_istream(std::string&& s)
-        : string_istream_data{std::move(s)},
-          std::istream{get_buf()} {}
+        : string_istream_data{std::move(s)}, std::istream{get_buf()} {}
 
     string_istream(string_istream&& other)
-        : string_istream_data{std::move(other)},
-          std::istream{get_buf()} {}
+        : string_istream_data{std::move(other)}, std::istream{get_buf()} {}
 };
 
 inline string_istream make_istream(const char* data, size_t length) {

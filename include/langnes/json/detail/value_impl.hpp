@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "dict.hpp"
 #include "../errors.hpp"
+#include "dict.hpp"
 #include "memory.hpp"
 #include "value.hpp"
 
@@ -41,16 +41,13 @@ struct string_impl : public value_impl_base {
     string_impl() : value_impl_base{value::type::string} {}
 
     explicit string_impl(const char* data)
-        : value_impl_base{value::type::string},
-          data{data} {}
+        : value_impl_base{value::type::string}, data{data} {}
 
     explicit string_impl(const std::string& data)
-        : value_impl_base{value::type::string},
-          data{data} {}
+        : value_impl_base{value::type::string}, data{data} {}
 
     string_impl(std::string&& data)
-        : value_impl_base{value::type::string},
-          data{std::move(data)} {}
+        : value_impl_base{value::type::string}, data{std::move(data)} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<string_impl>(*this);
@@ -62,17 +59,14 @@ struct string_impl : public value_impl_base {
 struct number_impl : public value_impl_base {
     number_impl() : value_impl_base{value::type::number} {}
 
-    template<
-        typename T,
-        typename std::enable_if<std::is_integral<T>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if<
+                             std::is_integral<T>::value>::type* = nullptr>
     explicit number_impl(T data) : number_impl{static_cast<double>(data)} {}
 
-    template<typename T,
-             typename std::enable_if<std::is_floating_point<T>::value>::type* =
-                 nullptr>
+    template<typename T, typename std::enable_if<
+                             std::is_floating_point<T>::value>::type* = nullptr>
     explicit number_impl(T data)
-        : value_impl_base{value::type::number},
-          data{data} {}
+        : value_impl_base{value::type::number}, data{data} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<number_impl>(*this);
@@ -86,8 +80,7 @@ struct boolean_impl : public value_impl_base {
 
     explicit boolean_impl(bool data)
 
-        : value_impl_base{value::type::boolean},
-          data{data} {}
+        : value_impl_base{value::type::boolean}, data{data} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<boolean_impl>(*this);
@@ -244,9 +237,9 @@ inline value::value(std::nullptr_t) noexcept
     : m_impl{make_unique<null_impl>()} {}
 
 template<typename T,
-         typename std::enable_if<(std::is_integral<T>::value
-                                  && !std::is_same<T, bool>::value)
-                                 || std::is_floating_point<T>::value>::type*>
+         typename std::enable_if<(std::is_integral<T>::value &&
+                                  !std::is_same<T, bool>::value) ||
+                                 std::is_floating_point<T>::value>::type*>
 value::value(T from) noexcept
     : m_impl{make_unique<number_impl>(std::forward<T>(from))} {}
 
@@ -258,9 +251,9 @@ value::value(T from) noexcept
 inline value::type value::get_type() const { return m_impl->type; }
 
 template<typename T,
-         typename std::enable_if<(std::is_integral<T>::value
-                                  && !std::is_same<T, bool>::value)
-                                 || std::is_floating_point<T>::value>::type*>
+         typename std::enable_if<(std::is_integral<T>::value &&
+                                  !std::is_same<T, bool>::value) ||
+                                 std::is_floating_point<T>::value>::type*>
 value& value::operator=(T from) noexcept {
     m_impl = make_unique<number_impl>(std::forward<T>(from));
     return *this;

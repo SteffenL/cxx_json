@@ -83,9 +83,7 @@ void read_while(std::istream& is, std::string& s, Predicate predicate) {
 
 inline void expect_exact(std::istream& is, const std::string& expected) {
     for (size_t i{}; i < expected.size(); ++i) {
-        expect(is, [&](std::istream&, char c) {
-            return c == expected[i];
-        });
+        expect(is, [&](std::istream&, char c) { return c == expected[i]; });
     }
 }
 

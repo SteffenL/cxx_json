@@ -43,15 +43,14 @@ public:
     value(std::string&& data) noexcept;
     value(std::nullptr_t) noexcept;
 
-    template<typename T,
-             typename std::enable_if<
-                 (std::is_integral<T>::value && !std::is_same<T, bool>::value)
-                 || std::is_floating_point<T>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if<
+                             (std::is_integral<T>::value &&
+                              !std::is_same<T, bool>::value) ||
+                             std::is_floating_point<T>::value>::type* = nullptr>
     value(T from) noexcept;
 
-    template<
-        typename T,
-        typename std::enable_if<std::is_same<T, bool>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if<
+                             std::is_same<T, bool>::value>::type* = nullptr>
     value(T from) noexcept;
 
     const std::string& as_string() const;
@@ -73,15 +72,14 @@ public:
     bool is_array() const noexcept;
     bool is_null() const noexcept;
 
-    template<typename T,
-             typename std::enable_if<
-                 (std::is_integral<T>::value && !std::is_same<T, bool>::value)
-                 || std::is_floating_point<T>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if<
+                             (std::is_integral<T>::value &&
+                              !std::is_same<T, bool>::value) ||
+                             std::is_floating_point<T>::value>::type* = nullptr>
     value& operator=(T from) noexcept;
 
-    template<
-        typename T,
-        typename std::enable_if<std::is_same<T, bool>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if<
+                             std::is_same<T, bool>::value>::type* = nullptr>
     value& operator=(T from) noexcept;
 
     value& operator=(const value& rhs) noexcept;
