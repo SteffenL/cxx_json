@@ -1,0 +1,55 @@
+name: CI
+on: [push]
+jobs:
+  examples:
+    runs-on: ${{ matrix.config.image }}
+    strategy:
+      matrix:
+        config:
+          - { image: macos-14,     cxx_std: 11, compiler: { c: clang,     cxx: clang++,     }, gen: Xcode                          }
+          - { image: macos-14,     cxx_std: 14, compiler: { c: clang,     cxx: clang++,     }, gen: Xcode                          }
+          - { image: macos-14,     cxx_std: 17, compiler: { c: clang,     cxx: clang++,     }, gen: Xcode                          }
+          - { image: macos-14,     cxx_std: 20, compiler: { c: clang,     cxx: clang++,     }, gen: Xcode                          }
+          - { image: ubuntu-20.04, cxx_std: 11, compiler: { c: clang-6.0, cxx: clang++-6.0, }, gen: Unix Makefiles, apt: clang-6.0 }
+          - { image: ubuntu-20.04, cxx_std: 11, compiler: { c: clang-7,   cxx: clang++-7,   }, gen: Unix Makefiles, apt: clang-7   }
+          - { image: ubuntu-20.04, cxx_std: 11, compiler: { c: clang-8,   cxx: clang++-8,   }, gen: Unix Makefiles, apt: clang-8   }
+          - { image: ubuntu-20.04, cxx_std: 11, compiler: { c: clang-9,   cxx: clang++-9,   }, gen: Unix Makefiles, apt: clang-9   }
+          - { image: ubuntu-20.04, cxx_std: 11, compiler: { c: clang-10,  cxx: clang++-10,  }, gen: Unix Makefiles, apt: clang-10  }
+          - { image: ubuntu-22.04, cxx_std: 11, compiler: { c: clang-11,  cxx: clang++-11,  }, gen: Unix Makefiles, apt: clang-11  }
+          - { image: ubuntu-22.04, cxx_std: 11, compiler: { c: clang-12,  cxx: clang++-12,  }, gen: Unix Makefiles, apt: clang-12  }
+          - { image: ubuntu-22.04, cxx_std: 11, compiler: { c: clang-13,  cxx: clang++-13,  }, gen: Unix Makefiles, apt: clang-13  }
+          - { image: ubuntu-22.04, cxx_std: 11, compiler: { c: clang-14,  cxx: clang++-14,  }, gen: Unix Makefiles, apt: clang-14  }
+          - { image: ubuntu-22.04, cxx_std: 11, compiler: { c: clang-15,  cxx: clang++-15,  }, gen: Unix Makefiles, apt: clang-15  }
+          - { image: ubuntu-22.04, cxx_std: 14, compiler: { c: clang-15,  cxx: clang++-15,  }, gen: Unix Makefiles, apt: clang-15  }
+          - { image: ubuntu-22.04, cxx_std: 17, compiler: { c: clang-15,  cxx: clang++-15,  }, gen: Unix Makefiles, apt: clang-15  }
+          - { image: ubuntu-22.04, cxx_std: 20, compiler: { c: clang-15,  cxx: clang++-15,  }, gen: Unix Makefiles, apt: clang-15  }
+          - { image: ubuntu-20.04, cxx_std: 11, compiler: { c: gcc-7,     cxx: g++-7,       }, gen: Unix Makefiles, apt: g++-7     }
+          - { image: ubuntu-20.04, cxx_std: 11, compiler: { c: gcc-8,     cxx: g++-8,       }, gen: Unix Makefiles, apt: g++-8     }
+          - { image: ubuntu-22.04, cxx_std: 11, compiler: { c: gcc-9,     cxx: g++-9,       }, gen: Unix Makefiles, apt: g++-9     }
+          - { image: ubuntu-22.04, cxx_std: 11, compiler: { c: gcc-10,    cxx: g++-10,      }, gen: Unix Makefiles, apt: g++-10    }
+          - { image: ubuntu-22.04, cxx_std: 11, compiler: { c: gcc-11,    cxx: g++-11,      }, gen: Unix Makefiles, apt: g++-11    }
+          - { image: ubuntu-22.04, cxx_std: 11, compiler: { c: gcc-12,    cxx: g++-12,      }, gen: Unix Makefiles, apt: g++-12    }
+          - { image: ubuntu-22.04, cxx_std: 14, compiler: { c: gcc-12,    cxx: g++-12,      }, gen: Unix Makefiles, apt: g++-12    }
+          - { image: ubuntu-22.04, cxx_std: 17, compiler: { c: gcc-12,    cxx: g++-12,      }, gen: Unix Makefiles, apt: g++-12    }
+          - { image: ubuntu-22.04, cxx_std: 20, compiler: { c: gcc-12,    cxx: g++-12,      }, gen: Unix Makefiles, apt: g++-12    }
+          - { image: windows-2022, cxx_std: 11, compiler: { c: clang,     cxx: clang++,     }, gen: MinGW Makefiles                }
+          - { image: windows-2022, cxx_std: 11, compiler: { c: gcc,       cxx: g++,         }, gen: MinGW Makefiles                }
+          - { image: windows-2022, cxx_std: 11, compiler: { c: cl,        cxx: cl,          }, gen: Visual Studio 17 2022          }
+          - { image: windows-2022, cxx_std: 14, compiler: { c: cl,        cxx: cl,          }, gen: Visual Studio 17 2022          }
+          - { image: windows-2022, cxx_std: 17, compiler: { c: cl,        cxx: cl,          }, gen: Visual Studio 17 2022          }
+          - { image: windows-2022, cxx_std: 20, compiler: { c: cl,        cxx: cl,          }, gen: Visual Studio 17 2022          }
+    steps:
+      - uses: actions/checkout@v4
+      - if: runner.os == 'Linux'
+        run: |
+          packages=(${{ matrix.config.apt }})
+          sudo apt-get install --no-install-recommends -y "${packages[@]}"
+      - run: >
+          ctest --build-and-test . build
+          --build-generator "${{ matrix.config.gen }}"
+          --build-config Release
+          --build-options
+          "-DCMAKE_C_COMPILER=${{ matrix.config.compiler.c }}"
+          "-DCMAKE_CXX_COMPILER=${{ matrix.config.compiler.cxx }}"
+          "-DCMAKE_CXX_STANDARD=${{ matrix.config.cxx_std }}"
+          --test-command ctest
