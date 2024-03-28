@@ -52,14 +52,10 @@ private:
 struct string_impl : public value_impl_base {
     string_impl() : value_impl_base{value::type::string} {}
 
-    explicit string_impl(const char* data)
-        : value_impl_base{value::type::string}, m_data{data} {}
-
-    explicit string_impl(const std::string& data)
-        : value_impl_base{value::type::string}, m_data{data} {}
-
-    explicit string_impl(std::string&& data)
-        : value_impl_base{value::type::string}, m_data{std::move(data)} {}
+    template<typename T, typename std::enable_if<std::is_convertible<
+                             T, std::string>::value>::type* = nullptr>
+    explicit string_impl(T&& data)
+        : value_impl_base{value::type::string}, m_data{std::forward<T>(data)} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<string_impl>(*this);
