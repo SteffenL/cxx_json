@@ -31,29 +31,45 @@ namespace json {
 namespace detail {
 
 struct value_impl_base {
-    explicit value_impl_base(value::type type) : type{type} {}
+public:
     virtual ~value_impl_base() = default;
     virtual std::unique_ptr<value_impl_base> clone() const noexcept = 0;
-    value::type type{};
+    value::type get_type() const { return m_type; }
+    bool is_type(value::type type) const noexcept { return m_type == type; }
+
+protected:
+    explicit value_impl_base(value::type type) : m_type{type} {}
+    value_impl_base() = default;
+    value_impl_base(const value_impl_base&) = default;
+    value_impl_base& operator=(const value_impl_base&) = default;
+    value_impl_base(value_impl_base&&) = default;
+    value_impl_base& operator=(value_impl_base&&) = default;
+
+private:
+    value::type m_type{};
 };
 
 struct string_impl : public value_impl_base {
     string_impl() : value_impl_base{value::type::string} {}
 
     explicit string_impl(const char* data)
-        : value_impl_base{value::type::string}, data{data} {}
+        : value_impl_base{value::type::string}, m_data{data} {}
 
     explicit string_impl(const std::string& data)
-        : value_impl_base{value::type::string}, data{data} {}
+        : value_impl_base{value::type::string}, m_data{data} {}
 
-    string_impl(std::string&& data)
-        : value_impl_base{value::type::string}, data{std::move(data)} {}
+    explicit string_impl(std::string&& data)
+        : value_impl_base{value::type::string}, m_data{std::move(data)} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<string_impl>(*this);
     }
 
-    std::string data;
+    const std::string& data() const { return m_data; }
+    std::string& data() { return m_data; }
+
+private:
+    std::string m_data;
 };
 
 struct number_impl : public value_impl_base {
@@ -66,27 +82,34 @@ struct number_impl : public value_impl_base {
     template<typename T, typename std::enable_if<
                              std::is_floating_point<T>::value>::type* = nullptr>
     explicit number_impl(T data)
-        : value_impl_base{value::type::number}, data{data} {}
+        : value_impl_base{value::type::number}, m_data{data} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<number_impl>(*this);
     }
 
-    double data{};
+    double data() const { return m_data; }
+    double& data() { return m_data; }
+
+private:
+    double m_data{};
 };
 
 struct boolean_impl : public value_impl_base {
     boolean_impl() : value_impl_base{value::type::boolean} {}
 
     explicit boolean_impl(bool data)
-
-        : value_impl_base{value::type::boolean}, data{data} {}
+        : value_impl_base{value::type::boolean}, m_data{data} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<boolean_impl>(*this);
     }
 
-    bool data{};
+    bool data() const { return m_data; }
+    bool& data() { return m_data; }
+
+private:
+    bool m_data{};
 };
 
 struct null_impl : public value_impl_base {
@@ -104,7 +127,11 @@ struct object_impl : public value_impl_base {
         return make_unique<object_impl>(*this);
     }
 
-    dict<std::string, value> members;
+    const dict<std::string, value>& members() const { return m_members; }
+    dict<std::string, value>& members() { return m_members; }
+
+private:
+    dict<std::string, value> m_members;
 };
 
 struct array_impl : public value_impl_base {
@@ -114,101 +141,109 @@ struct array_impl : public value_impl_base {
         return make_unique<array_impl>(*this);
     }
 
-    std::vector<value> elements;
+    const std::vector<value>& elements() const { return m_elements; }
+    std::vector<value>& elements() { return m_elements; }
+
+private:
+    std::vector<value> m_elements;
 };
 
 inline const std::string& value::as_string() const {
-    if (m_impl->type != value::type::string) {
+    if (!m_impl->is_type(value::type::string)) {
         throw type_mismatch{};
     }
-    return static_cast<const string_impl*>(m_impl.get())->data;
+    return dynamic_cast<const string_impl*>(m_impl.get())->data();
 }
 
 inline double value::as_number() const {
-    if (m_impl->type != value::type::number) {
+    if (!m_impl->is_type(value::type::number)) {
         throw type_mismatch{};
     }
-    return static_cast<const number_impl*>(m_impl.get())->data;
+    return dynamic_cast<const number_impl*>(m_impl.get())->data();
 }
 
 inline bool value::as_boolean() const {
-    if (m_impl->type != value::type::boolean) {
+    if (!m_impl->is_type(value::type::boolean)) {
         throw type_mismatch{};
     }
-    return static_cast<const boolean_impl*>(m_impl.get())->data;
+    return dynamic_cast<const boolean_impl*>(m_impl.get())->data();
 }
 
 inline const dict<std::string, value>& value::as_object() const {
-    if (m_impl->type != value::type::object) {
+    if (!m_impl->is_type(value::type::object)) {
         throw type_mismatch{};
     }
-    return static_cast<const object_impl*>(m_impl.get())->members;
+    return dynamic_cast<const object_impl*>(m_impl.get())->members();
 }
 
 inline const std::vector<value>& value::as_array() const {
-    if (m_impl->type != value::type::array) {
+    if (!m_impl->is_type(value::type::array)) {
         throw type_mismatch{};
     }
-    return static_cast<const array_impl*>(m_impl.get())->elements;
+    return dynamic_cast<const array_impl*>(m_impl.get())->elements();
 }
 
 inline std::string& value::as_string() {
-    if (m_impl->type != value::type::string) {
+    if (!m_impl->is_type(value::type::string)) {
         throw type_mismatch{};
     }
-    return static_cast<string_impl*>(m_impl.get())->data;
+    return dynamic_cast<string_impl*>(m_impl.get())->data();
 }
 
 inline double& value::as_number() {
-    if (m_impl->type != value::type::number) {
+    if (!m_impl->is_type(value::type::number)) {
         throw type_mismatch{};
     }
-    return static_cast<number_impl*>(m_impl.get())->data;
+    return dynamic_cast<number_impl*>(m_impl.get())->data();
 }
 
 inline bool& value::as_boolean() {
-    if (m_impl->type != value::type::boolean) {
+    if (!m_impl->is_type(value::type::boolean)) {
         throw type_mismatch{};
     }
-    return static_cast<boolean_impl*>(m_impl.get())->data;
+    return dynamic_cast<boolean_impl*>(m_impl.get())->data();
 }
 
 inline dict<std::string, value>& value::as_object() {
-    if (m_impl->type != value::type::object) {
+    if (!m_impl->is_type(value::type::object)) {
         throw type_mismatch{};
     }
-    return static_cast<object_impl*>(m_impl.get())->members;
+    return dynamic_cast<object_impl*>(m_impl.get())->members();
 }
 
 inline std::vector<value>& value::as_array() {
-    if (m_impl->type != value::type::array) {
+    if (!m_impl->is_type(value::type::array)) {
         throw type_mismatch{};
     }
-    return static_cast<array_impl*>(m_impl.get())->elements;
+    return dynamic_cast<array_impl*>(m_impl.get())->elements();
+}
+
+inline bool value::is_type(value::type type) const noexcept {
+    return m_impl->is_type(type);
 }
 
 inline bool value::is_string() const noexcept {
-    return get_type() == value::type::string;
+    return is_type(value::type::string);
 }
 
 inline bool value::is_number() const noexcept {
-    return get_type() == value::type::number;
+    return is_type(value::type::number);
 }
 
 inline bool value::is_boolean() const noexcept {
-    return get_type() == value::type::boolean;
+    return is_type(value::type::boolean);
 }
 
 inline bool value::is_object() const noexcept {
-    return get_type() == value::type::object;
+    return is_type(value::type::object);
 }
 
 inline bool value::is_array() const noexcept {
-    return get_type() == value::type::array;
+    return is_type(value::type::array);
 }
 
 inline bool value::is_null() const noexcept {
-    return get_type() == value::type::null;
+    return is_type(value::type::null);
 }
 
 inline value::value() noexcept : m_impl{make_unique<null_impl>()} {}
@@ -217,9 +252,7 @@ inline value::value(const value& rhs) noexcept {
     this->m_impl = rhs.m_impl->clone();
 }
 
-inline value::value(value&& rhs) noexcept {
-    this->m_impl = std::move(rhs.m_impl);
-}
+inline value::value(value&& rhs) noexcept : m_impl{std::move(rhs.m_impl)} {}
 
 inline value::value(std::unique_ptr<value_impl_base>&& impl) noexcept
     : m_impl{std::move(impl)} {}
@@ -248,7 +281,7 @@ template<typename T,
 value::value(T from) noexcept
     : m_impl{make_unique<boolean_impl>(std::forward<T>(from))} {}
 
-inline value::type value::get_type() const { return m_impl->type; }
+inline value::type value::get_type() const { return m_impl->get_type(); }
 
 template<typename T,
          typename std::enable_if<(std::is_integral<T>::value &&
@@ -267,6 +300,9 @@ value& value::operator=(T from) noexcept {
 }
 
 inline value& value::operator=(const value& rhs) noexcept {
+    if (this == &rhs) {
+        return *this;
+    }
     m_impl = rhs.m_impl->clone();
     return *this;
 }
@@ -282,12 +318,12 @@ inline value& value::operator=(const char* rhs) noexcept {
 }
 
 inline value& value::operator=(const std::string& rhs) noexcept {
-    m_impl = make_unique<string_impl>(std::move(rhs));
+    m_impl = make_unique<string_impl>(rhs);
     return *this;
 }
 
 inline value& value::operator=(std::string&& rhs) noexcept {
-    m_impl = make_unique<string_impl>(rhs);
+    m_impl = make_unique<string_impl>(std::move(rhs));
     return *this;
 }
 

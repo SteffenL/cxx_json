@@ -25,20 +25,20 @@ namespace detail {
 
 inline std::string to_utf8_char(size_t c) {
     std::string s;
-    if (c <= 0x7f) {
+    if (c <= 0x7fU) {
         s.push_back(static_cast<char>(c));
-    } else if (c <= 0x7ff) {
-        s.push_back(static_cast<char>(0xc0 | (c >> 6)));
-        s.push_back(static_cast<char>(0x80 | (c & 0x3f)));
-    } else if (c <= 0xffff) {
-        s.push_back(static_cast<char>(0xe0 | (c >> 12)));
-        s.push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3f)));
-        s.push_back(static_cast<char>(0x80 | (c & 0x3f)));
-    } else if (c <= 0x10ffff) {
-        s.push_back(static_cast<char>(0xe0 | (c >> 18)));
-        s.push_back(static_cast<char>(0x80 | ((c >> 12) & 0x3f)));
-        s.push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3f)));
-        s.push_back(static_cast<char>(0x80 | (c & 0x3f)));
+    } else if (c <= 0x7ffU) {
+        s.push_back(static_cast<char>(0xc0U | (c >> 6)));
+        s.push_back(static_cast<char>(0x80U | (c & 0x3f)));
+    } else if (c <= 0xffffU) {
+        s.push_back(static_cast<char>(0xe0U | (c >> 12)));
+        s.push_back(static_cast<char>(0x80U | ((c >> 6) & 0x3f)));
+        s.push_back(static_cast<char>(0x80U | (c & 0x3f)));
+    } else if (c <= 0x10ffffU) {
+        s.push_back(static_cast<char>(0xe0U | (c >> 18)));
+        s.push_back(static_cast<char>(0x80U | ((c >> 12) & 0x3f)));
+        s.push_back(static_cast<char>(0x80U | ((c >> 6) & 0x3f)));
+        s.push_back(static_cast<char>(0x80U | (c & 0x3f)));
     } else {
         throw std::out_of_range{"Invalid code point"};
     }

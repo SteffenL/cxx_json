@@ -35,23 +35,24 @@ public:
     enum class type { object, array, string, number, boolean, null };
 
     value() noexcept;
-    explicit value(const value& rhs) noexcept;
+    value(const value& rhs) noexcept;
     value(value&& rhs) noexcept;
-    value(std::unique_ptr<value_impl_base>&& impl) noexcept;
-    value(const char* data) noexcept;
-    value(const std::string& data) noexcept;
-    value(std::string&& data) noexcept;
-    value(std::nullptr_t) noexcept;
+    explicit value(std::unique_ptr<value_impl_base>&& impl) noexcept;
+    explicit value(const char* data) noexcept;
+    explicit value(const std::string& data) noexcept;
+    explicit value(std::string&& data) noexcept;
+    explicit value(std::nullptr_t) noexcept;
+    ~value() = default;
 
     template<typename T, typename std::enable_if<
                              (std::is_integral<T>::value &&
                               !std::is_same<T, bool>::value) ||
                              std::is_floating_point<T>::value>::type* = nullptr>
-    value(T from) noexcept;
+    explicit value(T from) noexcept;
 
     template<typename T, typename std::enable_if<
                              std::is_same<T, bool>::value>::type* = nullptr>
-    value(T from) noexcept;
+    explicit value(T from) noexcept;
 
     const std::string& as_string() const;
     double as_number() const;
@@ -65,6 +66,7 @@ public:
     dict<std::string, value>& as_object();
     std::vector<value>& as_array();
 
+    bool is_type(value::type type) const noexcept;
     bool is_string() const noexcept;
     bool is_number() const noexcept;
     bool is_boolean() const noexcept;

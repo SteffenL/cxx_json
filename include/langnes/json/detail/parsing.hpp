@@ -74,7 +74,7 @@ void skip_while(std::istream& is, Predicate&& predicate) {
 
 template<typename Predicate>
 void read_while(std::istream& is, std::string& s, Predicate predicate) {
-    char c;
+    char c{};
     while (predicate(is, c = get_next(is))) {
         s += c;
     }
@@ -83,7 +83,9 @@ void read_while(std::istream& is, std::string& s, Predicate predicate) {
 
 inline void expect_exact(std::istream& is, const std::string& expected) {
     for (size_t i{}; i < expected.size(); ++i) {
-        expect(is, [&](std::istream&, char c) { return c == expected[i]; });
+        expect(is, [&](std::istream& /*unused*/, char c) {
+            return c == expected[i];
+        });
     }
 }
 

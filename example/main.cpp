@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-int main() {
+void example() {
     using namespace langnes;
     std::cout << std::boolalpha;
 
@@ -16,7 +16,7 @@ int main() {
     "null": null
 })"};
 
-    auto root{json::load(json)};
+    auto root{json::load(json::detail::make_istream(json))};
 
     std::cout << "----- JSON\n";
     std::cout << json::save(root) << "\n";
@@ -62,6 +62,14 @@ int main() {
 
     std::cout << "----- New YAML\n";
     std::cout << json::save(new_object, json::stored_format::yaml);
+}
 
-    return 0;
+int main() {
+    try {
+        example();
+        return 0;
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
 }

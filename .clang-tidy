@@ -1,0 +1,28 @@
+---
+Checks: >
+    bugprone-*,
+    cert-*,
+    clang-analyzer-*,
+    clang-diagnostic-*,
+    cppcoreguidelines-*,
+    hicpp-*,
+    misc-*,
+    modernize-*,
+    performance-*,
+    portability-*,
+    readability-*,
+    -cppcoreguidelines-avoid-magic-numbers,
+    -hicpp-signed-bitwise,
+    -modernize-use-trailing-return-type,
+    -readability-magic-numbers,
+CheckOptions:
+  - key:   cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+    value: true
+  - key:   misc-const-correctness.AnalyzeValues
+    value: false
+  - key:   readability-identifier-length.IgnoredLoopCounterNames
+    value: ^[cijk_]$
+  - key:   readability-identifier-length.MinimumVariableNameLength
+    value: 1
+  - key:   readability-identifier-length.MinimumParameterNameLength
+    value: 1

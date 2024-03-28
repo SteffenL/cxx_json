@@ -24,6 +24,7 @@
 #include "value.hpp"
 #include "value_impl.hpp"
 
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <sstream>
@@ -61,13 +62,13 @@ inline std::string escape(const std::string& s, bool add_quotes = true) {
     // Copy string while escaping characters.
     for (auto c : s) {
         if (json_special_char(c)) {
-            static constexpr char special_escape_table[257] =
-                "\0\0\0\0\0\0\0\0btn\0fr\0\0"
-                "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-                "\0\0\"\0\0\0\0\0\0\0\0\0\0\0\0\0"
-                "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-                "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-                "\0\0\0\0\0\0\0\0\0\0\0\0\\";
+            static constexpr std::array<char, 256> special_escape_table = {
+                0, 0, 0,   0, 0, 0, 0, 0, 'b', 't', 'n', 0, 'f', 'r', 0, 0,
+                0, 0, 0,   0, 0, 0, 0, 0, 0,   0,   0,   0, 0,   0,   0, 0,
+                0, 0, '"', 0, 0, 0, 0, 0, 0,   0,   0,   0, 0,   0,   0, 0,
+                0, 0, 0,   0, 0, 0, 0, 0, 0,   0,   0,   0, 0,   0,   0, 0,
+                0, 0, 0,   0, 0, 0, 0, 0, 0,   0,   0,   0, 0,   0,   0, 0,
+                0, 0, 0,   0, 0, 0, 0, 0, 0,   0,   0,   0, '\\'};
             result += '\\';
             // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
             result += special_escape_table[static_cast<unsigned char>(c)];
@@ -75,10 +76,12 @@ inline std::string escape(const std::string& s, bool add_quotes = true) {
         }
         if (ascii_control_char(c)) {
             // Escape as \u00xx
-            static constexpr char hex_alphabet[]{"0123456789abcdef"};
-            auto uc = static_cast<unsigned char>(c);
-            auto h = (uc >> 4) & 0x0f;
-            auto l = uc & 0x0f;
+            static constexpr std::array<char, 16> hex_alphabet = {
+                '0', '1', '2', '3', '4', '5', '6', '7',
+                '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+            auto uc = static_cast<unsigned int>(static_cast<unsigned char>(c));
+            auto h = (uc >> 4U) & 0x0fU;
+            auto l = uc & 0x0fU;
             result += "\\u00";
             // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
             result += hex_alphabet[h];
@@ -99,8 +102,8 @@ inline std::string escape(const std::string& s, bool add_quotes = true) {
 inline void unescape_one(std::istream& is, std::ostream& os) {
     using namespace parsing;
     using namespace rules;
-    static constexpr char escape_table[20] =
-        "\b\0\0\0\f\0\0\0\0\0\0\0\n\0\0\0\r\0\t";
+    static constexpr std::array<char, 19> escape_table = {
+        '\b', 0, 0, 0, '\f', 0, 0, 0, 0, 0, 0, 0, '\n', 0, 0, 0, '\r', 0, '\t'};
     char c{};
     if (!next(is, c, escape_start)) {
         os.put(c);
@@ -108,26 +111,29 @@ inline void unescape_one(std::istream& is, std::ostream& os) {
     }
     c = get_next(is);
     if (c >= 'b' && c <= 't') {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         auto unescaped_char{escape_table[c - 'b']};
         if (unescaped_char != '\0') {
             os.put(unescaped_char);
             return;
         }
     } else if (c == 'x' || c == 'u') {
-        const auto length{c == 'x' ? 2u : 4u};
+        const auto length{c == 'x' ? 2U : 4U};
         std::string digits;
         read_while(is, digits, hex_digit);
         if (digits.size() != length) {
             throw unexpected_token{};
         }
-        auto code_point{std::stoul(digits, 0, 16)};
+        auto code_point{std::stoul(digits, nullptr, 16)};
         auto utf8_char{to_utf8_char(code_point)};
-        os.write(utf8_char.data(), utf8_char.size());
+        os.write(utf8_char.data(),
+                 static_cast<std::streamsize>(utf8_char.size()));
         return;
     }
     os.put(c);
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 inline void to_json(std::ostream& os, const value& v) {
     using t = value::type;
     switch (v.get_type()) {
@@ -141,12 +147,7 @@ inline void to_json(std::ostream& os, const value& v) {
                 os.put(',');
             }
             os << "\"" << kv.first << "\":";
-            auto type{kv.second.get_type()};
-            if (type == t::object || type == t::array) {
-                to_json(os, kv.second);
-            } else {
-                to_json(os, kv.second);
-            }
+            to_json(os, kv.second);
         }
         os.put('}');
         break;
@@ -160,19 +161,14 @@ inline void to_json(std::ostream& os, const value& v) {
             } else {
                 os.put(',');
             }
-            auto type{element.get_type()};
-            if (type == t::object || type == t::array) {
-                to_json(os, element);
-            } else {
-                to_json(os, element);
-            }
+            to_json(os, element);
         }
         os.put(']');
         break;
     }
     case t::string: {
         auto s{escape(v.as_string())};
-        os.write(s.data(), s.size());
+        os.write(s.data(), static_cast<std::streamsize>(s.size()));
         break;
     }
     case t::boolean:
@@ -227,11 +223,11 @@ inline optional<bool> try_parse_boolean(std::istream& is) {
     using namespace parsing;
     if (peek_next(is) == 't') {
         expect_exact(is, "true");
-        return {true};
+        return true;
     }
     if (peek_next(is) == 'f') {
         expect_exact(is, "false");
-        return {false};
+        return false;
     }
     return nullopt;
 }
@@ -321,6 +317,7 @@ inline bool try_parse_null(std::istream& is) {
     return false;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 inline optional<object_impl> try_parse_object(std::istream& is) {
     using namespace parsing;
     using namespace rules;
@@ -342,7 +339,8 @@ inline optional<object_impl> try_parse_object(std::istream& is) {
         skip_while(is, ws);
         expect(is, member_separator);
         auto member_value{parse_value(is)};
-        result.members.emplace(std::move(member_name), std::move(member_value));
+        result.members().emplace(std::move(member_name),
+                                 std::move(member_value));
         if (peek(is, value_separator)) {
             skip(is);
             skip_while(is, ws);
@@ -355,6 +353,7 @@ inline optional<object_impl> try_parse_object(std::istream& is) {
     return result;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 inline optional<array_impl> try_parse_array(std::istream& is) {
     using namespace parsing;
     using namespace rules;
@@ -370,7 +369,7 @@ inline optional<array_impl> try_parse_array(std::istream& is) {
     }
     while (true) {
         auto element_value{parse_value(is)};
-        result.elements.push_back(std::move(element_value));
+        result.elements().push_back(std::move(element_value));
         if (peek(is, value_separator)) {
             skip(is);
             skip_while(is, ws);
@@ -383,27 +382,28 @@ inline optional<array_impl> try_parse_array(std::istream& is) {
     return result;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 inline value parse_value(std::istream& is) {
     using namespace parsing;
     using namespace rules;
     skip_while(is, ws);
     if (auto v{try_parse_string(is)}) {
-        return {make_unique<string_impl>(std::move(*v))};
+        return value{make_unique<string_impl>(std::move(*v))};
     }
     if (auto v{try_parse_object(is)}) {
-        return {make_unique<object_impl>(std::move(*v))};
+        return value{make_unique<object_impl>(std::move(*v))};
     }
     if (auto v{try_parse_array(is)}) {
-        return {make_unique<array_impl>(std::move(*v))};
+        return value{make_unique<array_impl>(std::move(*v))};
     }
     if (auto v{try_parse_boolean(is)}) {
-        return {make_unique<boolean_impl>(std::move(*v))};
+        return value{make_unique<boolean_impl>(*v)};
     }
     if (try_parse_null(is)) {
-        return {make_unique<null_impl>()};
+        return value{make_unique<null_impl>()};
     }
     if (auto v{try_parse_number(is)}) {
-        return {make_unique<number_impl>(std::move(*v))};
+        return value{make_unique<number_impl>(*v)};
     }
     throw unexpected_token{};
 }

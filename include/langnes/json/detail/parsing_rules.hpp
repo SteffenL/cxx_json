@@ -24,7 +24,7 @@ namespace detail {
 namespace parsing {
 namespace rules {
 
-constexpr inline bool eol(std::istream&, char c) {
+constexpr inline bool eol(std::istream& /*unused*/, char c) {
     return c == '\r' || c == '\n';
 }
 
@@ -32,13 +32,15 @@ constexpr inline bool ws(std::istream& is, char c) {
     return c == ' ' || c == '\t' || eol(is, c);
 }
 
-constexpr inline bool dquote(std::istream&, char c) { return c == '"'; }
+constexpr inline bool dquote(std::istream& /*unused*/, char c) {
+    return c == '"';
+}
 
-constexpr inline bool digit(std::istream&, char c) {
+constexpr inline bool digit(std::istream& /*unused*/, char c) {
     return c >= '0' && c <= '9';
 }
 
-constexpr inline bool digit_1_through_9(std::istream&, char c) {
+constexpr inline bool digit_1_through_9(std::istream& /*unused*/, char c) {
     return c >= '1' && c <= '9';
 }
 
@@ -46,22 +48,34 @@ constexpr inline bool hex_digit(std::istream& is, char c) {
     return digit(is, c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
-constexpr inline bool decimal_point(std::istream&, char c) { return c == '.'; }
+constexpr inline bool decimal_point(std::istream& /*unused*/, char c) {
+    return c == '.';
+}
 
-constexpr inline bool escape_start(std::istream&, char c) { return c == '\\'; }
+constexpr inline bool escape_start(std::istream& /*unused*/, char c) {
+    return c == '\\';
+}
 
-constexpr inline bool object_open(std::istream&, char c) { return c == '{'; }
+constexpr inline bool object_open(std::istream& /*unused*/, char c) {
+    return c == '{';
+}
 
-constexpr inline bool object_close(std::istream&, char c) { return c == '}'; }
+constexpr inline bool object_close(std::istream& /*unused*/, char c) {
+    return c == '}';
+}
 
-constexpr inline bool array_open(std::istream&, char c) { return c == '['; }
-constexpr inline bool array_close(std::istream&, char c) { return c == ']'; }
+constexpr inline bool array_open(std::istream& /*unused*/, char c) {
+    return c == '[';
+}
+constexpr inline bool array_close(std::istream& /*unused*/, char c) {
+    return c == ']';
+}
 
-constexpr inline bool value_separator(std::istream&, char c) {
+constexpr inline bool value_separator(std::istream& /*unused*/, char c) {
     return c == ',';
 }
 
-constexpr inline bool member_separator(std::istream&, char c) {
+constexpr inline bool member_separator(std::istream& /*unused*/, char c) {
     return c == ':';
 }
 

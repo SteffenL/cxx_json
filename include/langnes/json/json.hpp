@@ -31,11 +31,11 @@ namespace json {
 namespace detail {
 
 template<typename Container>
-inline void put_array(Container&) {}
+inline void put_array(Container& /*unused*/) {}
 
 template<typename Container, typename First, typename... Rest>
 inline void put_array(Container& container, First&& first, Rest&&... rest) {
-    container.push_back(std::forward<First>(first));
+    container.emplace_back(std::forward<First>(first));
     put_array(container, std::forward<Rest>(rest)...);
 }
 
@@ -45,19 +45,23 @@ using value = detail::value;
 
 enum class stored_format { json, yaml };
 
-inline value load(std::istream& is) { return detail::parse_value(is); }
-
-inline value load(std::istream&& is) {
-    return load(static_cast<std::istream&>(is));
+template<typename Stream, typename std::enable_if<std::is_base_of<
+                              std::istream, Stream>::value>::type* = nullptr>
+inline value load(Stream&& is) {
+    // Satisfy clang-tidy rule cppcoreguidelines-missing-std-forward
+    auto&& is_{std::forward<Stream>(is)};
+    return detail::parse_value(is_);
 }
 
-template<typename T, typename std::enable_if<!std::is_base_of<
-                         std::istream, T>::value>::type* = nullptr>
-inline value load(T&& input) {
-    auto is1{detail::make_istream(std::forward<T>(input))};
-    auto is2{detail::make_istream(std::forward<T>(input))};
-    auto is{std::move(is1)};
-    return load(std::move(is));
+inline value load(const char* data, size_t length) {
+    return load(detail::make_istream(data, length));
+}
+
+template<typename Container,
+         typename std::enable_if<
+             !std::is_base_of<std::istream, Container>::value>::type* = nullptr>
+inline value load(Container&& input) {
+    return load(detail::make_istream(std::forward<Container>(input)));
 }
 
 inline void save(std::ostream& os, const value& v,
@@ -82,19 +86,19 @@ inline std::string save(const value& v,
 
 inline value
 make_object(std::initializer_list<std::pair<std::string, value>> members) {
+    // FIXME: Avoid copies.
     auto impl{detail::make_unique<detail::object_impl>()};
-    for (auto& member : members) {
-        impl->members.emplace(std::move(member.first),
-                              std::move(member.second));
+    for (const auto& member : members) {
+        impl->members().emplace(member.first, member.second);
     }
-    return {std::move(impl)};
+    return value{std::move(impl)};
 }
 
 template<typename... Args>
 inline value make_array(Args&&... elements) {
     auto impl{detail::make_unique<detail::array_impl>()};
-    detail::put_array(impl->elements, std::forward<Args>(elements)...);
-    return {std::move(impl)};
+    detail::put_array(impl->elements(), std::forward<Args>(elements)...);
+    return value{std::move(impl)};
 }
 
 } // namespace json

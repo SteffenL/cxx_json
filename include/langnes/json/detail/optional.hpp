@@ -33,14 +33,16 @@ struct nullopt_t {};
 template<typename T>
 class optional {
 public:
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
     optional() = default;
-    optional(nullopt_t) noexcept {}
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    optional(nullopt_t /*unused*/) noexcept {}
 
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     optional(const T& other) noexcept : m_has_data{true} {
         new (&m_data) T{other};
     }
 
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     optional(T&& other) noexcept : m_has_data{true} {
         new (&m_data) T{std::move(other)};
     }
@@ -81,13 +83,15 @@ public:
     }
 
     explicit operator bool() const { return has_value(); }
-    const T& operator*() { return get(); }
+    const T& operator*() const { return get(); }
+    T& operator*() { return get(); }
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const T& get() const {
         if (!m_has_data) {
             throw bad_optional_access{};
         }
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return *reinterpret_cast<const T*>(&m_data);
     }
 
@@ -96,6 +100,7 @@ public:
         if (!m_has_data) {
             throw bad_optional_access{};
         }
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return *reinterpret_cast<T*>(&m_data);
     }
 
@@ -104,6 +109,7 @@ public:
             throw bad_optional_access{};
         }
         m_has_data = false;
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return std::move(*reinterpret_cast<T*>(&m_data));
     }
 
@@ -118,9 +124,7 @@ private:
 template<>
 class optional<void> {};
 
-namespace {
 constexpr nullopt_t nullopt{};
-}
 
 } // namespace detail
 } // namespace json
