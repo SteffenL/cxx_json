@@ -17,6 +17,7 @@
 #pragma once
 
 #include "dict.hpp"
+#include "type_traits.hpp"
 #include "value_fwd.hpp"
 
 #include <memory>
@@ -46,12 +47,12 @@ public:
 
     template<typename T, typename std::enable_if<
                              (std::is_integral<T>::value &&
-                              !std::is_same<T, bool>::value) ||
+                              !std::is_same<remove_cvref_t<T>, bool>::value) ||
                              std::is_floating_point<T>::value>::type* = nullptr>
     explicit value(T from) noexcept;
 
-    template<typename T, typename std::enable_if<
-                             std::is_same<T, bool>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if<std::is_same<
+                             remove_cvref_t<T>, bool>::value>::type* = nullptr>
     explicit value(T from) noexcept;
 
     const std::string& as_string() const;
@@ -76,12 +77,12 @@ public:
 
     template<typename T, typename std::enable_if<
                              (std::is_integral<T>::value &&
-                              !std::is_same<T, bool>::value) ||
+                              !std::is_same<remove_cvref_t<T>, bool>::value) ||
                              std::is_floating_point<T>::value>::type* = nullptr>
     value& operator=(T from) noexcept;
 
-    template<typename T, typename std::enable_if<
-                             std::is_same<T, bool>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if<std::is_same<
+                             remove_cvref_t<T>, bool>::value>::type* = nullptr>
     value& operator=(T from) noexcept;
 
     value& operator=(const value& rhs) noexcept;

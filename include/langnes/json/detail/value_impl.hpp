@@ -265,31 +265,31 @@ inline value::value(std::string&& data) noexcept
 inline value::value(std::nullptr_t) noexcept
     : m_impl{make_unique<null_impl>()} {}
 
-template<typename T,
-         typename std::enable_if<(std::is_integral<T>::value &&
-                                  !std::is_same<T, bool>::value) ||
-                                 std::is_floating_point<T>::value>::type*>
+template<typename T, typename std::enable_if<
+                         (std::is_integral<T>::value &&
+                          !std::is_same<remove_cvref_t<T>, bool>::value) ||
+                         std::is_floating_point<T>::value>::type*>
 value::value(T from) noexcept
     : m_impl{make_unique<number_impl>(std::forward<T>(from))} {}
 
-template<typename T,
-         typename std::enable_if<std::is_same<T, bool>::value>::type*>
+template<typename T, typename std::enable_if<
+                         std::is_same<remove_cvref_t<T>, bool>::value>::type*>
 value::value(T from) noexcept
     : m_impl{make_unique<boolean_impl>(std::forward<T>(from))} {}
 
 inline value::type value::get_type() const { return m_impl->get_type(); }
 
-template<typename T,
-         typename std::enable_if<(std::is_integral<T>::value &&
-                                  !std::is_same<T, bool>::value) ||
-                                 std::is_floating_point<T>::value>::type*>
+template<typename T, typename std::enable_if<
+                         (std::is_integral<T>::value &&
+                          !std::is_same<remove_cvref_t<T>, bool>::value) ||
+                         std::is_floating_point<T>::value>::type*>
 value& value::operator=(T from) noexcept {
     m_impl = make_unique<number_impl>(std::forward<T>(from));
     return *this;
 }
 
-template<typename T,
-         typename std::enable_if<std::is_same<T, bool>::value>::type*>
+template<typename T, typename std::enable_if<
+                         std::is_same<remove_cvref_t<T>, bool>::value>::type*>
 value& value::operator=(T from) noexcept {
     m_impl = make_unique<boolean_impl>(std::forward<T>(from));
     return *this;
