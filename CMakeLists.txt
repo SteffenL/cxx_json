@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 project(langnes_json)
 
-if(NOT MSVC)
+if(MSVC)
+    add_compile_options(/WX /W4)
+else()
     add_compile_options(-Werror -Wall -Wextra -Wpedantic)
 endif()
 
