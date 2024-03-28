@@ -16,9 +16,7 @@ add_library(langnes::json ALIAS langnes_json)
 target_include_directories(langnes_json INTERFACE include)
 target_compile_features(langnes_json INTERFACE cxx_std_11)
 
-add_subdirectory(example)
-
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     include(CTest)
-    add_test(NAME example COMMAND example)
+    add_subdirectory(example)
 endif()
