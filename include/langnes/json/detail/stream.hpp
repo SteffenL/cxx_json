@@ -53,14 +53,14 @@ public:
         : string_istream_data{s.data(), s.size()} {}
 
     explicit string_istream_data(std::string&& s) noexcept
-        : m_owned_data{std::move(s)},
-          m_buf{m_owned_data.data(), m_owned_data.size()} {}
+        : m_owned_data{std::move(s)}, m_buf{m_owned_data.data(),
+                                            m_owned_data.size()} {}
 
     string_istream_data(const string_istream_data&) = delete;
 
     string_istream_data(string_istream_data&& other) noexcept
-        : m_owned_data{std::move(other.m_owned_data)},
-          m_buf{std::move(other.m_buf)} {}
+        : m_owned_data{std::move(other.m_owned_data)}, m_buf{std::move(
+                                                           other.m_buf)} {}
 
     string_istream_data& operator=(const string_istream_data&) = delete;
     string_istream_data& operator=(string_istream_data&& other) = delete;
