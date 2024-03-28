@@ -31,6 +31,9 @@ struct remove_cvref {
 template<typename T>
 using remove_cvref_t = typename remove_cvref<T>::type;
 
+template<bool Condition, typename T = void>
+using enable_if_t = typename std::enable_if<Condition, T>::type;
+
 } // namespace detail
 } // namespace json
 } // namespace langnes

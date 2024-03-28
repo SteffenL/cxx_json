@@ -19,6 +19,7 @@
 #include "detail/json.hpp"
 #include "detail/memory.hpp"
 #include "detail/stream.hpp"
+#include "detail/type_traits.hpp"
 #include "detail/yaml.hpp"
 
 #include <memory>
@@ -45,8 +46,9 @@ using value = detail::value;
 
 enum class stored_format { json, yaml };
 
-template<typename Stream, typename std::enable_if<std::is_base_of<
-                              std::istream, Stream>::value>::type* = nullptr>
+template<typename Stream,
+         detail::enable_if_t<std::is_base_of<std::istream, Stream>::value>* =
+             nullptr>
 inline value load(Stream&& is) {
     // Satisfy clang-tidy rule cppcoreguidelines-missing-std-forward
     auto&& is_{std::forward<Stream>(is)};
@@ -57,9 +59,8 @@ inline value load(const char* data, size_t length) {
     return load(detail::make_istream(data, length));
 }
 
-template<typename Container,
-         typename std::enable_if<
-             !std::is_base_of<std::istream, Container>::value>::type* = nullptr>
+template<typename Container, detail::enable_if_t<!std::is_base_of<
+                                 std::istream, Container>::value>* = nullptr>
 inline value load(Container&& input) {
     return load(detail::make_istream(std::forward<Container>(input)));
 }
