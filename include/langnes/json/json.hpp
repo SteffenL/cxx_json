@@ -46,6 +46,12 @@ using value = detail::value;
 
 enum class stored_format { json, yaml };
 
+/**
+ * Loads JSON from a stream.
+ *
+ * @param is The input stream.
+ * @return The JSON value.
+ */
 template<typename Stream,
          detail::enable_if_t<std::is_base_of<std::istream, Stream>::value>* =
              nullptr>
@@ -55,16 +61,34 @@ inline value load(Stream&& is) {
     return detail::parse_value(is_);
 }
 
+/**
+ * Loads JSON from a character array with a fixed length.
+ *
+ * @param is The input stream.
+ * @return The JSON value.
+ */
 inline value load(const char* data, size_t length) {
     return load(detail::make_istream(data, length));
 }
 
+/**
+ * Loads JSON from a container such as std::string.
+ *
+ * @param is The input stream.
+ * @return The JSON value.
+ */
 template<typename Container, detail::enable_if_t<!std::is_base_of<
                                  std::istream, Container>::value>* = nullptr>
 inline value load(Container&& input) {
     return load(detail::make_istream(std::forward<Container>(input)));
 }
 
+/**
+ * Saves a JSON value to a stream.
+ *
+ * @param is The input stream.
+ * @return The JSON value.
+ */
 inline void save(std::ostream& os, const value& v,
                  stored_format format = stored_format::json) {
     switch (format) {
@@ -78,6 +102,12 @@ inline void save(std::ostream& os, const value& v,
     throw std::invalid_argument{"Invalid format"};
 }
 
+/**
+ * Saves a JSON value to a new string.
+ *
+ * @param is The input stream.
+ * @return The JSON value.
+ */
 inline std::string save(const value& v,
                         stored_format format = stored_format::json) {
     std::ostringstream os{std::ios::binary};
@@ -85,6 +115,13 @@ inline std::string save(const value& v,
     return os.str();
 }
 
+/**
+ * Creates a JSON object value.
+ *
+ * @param members An initializer list of pairs of object member names and
+ * values.
+ * @return The JSON value.
+ */
 inline value
 make_object(std::initializer_list<std::pair<std::string, value>> members) {
     // FIXME: Avoid copies.
@@ -95,6 +132,12 @@ make_object(std::initializer_list<std::pair<std::string, value>> members) {
     return value{std::move(impl)};
 }
 
+/**
+ * Creates a JSON array value.
+ *
+ * @param members Zero or more elements to add into the array.
+ * @return The JSON value.
+ */
 template<typename... Args>
 inline value make_array(Args&&... elements) {
     auto impl{detail::make_unique<detail::array_impl>()};
