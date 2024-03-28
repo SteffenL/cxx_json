@@ -26,3 +26,4 @@ CheckOptions:
     value: 1
   - key:   readability-identifier-length.MinimumParameterNameLength
     value: 1
+HeaderFilterRegex: .*
