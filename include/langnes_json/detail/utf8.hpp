@@ -28,17 +28,17 @@ inline std::string to_utf8_char(size_t c) {
     if (c <= 0x7fU) {
         s.push_back(static_cast<char>(c));
     } else if (c <= 0x7ffU) {
-        s.push_back(static_cast<char>(0xc0U | (c >> 6)));
-        s.push_back(static_cast<char>(0x80U | (c & 0x3f)));
+        s.push_back(static_cast<char>(0xc0U | (c >> 6U)));
+        s.push_back(static_cast<char>(0x80U | (c & 0x3fU)));
     } else if (c <= 0xffffU) {
-        s.push_back(static_cast<char>(0xe0U | (c >> 12)));
-        s.push_back(static_cast<char>(0x80U | ((c >> 6) & 0x3f)));
-        s.push_back(static_cast<char>(0x80U | (c & 0x3f)));
+        s.push_back(static_cast<char>(0xe0U | (c >> 12U)));
+        s.push_back(static_cast<char>(0x80U | ((c >> 6U) & 0x3fU)));
+        s.push_back(static_cast<char>(0x80U | (c & 0x3fU)));
     } else if (c <= 0x10ffffU) {
-        s.push_back(static_cast<char>(0xe0U | (c >> 18)));
-        s.push_back(static_cast<char>(0x80U | ((c >> 12) & 0x3f)));
-        s.push_back(static_cast<char>(0x80U | ((c >> 6) & 0x3f)));
-        s.push_back(static_cast<char>(0x80U | (c & 0x3f)));
+        s.push_back(static_cast<char>(0xe0U | (c >> 18U)));
+        s.push_back(static_cast<char>(0x80U | ((c >> 12U) & 0x3fU)));
+        s.push_back(static_cast<char>(0x80U | ((c >> 6U) & 0x3fU)));
+        s.push_back(static_cast<char>(0x80U | (c & 0x3fU)));
     } else {
         throw out_of_range{"Invalid code point"};
     }

@@ -13,7 +13,6 @@ Checks: >
     readability-*,
     -cppcoreguidelines-avoid-magic-numbers,
     -cppcoreguidelines-owning-memory,
-    -hicpp-signed-bitwise,
     -hicpp-special-member-functions,
     -misc-no-recursion,
     -modernize-pass-by-value,
