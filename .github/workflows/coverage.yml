@@ -15,6 +15,7 @@ jobs:
   collect:
     runs-on: ${{ matrix.config.image }}
     strategy:
+      fail-fast: false
       matrix:
         cxx-std: [11, 20]
         config:
