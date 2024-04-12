@@ -13,28 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "langnes_json/errors.h"
+#include "langnes_json/errors.hpp"
 
-#pragma once
+const langnes_json_error_code_t langnes_json_error_invalid_argument =
+    static_cast<langnes_json_error_code_t>(
+        langnes::json::error_code::invalid_argument);
 
-#include <stdexcept>
+const langnes_json_error_code_t langnes_json_error_unspecified =
+    static_cast<langnes_json_error_code_t>(
+        langnes::json::error_code::unspecified);
 
-namespace langnes {
-namespace json {
-
-class type_mismatch : public std::runtime_error {
-public:
-    type_mismatch() : runtime_error{"Type mismatch"} {}
-};
-
-class reached_end : public std::runtime_error {
-public:
-    reached_end() : runtime_error{"Reached end of input"} {}
-};
-
-class unexpected_token : public std::runtime_error {
-public:
-    unexpected_token() : runtime_error{"Found unexpected token"} {}
-};
-
-} // namespace json
-} // namespace langnes
+const langnes_json_error_code_t langnes_json_error_ok =
+    static_cast<langnes_json_error_code_t>(langnes::json::error_code::ok);

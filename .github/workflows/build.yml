@@ -1,0 +1,80 @@
+on:
+  workflow_call:
+jobs:
+  package:
+    runs-on: ${{ matrix.config.image }}
+    strategy:
+      matrix:
+        cxx-std: [11, 20]
+        config:
+          - { image: macos-14,     toolchain: llvm,               compiler-name: clang,   cc: clang,    cxx: clang++,    gen: Xcode,                 shell: bash }
+          - { image: ubuntu-22.04, toolchain: llvm,               compiler-name: clang15, cc: clang-15, cxx: clang++-15, gen: Ninja,                 shell: bash,        apt: "clang-15 clang++-15" }
+          - { image: ubuntu-22.04, toolchain: gnu,                compiler-name: gcc12,   cc: gcc-12,   cxx: g++-12,     gen: Ninja,                 shell: bash,        apt: "gcc-12 g++-12",      package_source: true }
+          - { image: windows-2022, toolchain: msys2-gnu-ucrt64,   compiler-name: gcc,     cc: gcc,      cxx: g++,        gen: Ninja,                 shell: "msys2 {0}", msys: UCRT64 }
+          - { image: windows-2022, toolchain: msys2-llvm-clang64, compiler-name: clang,   cc: clang,    cxx: clang++,    gen: Ninja,                 shell: "msys2 {0}", msys: CLANG64 }
+          - { image: windows-2022, toolchain: msvc,               compiler-name: vs2022,  cc: cl,       cxx: cl,         gen: Visual Studio 17 2022, shell: bash }
+    defaults:
+      run:
+        shell: ${{ matrix.config.shell }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up environment
+        uses: ./.github/workflows/setup-env
+        with:
+          apt: ${{ matrix.config.apt }}
+          msys: ${{ matrix.config.msys }}
+
+      - name: Configure
+        run: |
+          args=()
+          if [[ ! -z "${{ matrix.config.gen_platform }}" ]]; then
+            args+=("-DCMAKE_GENERATOR_PLATFORM=${{ matrix.config.gen_platform }}")
+          fi
+          if [[ "${OSTYPE}" == "Darwin" ]]; then
+            args+=("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64")
+          fi
+          cmake -G "${{ matrix.config.gen }}" -S . -B build \
+            "CMAKE_C_COMPILER=${{ matrix.config.cc }}" \
+            "CMAKE_CXX_COMPILER=${{ matrix.config.cxx }}" \
+            "CMAKE_CXX_STANDARD=${{ matrix.cxx-std }}" \
+            "${args[@]}"
+
+      - name: Create package
+        run: cmake --build build --target package
+
+      - if: matrix.config.package_source
+        name: Create source package
+        run: cmake --build build --target package_source
+
+      - name: Get matrix hash
+        id: matrix-hash
+        uses: actions/github-script@v7
+        env:
+          MATRIX: ${{ toJSON(matrix) }}
+        with:
+          script: return require("crypto").createHash("sha256").update(process.env.MATRIX, "utf8").digest("hex")
+          result-encoding: string
+
+      - name: Upload distributable artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: package_${{ steps.matrix-hash.outputs.result }}
+          path: |
+            build/*.gz
+            build/*.sha256
+            build/*.zip
+          retention-days: 1
+          if-no-files-found: error
+
+  merge-artifacts:
+    needs: package
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Merge package artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: package
+          pattern: package_*
+          delete-merged: true

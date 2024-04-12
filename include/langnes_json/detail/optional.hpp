@@ -16,40 +16,33 @@
 
 #pragma once
 
-#include <stdexcept>
+#include "../errors.hpp"
 #include <type_traits>
 
 namespace langnes {
 namespace json {
 namespace detail {
 
-class bad_optional_access : public std::runtime_error {
-public:
-    bad_optional_access() : runtime_error{"Bad optional access"} {}
-};
-
 struct nullopt_t {};
 
 template<typename T>
 class optional {
 public:
-    optional() = default;
+    constexpr optional() = default;
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    optional(nullopt_t /*unused*/) noexcept {}
+    constexpr optional(nullopt_t /*unused*/) noexcept {}
 
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    optional(const T& other) noexcept : m_has_data{true} {
-        new (&m_data) T{other};
-    }
+    optional(const T& other) : m_has_data{true} { new (&m_data) T{other}; }
 
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     optional(T&& other) noexcept : m_has_data{true} {
         new (&m_data) T{std::move(other)};
     }
 
-    optional(const optional<T>& other) noexcept { *this = other; }
+    optional(const optional<T>& other) { *this = other; }
 
-    optional& operator=(const optional<T>& other) noexcept {
+    optional& operator=(const optional<T>& other) {
         if (this == &other) {
             return *this;
         }
@@ -82,14 +75,14 @@ public:
         }
     }
 
-    explicit operator bool() const { return has_value(); }
-    const T& operator*() const { return get(); }
+    constexpr explicit operator bool() const { return has_value(); }
+    constexpr const T& operator*() const { return get(); }
     T& operator*() { return get(); }
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const T& get() const {
         if (!m_has_data) {
-            throw bad_optional_access{};
+            throw bad_access{};
         }
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return *reinterpret_cast<const T*>(&m_data);
@@ -98,7 +91,7 @@ public:
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     T& get() {
         if (!m_has_data) {
-            throw bad_optional_access{};
+            throw bad_access{};
         }
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return *reinterpret_cast<T*>(&m_data);
@@ -106,14 +99,14 @@ public:
 
     T steal() {
         if (!m_has_data) {
-            throw bad_optional_access{};
+            throw bad_access{};
         }
         m_has_data = false;
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return std::move(*reinterpret_cast<T*>(&m_data));
     }
 
-    bool has_value() const { return m_has_data; }
+    constexpr bool has_value() const { return m_has_data; }
 
 private:
     // NOLINTNEXTLINE(bugprone-sizeof-expression): pointer to aggregate is OK

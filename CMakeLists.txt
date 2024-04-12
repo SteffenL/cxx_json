@@ -1,24 +1,79 @@
 cmake_minimum_required(VERSION 3.15)
-project(langnes_json)
 
+include(cmake/macros.cmake)
+langnes_json_init_pre_project()
+
+project(
+    langnes_json
+    VERSION ${LANGNES_JSON_VERSION_NUMBER}
+    DESCRIPTION "A simple C++ library for working with JSON"
+    HOMEPAGE_URL https://github.com/SteffenL/cxx_json
+    LANGUAGES C CXX)
+
+langnes_json_init_post_project()
+
+# Targets should either link this with PRIVATE visibility or not link it at all.
+add_library(langnes_json_private INTERFACE)
+langnes_json_target_enable_warnings(langnes_json_private INTERFACE)
+
+#
+# Header library
+#
+
+add_library(langnes_json_headers INTERFACE)
+add_library(langnes::json ALIAS langnes_json_headers)
+
+target_include_directories(
+    langnes_json_headers
+    INTERFACE
+        "$<BUILD_INTERFACE:${LANGNES_JSON_INCLUDE_DIR}>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+set_target_properties(langnes_json_headers PROPERTIES
+    EXPORT_NAME library_headers)
+
+target_compile_features(langnes_json_headers INTERFACE cxx_std_11)
+
+#
+# Static library
+#
+
+add_library(langnes_json_static STATIC src/exports.cpp)
+add_library(langnes::json_static ALIAS langnes_json_static)
+
+target_link_libraries(langnes_json_static PUBLIC langnes::json PRIVATE langnes_json_private)
+target_compile_definitions(langnes_json_static PUBLIC LANGNES_JSON_STATIC)
+
+# Change .lib file name for MSVC because otherwise it would be the same for shared and static
 if(MSVC)
-    add_compile_options(/WX /W4)
+    set(STATIC_LIBRARY_OUTPUT_NAME langnes_json_static)
 else()
-    add_compile_options(-Werror -Wall -Wextra -Wpedantic)
+    set(STATIC_LIBRARY_OUTPUT_NAME langnes_json)
 endif()
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set_target_properties(langnes_json_static PROPERTIES
+    OUTPUT_NAME "${STATIC_LIBRARY_OUTPUT_NAME}"
+    POSITION_INDEPENDENT_CODE ON
+    EXPORT_NAME library_static)
 
-add_library(langnes_json INTERFACE)
-add_library(langnes::json ALIAS langnes_json)
+#
+# Shared library
+#
 
-target_include_directories(langnes_json INTERFACE include)
-target_compile_features(langnes_json INTERFACE cxx_std_11)
+add_library(langnes_json_shared SHARED src/exports.cpp)
+add_library(langnes::json_shared ALIAS langnes_json_shared)
 
-if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    include(CTest)
-    add_subdirectory(example)
+target_link_libraries(langnes_json_shared PUBLIC langnes::json PRIVATE langnes_json_private)
+target_compile_definitions(langnes_json_shared INTERFACE LANGNES_JSON_SHARED PRIVATE LANGNES_JSON_BUILD_SHARED)
+
+set_target_properties(langnes_json_shared PROPERTIES
+    OUTPUT_NAME langnes_json
+    VERSION "${LANGNES_JSON_VERSION_NUMBER}"
+    SOVERSION "${LANGNES_JSON_VERSION_COMPATIBILITY}"
+    EXPORT_NAME library_shared)
+
+if(LANGNES_JSON_IS_TOP_LEVEL_BUILD)
+    add_subdirectory(examples)
+    add_subdirectory(tests)
+    add_subdirectory(packaging)
+    langnes_json_install()
 endif()

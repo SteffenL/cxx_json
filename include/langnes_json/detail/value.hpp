@@ -20,10 +20,14 @@
 #include "type_traits.hpp"
 #include "value_fwd.hpp"
 
+#include <deque>
 #include <memory>
 #include <string>
 #include <type_traits>
-#include <vector>
+
+struct langnes_json_value_t {
+    virtual ~langnes_json_value_t() = default;
+};
 
 namespace langnes {
 namespace json {
@@ -31,7 +35,7 @@ namespace detail {
 
 struct value_impl_base;
 
-class value {
+class value : public langnes_json_value_t {
 public:
     enum class type { object, array, string, number, boolean, null };
 
@@ -43,7 +47,7 @@ public:
     explicit value(const std::string& data) noexcept;
     explicit value(std::string&& data) noexcept;
     explicit value(std::nullptr_t) noexcept;
-    ~value() = default;
+    ~value() override = default;
 
     template<typename T, typename std::enable_if<
                              (std::is_integral<T>::value &&
@@ -59,13 +63,13 @@ public:
     double as_number() const;
     bool as_boolean() const;
     const dict<std::string, value>& as_object() const;
-    const std::vector<value>& as_array() const;
+    const std::deque<value>& as_array() const;
 
     std::string& as_string();
     double& as_number();
     bool& as_boolean();
     dict<std::string, value>& as_object();
-    std::vector<value>& as_array();
+    std::deque<value>& as_array();
 
     bool is_type(value::type type) const noexcept;
     bool is_string() const noexcept;

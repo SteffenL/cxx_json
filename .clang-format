@@ -5,6 +5,7 @@ AccessModifierOffset: -4
 AlwaysBreakTemplateDeclarations: Yes
 ColumnLimit:     80
 IndentWidth:     4
+PackConstructorInitializers: CurrentLine
 PointerAlignment: Left
 SpaceAfterTemplateKeyword: false
 Standard:        c++11

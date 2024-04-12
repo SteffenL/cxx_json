@@ -16,10 +16,10 @@
 
 #pragma once
 
+#include "../errors.hpp"
 #include "indent.hpp"
 #include "json.hpp"
 
-#include <stdexcept>
 #include <string>
 
 namespace langnes {
@@ -122,7 +122,7 @@ inline void to_yaml(std::ostream& os, const value& v, size_t indent_level,
         number_to_yaml(os, v);
         break;
     default:
-        throw std::invalid_argument{"Invalid value type"};
+        throw invalid_state{"Unexpected value type"};
     }
 }
 

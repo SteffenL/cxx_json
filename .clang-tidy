@@ -11,8 +11,13 @@ Checks: >
     performance-*,
     portability-*,
     readability-*,
+    -bugprone-exception-escape,
     -cppcoreguidelines-avoid-magic-numbers,
+    -cppcoreguidelines-owning-memory,
     -hicpp-signed-bitwise,
+    -hicpp-special-member-functions,
+    -misc-no-recursion,
+    -modernize-pass-by-value,
     -modernize-use-trailing-return-type,
     -readability-magic-numbers,
 CheckOptions:
@@ -26,4 +31,6 @@ CheckOptions:
     value: 1
   - key:   readability-identifier-length.MinimumParameterNameLength
     value: 1
+  - key:   readability-implicit-bool-conversion.AllowPointerConditions
+    value: true
 HeaderFilterRegex: .*

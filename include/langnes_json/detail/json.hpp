@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "../errors.hpp"
 #include "memory.hpp"
 #include "optional.hpp"
 #include "parsing.hpp"
@@ -28,7 +29,6 @@
 #include <cassert>
 #include <cmath>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 
 namespace langnes {
@@ -133,7 +133,6 @@ inline void unescape_one(std::istream& is, std::ostream& os) {
     os.put(c);
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
 inline void to_json(std::ostream& os, const value& v) {
     using t = value::type;
     switch (v.get_type()) {
@@ -181,7 +180,7 @@ inline void to_json(std::ostream& os, const value& v) {
         os << v.as_number();
         break;
     default:
-        throw std::invalid_argument{"Invalid value type"};
+        throw invalid_state{"Unexpected value type"};
     }
 }
 
@@ -317,7 +316,6 @@ inline bool try_parse_null(std::istream& is) {
     return false;
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
 inline optional<object_impl> try_parse_object(std::istream& is) {
     using namespace parsing;
     using namespace rules;
@@ -353,7 +351,6 @@ inline optional<object_impl> try_parse_object(std::istream& is) {
     return result;
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
 inline optional<array_impl> try_parse_array(std::istream& is) {
     using namespace parsing;
     using namespace rules;
@@ -382,7 +379,6 @@ inline optional<array_impl> try_parse_array(std::istream& is) {
     return result;
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
 inline value parse_value(std::istream& is) {
     using namespace parsing;
     using namespace rules;

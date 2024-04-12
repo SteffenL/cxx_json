@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <deque>
 #include <string>
 #include <unordered_map>
 
@@ -50,21 +51,60 @@ public:
     size_t count(const Key& key) const { return m_data.count(key); }
     void clear() noexcept { m_data.clear(); }
 
-    template<typename T>
-    void erase(T&& what) noexcept {
-        m_data.erase(std::forward<T>(what));
+    void erase(const key_type& key) noexcept {
+        auto found{m_data.find(key)};
+        if (found != m_data.end()) {
+            untrack_entry(found);
+            m_data.erase(found);
+        }
+    }
+
+    void erase(iterator it) noexcept {
+        untrack_entry(it);
+        m_data.erase(it);
     }
 
     template<typename... Args>
     std::pair<iterator, bool> emplace(Args&&... args) {
-        return m_data.emplace(std::forward<Args>(args)...);
+        auto pair{m_data.emplace(std::forward<Args>(args)...)};
+        track_entry(pair.first);
+        return pair;
     }
 
-    iterator insert(const value_type& kv) { return m_data.insert(kv); }
-    iterator insert(value_type&& kv) { return m_data.insert(std::move(kv)); }
+    iterator insert(const value_type& kv) {
+        return track_entry(m_data.insert(kv));
+    }
+
+    iterator insert(value_type&& kv) {
+        return track_entry(m_data.insert(std::move(kv)));
+    }
+
+    const value_type& entry_at(size_t index) const {
+        return *m_entries.at(index);
+    }
+
+    value_type& entry_at(size_t index) { return *m_entries.at(index); }
 
 private:
+    iterator track_entry(iterator it) noexcept {
+        auto* entry_ptr{std::addressof(*it)};
+        auto entry_ptr_it{m_entries.insert(m_entries.end(), entry_ptr)};
+        m_value_types_to_entry_iterators.emplace(entry_ptr, entry_ptr_it);
+        return it;
+    }
+
+    void untrack_entry(iterator it) noexcept {
+        auto found{m_value_types_to_entry_iterators.find(std::addressof(*it))};
+        if (found != m_value_types_to_entry_iterators.end()) {
+            m_entries.erase(*found);
+            m_value_types_to_entry_iterators.erase(found);
+        }
+    }
+
     container m_data;
+    std::deque<value_type*> m_entries;
+    std::unordered_map<value_type*, typename decltype(m_entries)::iterator>
+        m_value_types_to_entry_iterators;
 };
 
 } // namespace detail

@@ -26,6 +26,16 @@ namespace json {
 namespace detail {
 namespace parsing {
 
+class reached_end : public parse_error {
+public:
+    reached_end() : parse_error{"Reached end of input"} {}
+};
+
+class unexpected_token : public parse_error {
+public:
+    unexpected_token() : parse_error{"Found unexpected token"} {}
+};
+
 inline char peek_next(std::istream& is) {
     using std_traits = std::istream::traits_type;
     auto i{is.peek()};

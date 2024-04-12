@@ -53,14 +53,14 @@ public:
         : string_istream_data{s.data(), s.size()} {}
 
     explicit string_istream_data(std::string&& s) noexcept
-        : m_owned_data{std::move(s)}, m_buf{m_owned_data.data(),
-                                            m_owned_data.size()} {}
+        : m_owned_data{std::move(s)},
+          m_buf{m_owned_data.data(), m_owned_data.size()} {}
 
     string_istream_data(const string_istream_data&) = delete;
 
     string_istream_data(string_istream_data&& other) noexcept
-        : m_owned_data{std::move(other.m_owned_data)}, m_buf{std::move(
-                                                           other.m_buf)} {}
+        : m_owned_data{std::move(other.m_owned_data)},
+          m_buf{std::move(other.m_buf)} {}
 
     string_istream_data& operator=(const string_istream_data&) = delete;
     string_istream_data& operator=(string_istream_data&& other) = delete;
@@ -76,18 +76,21 @@ private:
 class string_istream : private string_istream_data, public std::istream {
 public:
     explicit string_istream(const char* data, size_t length) noexcept
-        : string_istream_data{data, length}, std::istream{get_buf()} {}
+        : string_istream_data{data, length},
+          std::istream{get_buf()} {}
 
     explicit string_istream(const std::string& s) noexcept
         : string_istream{s.data(), s.size()} {}
 
     explicit string_istream(std::string&& s) noexcept
-        : string_istream_data{std::move(s)}, std::istream{get_buf()} {}
+        : string_istream_data{std::move(s)},
+          std::istream{get_buf()} {}
 
     string_istream(const string_istream&) = delete;
 
     string_istream(string_istream&& other) noexcept
-        : string_istream_data{std::move(other)}, std::istream{get_buf()} {}
+        : string_istream_data{std::move(other)},
+          std::istream{get_buf()} {}
 
     string_istream& operator=(const string_istream&) = delete;
     string_istream& operator=(string_istream&&) = delete;

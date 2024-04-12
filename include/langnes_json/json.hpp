@@ -42,6 +42,14 @@ inline void put_array(Container& container, First&& first, Rest&&... rest) {
 
 } // namespace detail
 
+namespace library_version {
+constexpr unsigned int major{0};
+constexpr unsigned int minor{1};
+constexpr unsigned int patch{0};
+constexpr const char* pre_release{"-dev"};
+constexpr const char* build_metadata{""};
+}; // namespace library_version
+
 using value = detail::value;
 
 enum class stored_format { json, yaml };

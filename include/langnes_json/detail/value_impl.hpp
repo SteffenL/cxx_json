@@ -22,10 +22,10 @@
 #include "type_traits.hpp"
 #include "value.hpp"
 
+#include <deque>
 #include <memory>
 #include <string>
 #include <type_traits>
-#include <vector>
 
 namespace langnes {
 namespace json {
@@ -56,7 +56,8 @@ struct string_impl : public value_impl_base {
     template<typename T,
              enable_if_t<std::is_convertible<T, std::string>::value>* = nullptr>
     explicit string_impl(T&& data)
-        : value_impl_base{value::type::string}, m_data{std::forward<T>(data)} {}
+        : value_impl_base{value::type::string},
+          m_data{std::forward<T>(data)} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<string_impl>(*this);
@@ -78,7 +79,8 @@ struct number_impl : public value_impl_base {
     template<typename T,
              enable_if_t<std::is_floating_point<T>::value>* = nullptr>
     explicit number_impl(T data)
-        : value_impl_base{value::type::number}, m_data{data} {}
+        : value_impl_base{value::type::number},
+          m_data{data} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<number_impl>(*this);
@@ -95,7 +97,8 @@ struct boolean_impl : public value_impl_base {
     boolean_impl() : value_impl_base{value::type::boolean} {}
 
     explicit boolean_impl(bool data)
-        : value_impl_base{value::type::boolean}, m_data{data} {}
+        : value_impl_base{value::type::boolean},
+          m_data{data} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<boolean_impl>(*this);
@@ -137,79 +140,79 @@ struct array_impl : public value_impl_base {
         return make_unique<array_impl>(*this);
     }
 
-    const std::vector<value>& elements() const { return m_elements; }
-    std::vector<value>& elements() { return m_elements; }
+    const std::deque<value>& elements() const { return m_elements; }
+    std::deque<value>& elements() { return m_elements; }
 
 private:
-    std::vector<value> m_elements;
+    std::deque<value> m_elements;
 };
 
 inline const std::string& value::as_string() const {
     if (!m_impl->is_type(value::type::string)) {
-        throw type_mismatch{};
+        throw bad_access{};
     }
     return dynamic_cast<const string_impl*>(m_impl.get())->data();
 }
 
 inline double value::as_number() const {
     if (!m_impl->is_type(value::type::number)) {
-        throw type_mismatch{};
+        throw bad_access{};
     }
     return dynamic_cast<const number_impl*>(m_impl.get())->data();
 }
 
 inline bool value::as_boolean() const {
     if (!m_impl->is_type(value::type::boolean)) {
-        throw type_mismatch{};
+        throw bad_access{};
     }
     return dynamic_cast<const boolean_impl*>(m_impl.get())->data();
 }
 
 inline const dict<std::string, value>& value::as_object() const {
     if (!m_impl->is_type(value::type::object)) {
-        throw type_mismatch{};
+        throw bad_access{};
     }
     return dynamic_cast<const object_impl*>(m_impl.get())->members();
 }
 
-inline const std::vector<value>& value::as_array() const {
+inline const std::deque<value>& value::as_array() const {
     if (!m_impl->is_type(value::type::array)) {
-        throw type_mismatch{};
+        throw bad_access{};
     }
     return dynamic_cast<const array_impl*>(m_impl.get())->elements();
 }
 
 inline std::string& value::as_string() {
     if (!m_impl->is_type(value::type::string)) {
-        throw type_mismatch{};
+        throw bad_access{};
     }
     return dynamic_cast<string_impl*>(m_impl.get())->data();
 }
 
 inline double& value::as_number() {
     if (!m_impl->is_type(value::type::number)) {
-        throw type_mismatch{};
+        throw bad_access{};
     }
     return dynamic_cast<number_impl*>(m_impl.get())->data();
 }
 
 inline bool& value::as_boolean() {
     if (!m_impl->is_type(value::type::boolean)) {
-        throw type_mismatch{};
+        throw bad_access{};
     }
     return dynamic_cast<boolean_impl*>(m_impl.get())->data();
 }
 
 inline dict<std::string, value>& value::as_object() {
     if (!m_impl->is_type(value::type::object)) {
-        throw type_mismatch{};
+        throw bad_access{};
     }
     return dynamic_cast<object_impl*>(m_impl.get())->members();
 }
 
-inline std::vector<value>& value::as_array() {
+inline std::deque<value>& value::as_array() {
     if (!m_impl->is_type(value::type::array)) {
-        throw type_mismatch{};
+        throw bad_access{};
     }
     return dynamic_cast<array_impl*>(m_impl.get())->elements();
 }

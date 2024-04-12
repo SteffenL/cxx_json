@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <stdexcept>
+#include "../errors.hpp"
 #include <string>
 
 namespace langnes {
@@ -40,7 +40,7 @@ inline std::string to_utf8_char(size_t c) {
         s.push_back(static_cast<char>(0x80U | ((c >> 6) & 0x3f)));
         s.push_back(static_cast<char>(0x80U | (c & 0x3f)));
     } else {
-        throw std::out_of_range{"Invalid code point"};
+        throw out_of_range{"Invalid code point"};
     }
     return s;
 }
