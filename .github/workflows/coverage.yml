@@ -71,10 +71,16 @@ jobs:
           echo "upload-dir=${base_dir}" >> "${GITHUB_OUTPUT}"
           echo "coverage-name=${coverage_name}" >> "${GITHUB_OUTPUT}"
 
+      - name: Hash matrix
+        id: hash-matrix
+        uses: ./.github/workflows/hash
+        with:
+          input: ${{ toJSON(matrix) }}
+
       - name: Upload test coverage artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: test_coverage_${{ steps.prepare-test-coverage-artifacts.outputs.coverage-name }}
+          name: test_coverage_${{ steps.hash-matrix.outputs.digest }}
           path: ${{ steps.prepare-test-coverage-artifacts.outputs.upload-dir }}
           retention-days: 1
           if-no-files-found: error

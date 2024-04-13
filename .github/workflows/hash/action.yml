@@ -1,0 +1,34 @@
+name: Hash a string
+description: Applies a hash function to a string and returns the digest.
+inputs:
+  input:
+    description: String to hash.
+    required: true
+  algorithm:
+    description: Hash algorithm supported by Node.js crypto.createHash() (sha256, sha512, etc).
+    required: false
+    default: sha256
+  digest-encoding:
+    description: Digest encoding supported by Node.js (base64, hex, etc).
+    required: false
+    default: hex
+outputs:
+  digest:
+    description: Resulting digest.
+runs:
+  using: composite
+  steps:
+    - name: Calculate digest
+      uses: actions/github-script@v7
+      env:
+        INPUT: ${{ toJSON(inputs.input) }}
+        ALGORITHM: ${{ inputs.algorithm }}
+        DIGEST_ENCODING: ${{ inputs.digest-encoding }}
+      with:
+        script: |
+          const digest = require("crypto")
+            .createHash(process.env.ALGORITHM)
+            .update(process.env.INPUT, "utf8")
+            .digest(process.env.DIGEST_ENCODING);
+          core.setOutput("digest", digest);
+        result-encoding: string
