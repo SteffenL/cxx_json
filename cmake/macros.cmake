@@ -59,10 +59,10 @@ endmacro()
 
 # Sets default language standards.
 macro(langnes_json_set_language_standards)
-    set(CMAKE_C_STANDARD 99)
+    set(CMAKE_C_STANDARD 99 CACHE STRING "")
     set(CMAKE_C_STANDARD_REQUIRED YES)
     set(CMAKE_C_EXTENSIONS NO)
-    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 11 CACHE STRING "")
     set(CMAKE_CXX_STANDARD_REQUIRED YES)
     set(CMAKE_CXX_EXTENSIONS NO)
 endmacro()
