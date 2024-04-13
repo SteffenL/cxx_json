@@ -52,7 +52,7 @@ jobs:
 
       - if: matrix.config.multi
         name: Run Debug tests (Multi-Config)
-        run: ctest -C Release
+        run: ctest -C Debug
         working-directory: build
 
       - name: Run Release tests
