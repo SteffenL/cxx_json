@@ -52,8 +52,8 @@ endmacro()
 # Sets default build type for single-config generators.
 macro(langnes_json_set_default_build_type)
     get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-    if(NOT IS_MULTI_CONFIG AND NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+    if(NOT IS_MULTI_CONFIG AND NOT DEFINED CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE Release CACHE STRING "")
     endif()
 endmacro()
 
@@ -172,6 +172,8 @@ macro(langnes_json_init_pre_project)
     endif()
 
     if(LANGNES_JSON_IS_TOP_LEVEL_BUILD)
+        langnes_json_set_default_build_type()
+
         # CMAKE_OSX_* should be set prior to the first project() or enable_language()
         # Target macOS version
         set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9 CACHE STRING "")
@@ -190,7 +192,6 @@ macro(langnes_json_init_post_project)
         langnes_json_target_add_profile_build_type()
         langnes_json_target_set_install_rpath()
         langnes_json_set_language_standards()
-        langnes_json_set_default_build_type()
 
         # Hide symbols by default
         set(CMAKE_CXX_VISIBILITY_PRESET hidden)
