@@ -35,7 +35,7 @@ jobs:
           if [[ ! -z "${{ matrix.config.gen_platform }}" ]]; then
             args+=("-DCMAKE_GENERATOR_PLATFORM=${{ matrix.config.gen_platform }}")
           fi
-          if [[ "${OSTYPE}" == "Darwin" ]]; then
+          if [[ "${OSTYPE}" == darwin* ]]; then
             args+=("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64")
           fi
           cmake -G "${{ matrix.config.gen }}" -S . -B build \
