@@ -38,9 +38,9 @@ jobs:
             args+=("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64")
           fi
           cmake -G "${{ matrix.config.gen }}" -S . -B build \
-            "CMAKE_C_COMPILER=${{ matrix.config.cc }}" \
-            "CMAKE_CXX_COMPILER=${{ matrix.config.cxx }}" \
-            "CMAKE_CXX_STANDARD=${{ matrix.cxx-std }}" \
+            "-DCMAKE_C_COMPILER=${{ matrix.config.cc }}" \
+            "-DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}" \
+            "-DCMAKE_CXX_STANDARD=${{ matrix.cxx-std }}" \
             "${args[@]}"
 
       - if: matrix.config.multi
