@@ -50,8 +50,6 @@ LANGNES_JSON_API bool langnes_json_failed(langnes_json_error_code_t ec);
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_load_from_cstring(const char* data, langnes_json_value_t** result);
-LANGNES_JSON_API langnes_json_error_code_t langnes_json_load_from_string(
-    const langnes_json_string_t* str, langnes_json_value_t** result);
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_save_to_string(
     langnes_json_value_t* json_value, langnes_json_string_t** result);
 

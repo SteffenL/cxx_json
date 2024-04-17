@@ -139,19 +139,6 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_load_from_cstring(
     });
 }
 
-LANGNES_JSON_API langnes_json_error_code_t langnes_json_load_from_string(
-    const langnes_json_string_t* str, langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
-    return filter_error([&] {
-        if (!str || !result) {
-            throw invalid_argument{};
-        }
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        *result = new value{load(*reinterpret_cast<const std::string*>(str))};
-    });
-}
-
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_save_to_string(
     langnes_json_value_t* json_value, langnes_json_string_t** result) {
     using namespace langnes::json;
