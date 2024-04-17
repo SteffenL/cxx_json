@@ -15,7 +15,8 @@ void example_save(void) {
                                   langnes_json_value_string_new_s("hello"));
     langnes_json_value_array_push(values,
                                   langnes_json_value_number_new_s(3.14159));
-    langnes_json_value_array_push(values, langnes_json_value_boolean_new_s(1));
+    langnes_json_value_array_push(values,
+                                  langnes_json_value_boolean_new_s(true));
     langnes_json_value_array_push(values, langnes_json_value_null_new_s());
 
     // Initialize an object with members.
