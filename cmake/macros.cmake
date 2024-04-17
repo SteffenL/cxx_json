@@ -165,6 +165,41 @@ macro(langnes_json_install)
         COMPONENT langnes_json_development)
 endmacro()
 
+# Declare a dependency with FetchContent_Declare.
+function(langnes_json_declare_dependency VAR_NAME NAME GIT_REPO GIT_VERSION)
+    set(SYSTEM_ARG)
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.25)
+        set(SYSTEM_ARG SYSTEM)
+    endif()
+
+    FetchContent_Declare(
+        "${NAME}"
+        GIT_REPOSITORY "${GIT_REPO}"
+        GIT_TAG "${GIT_VERSION}"
+        ${SYSTEM_ARG}
+    )
+
+    list(APPEND "${VAR_NAME}" "${NAME}")
+    set(LANGNES_JSON_DEPENDENCIES "${LANGNES_JSON_DEPENDENCIES}" PARENT_SCOPE)
+endfunction()
+
+# Fetch dependencies.
+macro(langnes_json_fetch_dependencies)
+    if(LANGNES_JSON_IS_TOP_LEVEL_BUILD)
+        langnes_json_declare_dependency(
+            LANGNES_JSON_DEPENDENCIES
+            Catch2
+            https://github.com/catchorg/Catch2.git
+            b5373dadca40b7edc8570cf9470b9b1cb1934d40 # v3.5.4
+        )
+
+        FetchContent_MakeAvailable(${LANGNES_JSON_DEPENDENCIES})
+
+        list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+        include(Catch)
+    endif()
+endmacro()
+
 # Call this before project().
 macro(langnes_json_init_pre_project)
     if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -188,6 +223,7 @@ macro(langnes_json_init_post_project)
         include(GNUInstallDirs)
         include(CMakePackageConfigHelpers)
         include(CTest)
+        include(FetchContent)
 
         langnes_json_target_add_profile_build_type()
         langnes_json_target_set_install_rpath()
@@ -202,5 +238,7 @@ macro(langnes_json_init_post_project)
 
         # Useful to build tools and clang-tidy
         set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+        langnes_json_fetch_dependencies()
     endif()
 endmacro()
