@@ -49,7 +49,12 @@ public:
     const_iterator cend() const noexcept { return m_data.cend(); }
     bool empty() const noexcept { return m_data.empty(); }
     size_t count(const Key& key) const { return m_data.count(key); }
-    void clear() noexcept { m_data.clear(); }
+
+    void clear() noexcept {
+        m_data.clear();
+        m_entries.clear();
+        m_value_types_to_entry_iterators.clear();
+    }
 
     void erase(const key_type& key) noexcept {
         auto found{m_data.find(key)};
