@@ -60,7 +60,10 @@ jobs:
           base_dir="temp_${RANDOM}"
           artifact_dir="${base_dir}/${coverage_name}"
 
-          gcovr_args=(--filter include/ --json "${artifact_dir}/coverage.json")
+          gcovr_args=(
+            --config gcovr.ci.cfg
+            --json "${artifact_dir}/coverage.json"
+          )
           if [[ ! -z "${{ inputs.gcov }}" ]]; then
             gcovr_args+=(--gcov-executable "${{ inputs.gcov }}")
           fi
@@ -114,10 +117,10 @@ jobs:
             tracefile_args+=(--add-tracefile "${f}")
           done <<< "$(find . -type f -name "coverage.json")"
           mkdir -p "${{ inputs.report-dir }}/html"
-          gcovr --json "${{ inputs.report-dir }}/gcovr.json" "${tracefile_args[@]}"
-          gcovr --coveralls "${{ inputs.report-dir }}/coveralls.json" --add-tracefile "${{ inputs.report-dir }}/gcovr.json"
-          gcovr --json-summary "${{ inputs.report-dir }}/summary.json" --add-tracefile "${{ inputs.report-dir }}/gcovr.json"
-          gcovr --html-details "${{ inputs.report-dir }}/html/index.html" --add-tracefile "${{ inputs.report-dir }}/gcovr.json"
+          gcovr --config gcovr.ci.cfg --json "${{ inputs.report-dir }}/gcovr.json" "${tracefile_args[@]}"
+          gcovr --config gcovr.ci.cfg --coveralls "${{ inputs.report-dir }}/coveralls.json" --add-tracefile "${{ inputs.report-dir }}/gcovr.json"
+          gcovr --config gcovr.ci.cfg --json-summary "${{ inputs.report-dir }}/summary.json" --add-tracefile "${{ inputs.report-dir }}/gcovr.json"
+          gcovr --config gcovr.ci.cfg --html-details "${{ inputs.report-dir }}/html/index.html" --add-tracefile "${{ inputs.report-dir }}/gcovr.json"
 
       - name: Upload report artifacts
         uses: actions/upload-artifact@v4
