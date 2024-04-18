@@ -53,11 +53,11 @@ jobs:
 
       - if: matrix.config.multi
         name: Run Debug tests (Multi-Config)
-        run: ctest -C Debug
+        run: ctest -C Debug --output-on-failure
         working-directory: build
 
       - name: Run Release tests
-        run: ctest -C Release
+        run: ctest -C Release --output-on-failure
         working-directory: build
 
       - if: matrix.config.multi

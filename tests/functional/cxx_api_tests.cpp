@@ -1,5 +1,5 @@
+#include "langnes_json/testing.hpp"
+
 #include <langnes_json/json.hpp>
 
-#include <catch2/catch_test_macros.hpp>
-
-TEST_CASE("Dummy test") { CHECK(1 == 1); }
+TEST_CASE("Dummy functional test") {}

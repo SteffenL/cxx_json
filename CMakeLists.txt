@@ -16,6 +16,7 @@ add_subdirectory(lib)
 
 if(LANGNES_JSON_IS_TOP_LEVEL_BUILD)
     add_subdirectory(examples)
+    add_subdirectory(test_driver)
     add_subdirectory(tests)
     add_subdirectory(packaging)
     langnes_json_install()

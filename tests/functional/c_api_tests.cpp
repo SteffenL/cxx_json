@@ -1,9 +1,12 @@
+#include "langnes_json/testing.hpp"
+
 #include <langnes_json/json.h>
 
-#include <catch2/catch_test_macros.hpp>
+#include <cstring>
 
 // NOLINTBEGIN(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
 // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
+// NOLINTBEGIN(hicpp-use-nullptr,modernize-use-nullptr)
 
 TEST_CASE("Create empty JSON object and populate it") {
     langnes_json_value_t* json_object = langnes_json_value_object_new_s();
@@ -32,8 +35,8 @@ TEST_CASE("Create empty JSON object and populate it") {
 
     // The pointers of the retrieved items are not the same as the pointers
     // during insertion.
-    REQUIRE(got_item0 != nullptr);
-    REQUIRE(got_item1 != nullptr);
+    REQUIRE(got_item0 != NULL);
+    REQUIRE(got_item1 != NULL);
 
     REQUIRE(got_item0 != pushed_item0);
     REQUIRE(got_item0 != pushed_item1);
@@ -121,8 +124,8 @@ TEST_CASE("Create empty JSON array and populate it") {
 
     // The pointers of the retrieved items are not the same as the pointers
     // during insertion.
-    REQUIRE(got_item0 != nullptr);
-    REQUIRE(got_item1 != nullptr);
+    REQUIRE(got_item0 != NULL);
+    REQUIRE(got_item1 != NULL);
 
     REQUIRE(got_item0 != pushed_item0);
     REQUIRE(got_item0 != pushed_item1);
@@ -294,5 +297,6 @@ TEST_CASE("Replace a JSON value with another JSON value") {
     REQUIRE(langnes_json_value_get_number_s(json_value) == 2);
 }
 
+// NOLINTEND(hicpp-use-nullptr,modernize-use-nullptr)
 // NOLINTEND(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
 // NOLINTEND(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
