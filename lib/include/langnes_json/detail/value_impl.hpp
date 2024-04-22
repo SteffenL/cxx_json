@@ -282,10 +282,6 @@ template<typename T, enable_if_t<std::is_same<remove_cvref_t<T>, bool>::value>*>
 value::value(T from) noexcept
     : m_impl{make_unique<boolean_impl>(std::forward<T>(from))} {}
 
-inline value::type value::get_type() const noexcept {
-    return m_impl->get_type();
-}
-
 template<typename T,
          enable_if_t<(std::is_integral<T>::value &&
                       !std::is_same<remove_cvref_t<T>, bool>::value) ||
@@ -332,6 +328,10 @@ inline value& value::operator=(std::string&& rhs) noexcept {
 inline value& value::operator=(std::nullptr_t) noexcept {
     m_impl = make_unique<null_impl>();
     return *this;
+}
+
+inline value::type value::get_type() const noexcept {
+    return m_impl->get_type();
 }
 
 } // namespace detail
