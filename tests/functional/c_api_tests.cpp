@@ -351,6 +351,14 @@ TEST_CASE("langnes_json_load_from_cstring - numbers") {
     REQUIRE(good(load_cstr("1.0e+1", &result)));
 }
 
+TEST_CASE("langnes_json_load_from_cstring - special chars in string") {
+    langnes_json_value_t* result = NULL;
+    REQUIRE(good(load_cstr("\"\\\"\\\\\\b\\f\\n\\r\\t\"", &result)));
+    langnes_json_string_t* str = langnes_json_value_get_string_s(result);
+    const char* cstr = langnes_json_string_get_cstring_s(str);
+    REQUIRE(strcmp(cstr, "\"\\\b\f\n\r\t") == 0);
+}
+
 TEST_CASE("langnes_json_save_to_string - argument validity") {
     SECTION("Should fail with NULL value") {
         langnes_json_string_t* result = NULL;
