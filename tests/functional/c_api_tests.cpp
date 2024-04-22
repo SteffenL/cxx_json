@@ -436,6 +436,42 @@ TEST_CASE("langnes_json_value_clone - argument validity") {
     }
 }
 
+TEST_CASE("langnes_json_value_clone") {
+    REQUIRE(strcmp(langnes_json_value_get_cstring_s(langnes_json_value_clone_s(
+                       langnes_json_value_string_new_with_cstring_s("foo"))),
+                   "foo") == 0);
+    REQUIRE(langnes_json_value_get_number_s(langnes_json_value_clone_s(
+                langnes_json_value_number_new_s(123))) == 123);
+    REQUIRE(langnes_json_value_get_boolean_s(langnes_json_value_clone_s(
+                langnes_json_value_boolean_new_s(true))) == true);
+    REQUIRE(langnes_json_value_get_boolean_s(langnes_json_value_clone_s(
+                langnes_json_value_boolean_new_s(false))) == false);
+    REQUIRE(langnes_json_value_is_null_s(
+        langnes_json_value_clone_s(langnes_json_value_null_new_s())));
+
+    SECTION("object") {
+        langnes_json_object_member_t members[] = {
+            {"x", langnes_json_value_number_new_s(123)}};
+        langnes_json_value_t* object =
+            langnes_json_value_object_new_with_members_s(members, 1);
+        langnes_json_value_t* clone = langnes_json_value_clone_s(object);
+        langnes_json_value_t* value =
+            langnes_json_value_object_get_value_s(clone, "x");
+        REQUIRE(langnes_json_value_get_number_s(value) == 123);
+    }
+
+    SECTION("array") {
+        langnes_json_value_t* elements[] = {
+            langnes_json_value_number_new_s(123)};
+        langnes_json_value_t* array =
+            langnes_json_value_array_new_with_elements_s(elements, 1);
+        langnes_json_value_t* clone = langnes_json_value_clone_s(array);
+        langnes_json_value_t* value =
+            langnes_json_value_array_get_item_s(clone, 0);
+        REQUIRE(langnes_json_value_get_number_s(value) == 123);
+    }
+}
+
 TEST_CASE("langnes_json_value_clone_s") {
     langnes_json_value_t* value = langnes_json_value_number_new_s(123);
     langnes_json_value_t* cloned = langnes_json_value_clone_s(value);
