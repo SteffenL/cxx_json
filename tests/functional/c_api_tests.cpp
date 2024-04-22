@@ -33,17 +33,10 @@ TEST_CASE("Create empty JSON object and populate it") {
     langnes_json_value_t* got_item1 =
         langnes_json_value_object_get_value_s(json_object, "item1");
 
-    // The pointers of the retrieved items are not the same as the pointers
-    // during insertion.
+    // The pointers of the retrieved items are not necessarily the same as the
+    // pointers during insertion but we can't reliably check.
     REQUIRE(got_item0 != NULL);
     REQUIRE(got_item1 != NULL);
-
-    REQUIRE(got_item0 != pushed_item0);
-    REQUIRE(got_item0 != pushed_item1);
-
-    REQUIRE(got_item1 != pushed_item1);
-    REQUIRE(got_item1 != pushed_item0);
-
     REQUIRE(got_item0 != got_item1);
 
     // Retrieving the same items again will however yield the same pointers as
@@ -122,17 +115,10 @@ TEST_CASE("Create empty JSON array and populate it") {
     langnes_json_value_t* got_item1 =
         langnes_json_value_array_get_item_s(json_array, 1);
 
-    // The pointers of the retrieved items are not the same as the pointers
-    // during insertion.
+    // The pointers of the retrieved items are not necessarily the same as the
+    // pointers during insertion but we can't reliably check.
     REQUIRE(got_item0 != NULL);
     REQUIRE(got_item1 != NULL);
-
-    REQUIRE(got_item0 != pushed_item0);
-    REQUIRE(got_item0 != pushed_item1);
-
-    REQUIRE(got_item1 != pushed_item1);
-    REQUIRE(got_item1 != pushed_item0);
-
     REQUIRE(got_item0 != got_item1);
 
     // Retrieving the same items again will however yield the same pointers as
