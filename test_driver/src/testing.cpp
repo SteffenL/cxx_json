@@ -26,58 +26,61 @@ struct failure_exit_codes {
     };
 };
 
-int main(int argc, const char* argv[]) {
+int cmd_help() {
+    std::cout << "Usage: program [--[help|list]|test_name].\n";
+    return 0;
+}
+
+int cmd_list() {
     using namespace langnes::json;
-    const std::deque<std::string> args{argv, argv + argc};
     auto& tests{auto_test_reg::tests()};
-    if (args.size() > 1) {
-        const std::string& arg{args.at(1)};
-        if (arg == "--help") {
-            std::cout << "Usage: program [--[help|list]|test_name].\n";
-            return 0;
-        }
-        if (arg == "--list") {
-            if (tests.empty()) {
-                std::cerr << "No tests found.\n";
-                return failure_exit_codes::no_tests_found;
-            }
-            for (const auto& test : tests) {
-                std::cout << test.second.name << '\n';
-            }
-            return failure_exit_codes::success;
-        }
-        const std::string& test_name{arg};
-        auto found{tests.find(test_name)};
-        if (found == tests.end()) {
-            std::cerr << "Test not found: " << test_name << '\n';
-            return failure_exit_codes::test_not_found;
-        }
-        auto exit_code{failure_exit_codes::failure};
-        const auto& test{found->second};
-        try {
-            test.fn();
-            exit_code = failure_exit_codes::success;
-        } catch (const test_failure& e) {
-            const auto& info{e.info()};
-            std::cerr << "Test \"" << test.name << "\" failed ["
-                      << info.condition << "] at " << info.file << ":"
-                      << info.line << ".\n";
-            exit_code = failure_exit_codes::failure;
-        } catch (const std::exception& e) {
-            std::cerr << "Test \"" << test.name
-                      << "\" threw exception with message \"" << e.what()
-                      << "\".\n";
-            exit_code = failure_exit_codes::exception_thrown;
-        }
-        return failure_exit_codes::success;
+    if (tests.empty()) {
+        std::cerr << "No tests found.\n";
+        return failure_exit_codes::no_tests_found;
     }
+    for (const auto& test : tests) {
+        std::cout << test.second.name() << '\n';
+    }
+    return failure_exit_codes::success;
+}
+
+int cmd_run_test(const std::string& test_name) {
+    using namespace langnes::json;
+    auto& tests{auto_test_reg::tests()};
+    auto found{tests.find(test_name)};
+    if (found == tests.end()) {
+        std::cerr << "Test not found: " << test_name << '\n';
+        return failure_exit_codes::test_not_found;
+    }
+    auto exit_code{failure_exit_codes::failure};
+    const auto& test{found->second};
+    try {
+        test.invoke();
+        exit_code = failure_exit_codes::success;
+    } catch (const test_failure& e) {
+        const auto& info{e.info()};
+        std::cerr << "Test \"" << test.name() << "\" failed [" << info.condition
+                  << "] at " << info.file << ":" << info.line << ".\n";
+        exit_code = failure_exit_codes::failure;
+    } catch (const std::exception& e) {
+        std::cerr << "Test \"" << test.name()
+                  << "\" threw exception with message \"" << e.what()
+                  << "\".\n";
+        exit_code = failure_exit_codes::exception_thrown;
+    }
+    return failure_exit_codes::success;
+}
+
+int cmd_run_all_tests() {
+    using namespace langnes::json;
+    auto& tests{auto_test_reg::tests()};
     if (tests.empty()) {
         return failure_exit_codes::no_tests_found;
     }
     size_t name_width{};
     for (const auto& it : tests) {
         const auto& test{it.second};
-        const auto name_size{test.name.size()};
+        const auto name_size{test.name().size()};
         if (name_size > name_width) {
             name_width = name_size;
         }
@@ -85,29 +88,52 @@ int main(int argc, const char* argv[]) {
     size_t success_count{};
     for (const auto& it : tests) {
         const auto& test{it.second};
-        std::cout << test.name << std::setfill('.')
-                  << std::setw(static_cast<int>(name_width - test.name.size()))
+        std::cout << test.name() << std::setfill('.')
+                  << std::setw(
+                         static_cast<int>(name_width - test.name().size()))
                   << "" << std::setw(0) << ": ";
         try {
-            test.fn();
+            test.invoke();
             ++success_count;
             std::cout << "OK\n";
         } catch (const test_failure& e) {
             const auto& info{e.info()};
             std::cout << "FAIL\n";
-            std::cerr << "Test \"" << test.name << "\" failed ["
+            std::cerr << "Test \"" << test.name() << "\" failed ["
                       << info.condition << "] at " << info.file << ":"
                       << info.line << ".\n";
         } catch (const std::exception& e) {
             std::cout << "FAIL\n";
-            std::cerr << "Test \"" << test.name
+            std::cerr << "Test \"" << test.name()
                       << "\" threw exception with message \"" << e.what()
                       << "\".\n";
         }
     }
-    const auto fail_count{tests.size() - success_count};
     if (success_count == tests.size()) {
         return failure_exit_codes::success;
     }
     return failure_exit_codes::failure;
+}
+
+int main(int argc, const char* argv[]) {
+    try {
+        const std::deque<std::string> args{argv, argv + argc};
+        if (args.size() > 1) {
+            const std::string& arg{args.at(1)};
+            if (arg == "--help") {
+                return cmd_help();
+            }
+            if (arg == "--list") {
+                return cmd_list();
+            }
+            return cmd_run_test(arg);
+        }
+        return cmd_run_all_tests();
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << '\n';
+        return failure_exit_codes::exception_thrown;
+    } catch (...) {
+        std::cerr << "Unknown error.\n";
+        return failure_exit_codes::exception_thrown;
+    }
 }

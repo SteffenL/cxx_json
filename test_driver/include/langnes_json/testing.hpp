@@ -23,14 +23,25 @@ private:
     failure_info m_info;
 };
 
-struct test_reg {
-    std::string name;
-    std::function<void()> fn;
+class test_reg {
+public:
+    test_reg() = default;
+
+    test_reg(const char* name, std::function<void()> fn) noexcept
+        : m_name{name},
+          m_fn{std::move(fn)} {}
+
+    const std::string& name() const noexcept { return m_name; }
+    void invoke() const noexcept { m_fn(); }
+
+private:
+    std::string m_name;
+    std::function<void()> m_fn;
 };
 
 struct auto_test_reg {
     explicit auto_test_reg(test_reg reg) noexcept {
-        tests()[reg.name] = std::move(reg);
+        tests()[reg.name()] = std::move(reg);
     }
 
     static std::map<std::string, test_reg>& tests();
