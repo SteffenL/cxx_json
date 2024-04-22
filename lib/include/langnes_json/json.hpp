@@ -20,11 +20,9 @@
 #include "detail/memory.hpp"
 #include "detail/stream.hpp"
 #include "detail/type_traits.hpp"
-#include "detail/yaml.hpp"
 
 #include <memory>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 
 namespace langnes {
@@ -52,8 +50,6 @@ constexpr const char* build_metadata{""};
 }; // namespace library_version
 
 using value = detail::value;
-
-enum class stored_format { json, yaml };
 
 /**
  * Loads JSON from a stream.
@@ -98,18 +94,7 @@ inline value load(Container&& input) {
  * @param is The input stream.
  * @return The JSON value.
  */
-inline void save(std::ostream& os, const value& v,
-                 stored_format format = stored_format::json) {
-    switch (format) {
-    case stored_format::json:
-        detail::to_json(os, v);
-        return;
-    case stored_format::yaml:
-        detail::to_yaml(os, v);
-        return;
-    }
-    throw std::invalid_argument{"Invalid format"};
-}
+inline void save(std::ostream& os, const value& v) { detail::to_json(os, v); }
 
 /**
  * Saves a JSON value to a new string.
@@ -117,10 +102,9 @@ inline void save(std::ostream& os, const value& v,
  * @param is The input stream.
  * @return The JSON value.
  */
-inline std::string save(const value& v,
-                        stored_format format = stored_format::json) {
+inline std::string save(const value& v) {
     std::ostringstream os{std::ios::binary};
-    save(os, v, format);
+    save(os, v);
     return os.str();
 }
 
