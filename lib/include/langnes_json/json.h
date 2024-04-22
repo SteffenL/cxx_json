@@ -147,6 +147,7 @@ LANGNES_JSON_API bool
 langnes_json_value_get_boolean_s(langnes_json_value_t* json_value);
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_set_boolean(langnes_json_value_t* json_value, bool value);
+
 //
 // JSON null
 //
