@@ -300,6 +300,16 @@ TEST_CASE("langnes_json_load_from_cstring - argument validity") {
     }
 }
 
+TEST_CASE("langnes_json_load_from_cstring - UTF-8") {
+    langnes_json_value_t* result = NULL;
+    REQUIRE(langnes_json_succeeded(langnes_json_load_from_cstring(
+        "\"foo\\u2753\\x24\\u00a3\\u0418\\u0939\\u20ac\\ud55c\"", &result)));
+    REQUIRE(langnes_json_value_is_string_s(result));
+    langnes_json_string_t* str = langnes_json_value_get_string_s(result);
+    const char* cstr = langnes_json_string_get_cstring_s(str);
+    REQUIRE(strcmp(cstr, "foo\u2753\x24\u00a3\u0418\u0939\u20ac\ud55c") == 0);
+}
+
 TEST_CASE("langnes_json_save_to_string - argument validity") {
     SECTION("Should fail with NULL value") {
         langnes_json_string_t* result = NULL;
