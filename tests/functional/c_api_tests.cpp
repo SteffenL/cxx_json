@@ -290,6 +290,34 @@ TEST_CASE("Replace a JSON value with another JSON value") {
     REQUIRE(langnes_json_value_get_number_s(json_value) == 2);
 }
 
+TEST_CASE("Invalid access to JSON value as different type") {
+    SECTION("Accessing string from different type should fail") {
+        const char* result = NULL;
+        langnes_json_value_t* value = langnes_json_value_number_new_s(0);
+        REQUIRE(bad(langnes_json_value_get_cstring(value, &result)));
+    }
+    SECTION("Accessing number from different type should fail") {
+        double result = 0;
+        langnes_json_value_t* value =
+            langnes_json_value_string_new_with_cstring_s("foo");
+        REQUIRE(bad(langnes_json_value_get_number(value, &result)));
+    }
+    SECTION("Accessing boolean from different type should fail") {
+        bool result = false;
+        langnes_json_value_t* value = langnes_json_value_number_new_s(0);
+        REQUIRE(bad(langnes_json_value_get_boolean(value, &result)));
+    }
+    // Skipped check for null as we can't "get" anything from it
+    SECTION("Accessing object from different type should fail") {
+        langnes_json_value_t* value = langnes_json_value_number_new_s(0);
+        REQUIRE(bad(langnes_json_value_object_clear(value)));
+    }
+    SECTION("Accessing array from different type should fail") {
+        langnes_json_value_t* value = langnes_json_value_number_new_s(0);
+        REQUIRE(bad(langnes_json_value_array_clear(value)));
+    }
+}
+
 TEST_CASE("langnes_json_load_from_cstring - argument validity") {
     SECTION("Should fail with NULL data") {
         langnes_json_value_t* result = NULL;
