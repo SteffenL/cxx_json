@@ -63,7 +63,7 @@ template<typename Stream,
 inline value load(Stream&& is) {
     // Satisfy clang-tidy rule cppcoreguidelines-missing-std-forward
     auto&& is_{std::forward<Stream>(is)};
-    return detail::parse_value(is_);
+    return detail::fully_parse_value(is_);
 }
 
 /**

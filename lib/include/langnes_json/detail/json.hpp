@@ -239,6 +239,7 @@ inline bool parse_boolean(std::istream& is) {
     throw unexpected_token{};
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 inline optional<double> try_parse_number(std::istream& is) {
     using namespace parsing;
     using namespace rules;
@@ -261,26 +262,33 @@ inline optional<double> try_parse_number(std::istream& is) {
         number_digits.push_back(first_digit);
         read_while(is, number_digits, digit);
     }
-    if (peek_next(is) == '.') {
-        skip(is);
-        char first_digit{};
-        if (!next(is, first_digit, digit)) {
-            throw unexpected_token{};
-        }
-        fraction_digits.push_back(first_digit);
-        read_while(is, fraction_digits, digit);
-    }
-    auto c{peek_next(is)};
-    if (c == 'e' || c == 'E') {
-        skip(is);
-        c = peek_next(is);
-        if (c == '+' || c == '-') {
+    if (!has_reached_end(is)) {
+        if (peek_next(is) == '.') {
             skip(is);
-            if (c == '-') {
-                exponent_sign = -1;
+            char first_digit{};
+            if (!next(is, first_digit, digit)) {
+                throw unexpected_token{};
             }
+            fraction_digits.push_back(first_digit);
+            read_while(is, fraction_digits, digit);
         }
-        read_while(is, exponent_digits, digit);
+        auto c{peek_next(is)};
+        if (c == 'e' || c == 'E') {
+            skip(is);
+            c = peek_next(is);
+            if (c == '+' || c == '-') {
+                skip(is);
+                if (c == '-') {
+                    exponent_sign = -1;
+                }
+            }
+            char first_digit{};
+            if (!next(is, first_digit, digit)) {
+                throw unexpected_token{};
+            }
+            exponent_digits.push_back(first_digit);
+            read_while(is, exponent_digits, digit);
+        }
     }
     double number{std::stod(number_digits)};
     if (!fraction_digits.empty()) {
@@ -402,6 +410,13 @@ inline value parse_value(std::istream& is) {
         return value{make_unique<number_impl>(*v)};
     }
     throw unexpected_token{};
+}
+
+inline value fully_parse_value(std::istream& is) {
+    using namespace parsing;
+    auto value{parse_value(is)};
+    expect_fully_consumed(is);
+    return value;
 }
 
 } // namespace detail

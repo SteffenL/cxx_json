@@ -36,10 +36,17 @@ public:
     unexpected_token() : parse_error{"Found unexpected token"} {}
 };
 
+inline bool is_eof(int c) {
+    using std_traits = std::istream::traits_type;
+    return std_traits::eq_int_type(c, std_traits::eof());
+}
+
+inline bool has_reached_end(std::istream& is) { return is_eof(is.peek()); }
+
 inline char peek_next(std::istream& is) {
     using std_traits = std::istream::traits_type;
     auto i{is.peek()};
-    if (std_traits::eq_int_type(i, std_traits::eof())) {
+    if (is_eof(i)) {
         throw reached_end{};
     }
     return std_traits::to_char_type(i);
@@ -74,21 +81,33 @@ void expect(std::istream& is, Predicate&& predicate) {
     }
 }
 
+inline void expect_fully_consumed(std::istream& is) {
+    try {
+        peek_next(is);
+        throw unexpected_token{};
+    } catch (const reached_end&) {
+        // We want to be at the end of the stream
+    }
+}
+
 template<typename Predicate>
 void skip_while(std::istream& is, Predicate&& predicate) {
-    while (predicate(is, get_next(is))) {
-        // Do nothing
+    is.peek();
+    while (is.good() && predicate(is, peek_next(is))) {
+        skip(is);
+        is.peek();
     }
-    is.unget();
 }
 
 template<typename Predicate>
 void read_while(std::istream& is, std::string& s, Predicate predicate) {
+    is.peek();
     char c{};
-    while (predicate(is, c = get_next(is))) {
+    while (is.good() && predicate(is, c = peek_next(is))) {
+        skip(is);
         s += c;
+        is.peek();
     }
-    is.unget();
 }
 
 inline void expect_exact(std::istream& is, const std::string& expected) {

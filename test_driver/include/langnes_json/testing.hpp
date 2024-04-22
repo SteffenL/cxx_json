@@ -32,7 +32,7 @@ public:
           m_fn{std::move(fn)} {}
 
     const std::string& name() const noexcept { return m_name; }
-    void invoke() const noexcept { m_fn(); }
+    void invoke() const { m_fn(); }
 
 private:
     std::string m_name;
