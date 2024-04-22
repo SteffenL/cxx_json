@@ -877,6 +877,18 @@ TEST_CASE("langnes_json_value_object_get_value - argument validity") {
     }
 }
 
+TEST_CASE("langnes_json_value_object_get_value - key range") {
+    langnes_json_value_t* result = NULL;
+    langnes_json_value_t* json_value = langnes_json_value_object_new_s();
+    REQUIRE(bad(langnes_json_value_object_get_value(json_value, "x", &result)));
+    langnes_json_value_object_set_value(json_value, "x",
+                                        langnes_json_value_number_new_s(123));
+    REQUIRE(
+        good(langnes_json_value_object_get_value(json_value, "x", &result)));
+    langnes_json_value_object_clear(json_value);
+    REQUIRE(bad(langnes_json_value_object_get_value(json_value, "x", &result)));
+}
+
 TEST_CASE("langnes_json_value_object_set_value - argument validity") {
     SECTION("Should fail with NULL value") {
         REQUIRE(bad(langnes_json_value_object_set_value(
@@ -972,6 +984,20 @@ TEST_CASE("langnes_json_value_object_get_member - argument validity") {
             good(langnes_json_value_object_get_member(json_value, 0, &result)));
         REQUIRE(strcmp(result.name, "x") == 0);
     }
+}
+
+TEST_CASE("langnes_json_value_object_get_member - index range") {
+    langnes_json_value_t* json_value = langnes_json_value_object_new_s();
+    langnes_json_object_member_t result = {};
+    REQUIRE(bad(langnes_json_value_object_get_member(json_value, 0, &result)));
+    REQUIRE(bad(langnes_json_value_object_get_member(json_value, 1, &result)));
+    langnes_json_value_object_set_value(json_value, "x",
+                                        langnes_json_value_number_new_s(123));
+    REQUIRE(good(langnes_json_value_object_get_member(json_value, 0, &result)));
+    REQUIRE(bad(langnes_json_value_object_get_member(json_value, 1, &result)));
+    langnes_json_value_object_clear(json_value);
+    REQUIRE(bad(langnes_json_value_object_get_member(json_value, 0, &result)));
+    REQUIRE(bad(langnes_json_value_object_get_member(json_value, 1, &result)));
 }
 
 TEST_CASE("langnes_json_value_object_clear - argument validity") {
@@ -1100,6 +1126,20 @@ TEST_CASE("langnes_json_value_array_get_item - argument validity") {
         REQUIRE(
             good(langnes_json_value_array_get_item(json_value, 0, &result)));
     }
+}
+
+TEST_CASE("langnes_json_value_array_get_item - index range") {
+    langnes_json_value_t* result = NULL;
+    langnes_json_value_t* json_value = langnes_json_value_array_new_s();
+    REQUIRE(bad(langnes_json_value_array_get_item(json_value, 0, &result)));
+    REQUIRE(bad(langnes_json_value_array_get_item(json_value, 1, &result)));
+    langnes_json_value_array_push(json_value,
+                                  langnes_json_value_number_new_s(123));
+    REQUIRE(good(langnes_json_value_array_get_item(json_value, 0, &result)));
+    REQUIRE(bad(langnes_json_value_array_get_item(json_value, 1, &result)));
+    langnes_json_value_array_clear(json_value);
+    REQUIRE(bad(langnes_json_value_array_get_item(json_value, 0, &result)));
+    REQUIRE(bad(langnes_json_value_array_get_item(json_value, 1, &result)));
 }
 
 TEST_CASE("langnes_json_value_set_array - argument validity") {
