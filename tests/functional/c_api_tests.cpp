@@ -491,6 +491,26 @@ TEST_CASE("langnes_json_string_free - argument validity") {
     }
 }
 
+TEST_CASE("langnes_json_value_string_new_with_string - argument validity") {
+    SECTION("Should fail with NULL data") {
+        langnes_json_value_t* result = NULL;
+        REQUIRE(bad(langnes_json_value_string_new_with_string(NULL, &result)));
+    }
+    SECTION("Should fail with NULL result") {
+        langnes_json_value_t* value =
+            langnes_json_value_string_new_with_cstring_s("{}");
+        langnes_json_string_t* str = langnes_json_value_get_string_s(value);
+        REQUIRE(bad(langnes_json_value_string_new_with_string(str, NULL)));
+    }
+    SECTION("Should succeed with valid arguments") {
+        langnes_json_value_t* value =
+            langnes_json_value_string_new_with_cstring_s("{}");
+        langnes_json_string_t* str = langnes_json_value_get_string_s(value);
+        langnes_json_value_t* result = NULL;
+        REQUIRE(good(langnes_json_value_string_new_with_string(str, &result)));
+    }
+}
+
 TEST_CASE("langnes_json_value_string_new_with_cstring - argument validity") {
     SECTION("Should fail with NULL data") {
         langnes_json_value_t* result = NULL;
@@ -504,6 +524,17 @@ TEST_CASE("langnes_json_value_string_new_with_cstring - argument validity") {
         REQUIRE(
             good(langnes_json_value_string_new_with_cstring("{}", &result)));
     }
+}
+
+TEST_CASE("langnes_json_value_string_new_with_string_s") {
+    langnes_json_value_t* value =
+        langnes_json_value_string_new_with_cstring_s("{}");
+    langnes_json_string_t* str = langnes_json_value_get_string_s(value);
+    langnes_json_value_t* result =
+        langnes_json_value_string_new_with_string_s(str);
+    langnes_json_string_t* result_str = langnes_json_value_get_string_s(result);
+    const char* result_cstr = langnes_json_string_get_cstring_s(result_str);
+    REQUIRE(strcmp(result_cstr, "{}") == 0);
 }
 
 TEST_CASE("langnes_json_value_is_string - argument validity") {

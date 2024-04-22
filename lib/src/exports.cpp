@@ -288,6 +288,28 @@ langnes_json_string_free(langnes_json_string_t* str) {
 //
 
 LANGNES_JSON_API langnes_json_error_code_t
+langnes_json_value_string_new_with_string(langnes_json_string_t* str,
+                                          langnes_json_value_t** result) {
+    using namespace langnes::json;
+    using namespace langnes::json::detail;
+    return filter_error([&] {
+        if (!str || !result) {
+            throw invalid_argument{};
+        }
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        *result = new value{*reinterpret_cast<std::string*>(str)};
+    });
+}
+
+LANGNES_JSON_API langnes_json_value_t*
+langnes_json_value_string_new_with_string_s(langnes_json_string_t* str) {
+    langnes_json_value_t* result{};
+    langnes_json_check_error(
+        langnes_json_value_string_new_with_string(str, &result));
+    return result;
+}
+
+LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_string_new_with_cstring(const char* data,
                                            langnes_json_value_t** result) {
     using namespace langnes::json;
