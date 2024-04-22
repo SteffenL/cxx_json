@@ -69,7 +69,8 @@ inline value load(Stream&& is) {
 /**
  * Loads JSON from a character array with a fixed length.
  *
- * @param is The input stream.
+ * @param data The JSON document data.
+ * @param length The length of the JSON document in bytes.
  * @return The JSON value.
  */
 inline value load(const char* data, size_t length) {
@@ -79,7 +80,7 @@ inline value load(const char* data, size_t length) {
 /**
  * Loads JSON from a container such as std::string.
  *
- * @param is The input stream.
+ * @param input The input container.
  * @return The JSON value.
  */
 template<typename Container, detail::enable_if_t<!std::is_base_of<
@@ -91,16 +92,16 @@ inline value load(Container&& input) {
 /**
  * Saves a JSON value to a stream.
  *
- * @param is The input stream.
- * @return The JSON value.
+ * @param os The output stream.
+ * @param v The JSON value.
  */
 inline void save(std::ostream& os, const value& v) { detail::to_json(os, v); }
 
 /**
  * Saves a JSON value to a new string.
  *
- * @param is The input stream.
- * @return The JSON value.
+ * @param v The JSON value.
+ * @return The saved JSON document.
  */
 inline std::string save(const value& v) {
     std::ostringstream os{std::ios::binary};
@@ -128,7 +129,7 @@ inline value make_object(
 /**
  * Creates a JSON array value.
  *
- * @param members Zero or more elements to add into the array.
+ * @param elements Zero or more elements to add into the array.
  * @return The JSON value.
  */
 template<typename... Args>
