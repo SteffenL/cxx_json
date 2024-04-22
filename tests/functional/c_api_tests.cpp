@@ -22,7 +22,7 @@ TEST_CASE("Create empty JSON object and populate it") {
 
     // Create new items.
     langnes_json_value_t* pushed_item0 =
-        langnes_json_value_string_new_s("hello");
+        langnes_json_value_string_new_with_cstring_s("hello");
     langnes_json_value_t* pushed_item1 =
         langnes_json_value_number_new_s(3.14159);
 
@@ -104,7 +104,7 @@ TEST_CASE("Create empty JSON array and populate it") {
 
     // Create new items.
     langnes_json_value_t* pushed_item0 =
-        langnes_json_value_string_new_s("hello");
+        langnes_json_value_string_new_with_cstring_s("hello");
     langnes_json_value_t* pushed_item1 =
         langnes_json_value_number_new_s(3.14159);
 
@@ -186,7 +186,7 @@ TEST_CASE("Clear JSON array") {
 TEST_CASE("Check types of new JSON values") {
     SECTION("New string value should return proper type and value") {
         langnes_json_value_t* json_value =
-            langnes_json_value_string_new_s("hello");
+            langnes_json_value_string_new_with_cstring_s("hello");
         REQUIRE(langnes_json_value_is_string_s(json_value));
     }
 
@@ -263,7 +263,8 @@ TEST_CASE("Change types of JSON values") {
 
 TEST_CASE("Get string from JSON string value") {
     SECTION("Empty string") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         langnes_json_string_t* str =
             langnes_json_value_get_string_s(json_value);
         REQUIRE(langnes_json_string_get_length_s(str) == 0);
@@ -273,7 +274,7 @@ TEST_CASE("Get string from JSON string value") {
 
     SECTION("Non-empty string") {
         langnes_json_value_t* json_value =
-            langnes_json_value_string_new_s("hello");
+            langnes_json_value_string_new_with_cstring_s("hello");
         langnes_json_string_t* str =
             langnes_json_value_get_string_s(json_value);
         REQUIRE(langnes_json_string_get_length_s(str) == 5);
@@ -439,13 +440,15 @@ TEST_CASE("langnes_json_string_get_cstring - argument validity") {
         REQUIRE(bad(langnes_json_string_get_cstring(NULL, &result)));
     }
     SECTION("Should fail with NULL result") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         langnes_json_string_t* str =
             langnes_json_value_get_string_s(json_value);
         REQUIRE(bad(langnes_json_string_get_cstring(str, NULL)));
     }
     SECTION("Should succeed with valid arguments") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         langnes_json_string_t* str =
             langnes_json_value_get_string_s(json_value);
         const char* result = NULL;
@@ -459,13 +462,15 @@ TEST_CASE("langnes_json_string_get_length - argument validity") {
         REQUIRE(bad(langnes_json_string_get_length(NULL, &result)));
     }
     SECTION("Should fail with NULL result") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         langnes_json_string_t* str =
             langnes_json_value_get_string_s(json_value);
         REQUIRE(bad(langnes_json_string_get_length(str, NULL)));
     }
     SECTION("Should succeed with valid arguments") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         langnes_json_string_t* str =
             langnes_json_value_get_string_s(json_value);
         size_t result = 0;
@@ -478,24 +483,26 @@ TEST_CASE("langnes_json_string_free - argument validity") {
         REQUIRE(bad(langnes_json_string_free(NULL)));
     }
     SECTION("Should succeed with valid arguments") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         langnes_json_string_t* result = NULL;
         REQUIRE(good(langnes_json_save_to_string(json_value, &result)));
         REQUIRE(good(langnes_json_string_free(result)));
     }
 }
 
-TEST_CASE("langnes_json_value_string_new - argument validity") {
+TEST_CASE("langnes_json_value_string_new_with_cstring - argument validity") {
     SECTION("Should fail with NULL data") {
         langnes_json_value_t* result = NULL;
-        REQUIRE(bad(langnes_json_value_string_new(NULL, &result)));
+        REQUIRE(bad(langnes_json_value_string_new_with_cstring(NULL, &result)));
     }
     SECTION("Should fail with NULL result") {
-        REQUIRE(bad(langnes_json_value_string_new("{}", NULL)));
+        REQUIRE(bad(langnes_json_value_string_new_with_cstring("{}", NULL)));
     }
     SECTION("Should succeed with valid arguments") {
         langnes_json_value_t* result = NULL;
-        REQUIRE(good(langnes_json_value_string_new("{}", &result)));
+        REQUIRE(
+            good(langnes_json_value_string_new_with_cstring("{}", &result)));
     }
 }
 
@@ -505,7 +512,8 @@ TEST_CASE("langnes_json_value_is_string - argument validity") {
         REQUIRE(bad(langnes_json_value_is_string(NULL, &result)));
     }
     SECTION("Should fail with NULL result") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         REQUIRE(bad(langnes_json_value_is_string(json_value, NULL)));
     }
     SECTION("Should return false with different type") {
@@ -515,7 +523,8 @@ TEST_CASE("langnes_json_value_is_string - argument validity") {
         REQUIRE(!result);
     }
     SECTION("Should return true with same type") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         bool result = false;
         REQUIRE(good(langnes_json_value_is_string(json_value, &result)));
         REQUIRE(result);
@@ -528,11 +537,13 @@ TEST_CASE("langnes_json_value_get_string - argument validity") {
         REQUIRE(bad(langnes_json_value_get_string(NULL, &result)));
     }
     SECTION("Should fail with NULL result") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         REQUIRE(bad(langnes_json_value_get_string(json_value, NULL)));
     }
     SECTION("Should succeed with valid arguments") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         langnes_json_string_t* result = NULL;
         REQUIRE(good(langnes_json_value_get_string(json_value, &result)));
     }
@@ -544,11 +555,13 @@ TEST_CASE("langnes_json_value_get_cstring - argument validity") {
         REQUIRE(bad(langnes_json_value_get_cstring(NULL, &result)));
     }
     SECTION("Should fail with NULL result") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         REQUIRE(bad(langnes_json_value_get_cstring(json_value, NULL)));
     }
     SECTION("Should succeed with valid arguments") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         const char* result = NULL;
         REQUIRE(good(langnes_json_value_get_cstring(json_value, &result)));
     }
@@ -559,11 +572,13 @@ TEST_CASE("langnes_json_value_set_string - argument validity") {
         REQUIRE(bad(langnes_json_value_set_string(NULL, "")));
     }
     SECTION("Should fail with NULL data") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         REQUIRE(bad(langnes_json_value_set_string(json_value, NULL)));
     }
     SECTION("Should succeed with valid arguments and same value type") {
-        langnes_json_value_t* json_value = langnes_json_value_string_new_s("");
+        langnes_json_value_t* json_value =
+            langnes_json_value_string_new_with_cstring_s("");
         REQUIRE(good(langnes_json_value_set_string(json_value, "")));
     }
     SECTION("Should succeed with valid arguments and different value type") {

@@ -86,9 +86,10 @@ langnes_json_string_free(langnes_json_string_t* str);
 //
 
 LANGNES_JSON_API langnes_json_error_code_t
-langnes_json_value_string_new(const char* data, langnes_json_value_t** result);
+langnes_json_value_string_new_with_cstring(const char* data,
+                                           langnes_json_value_t** result);
 LANGNES_JSON_API langnes_json_value_t*
-langnes_json_value_string_new_s(const char* data);
+langnes_json_value_string_new_with_cstring_s(const char* data);
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_is_string(langnes_json_value_t* json_value, bool* result);
 LANGNES_JSON_API bool

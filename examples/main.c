@@ -11,8 +11,8 @@ bool dump_value(langnes_json_value_t* value_to_dump, size_t level);
 void example_save(void) {
     // Create an array and add elements into it dynamically.
     langnes_json_value_t* values = langnes_json_value_array_new_s();
-    langnes_json_value_array_push(values,
-                                  langnes_json_value_string_new_s("hello"));
+    langnes_json_value_array_push(
+        values, langnes_json_value_string_new_with_cstring_s("hello"));
     langnes_json_value_array_push(values,
                                   langnes_json_value_number_new_s(3.14159));
     langnes_json_value_array_push(values,
