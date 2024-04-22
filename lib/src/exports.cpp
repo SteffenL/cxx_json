@@ -209,6 +209,26 @@ langnes_json_value_get_type_s(langnes_json_value_t* json_value) {
     return result;
 }
 
+LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_clone(
+    langnes_json_value_t* json_value, langnes_json_value_t** result) {
+    using namespace langnes::json;
+    using namespace langnes::json::detail;
+    return filter_error([&] {
+        if (!json_value || !result) {
+            throw invalid_argument{};
+        }
+        *result = static_cast<langnes_json_value_t*>(
+            new value{required_dynamic_cast<value*>(json_value)->clone()});
+    });
+}
+
+LANGNES_JSON_API langnes_json_value_t*
+langnes_json_value_clone_s(langnes_json_value_t* json_value) {
+    langnes_json_value_t* result{};
+    langnes_json_check_error(langnes_json_value_clone(json_value, &result));
+    return result;
+}
+
 //
 // String
 //

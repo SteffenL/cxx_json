@@ -61,6 +61,10 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_get_type(
     langnes_json_value_t* json_value, langnes_json_value_type_t* result);
 LANGNES_JSON_API langnes_json_value_type_t
 langnes_json_value_get_type_s(langnes_json_value_t* json_value);
+LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_clone(
+    langnes_json_value_t* json_value, langnes_json_value_t** result);
+LANGNES_JSON_API langnes_json_value_t*
+langnes_json_value_clone_s(langnes_json_value_t* json_value);
 
 //
 // String

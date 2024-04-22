@@ -334,6 +334,8 @@ inline value::type value::get_type() const noexcept {
     return m_impl->get_type();
 }
 
+inline value value::clone() const noexcept { return value{m_impl->clone()}; }
+
 } // namespace detail
 } // namespace json
 } // namespace langnes

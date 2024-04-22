@@ -366,6 +366,33 @@ TEST_CASE("langnes_json_value_get_type - argument validity") {
     }
 }
 
+TEST_CASE("langnes_json_value_clone - argument validity") {
+    SECTION("Should fail with NULL value") {
+        langnes_json_value_t* result = NULL;
+        REQUIRE(langnes_json_failed(langnes_json_value_clone(NULL, &result)));
+    }
+    SECTION("Should fail with NULL result") {
+        langnes_json_value_t* json_value = langnes_json_value_number_new_s(123);
+        REQUIRE(
+            langnes_json_failed(langnes_json_value_clone(json_value, NULL)));
+    }
+    SECTION("Should succeed with valid arguments") {
+        langnes_json_value_t* json_value = langnes_json_value_number_new_s(123);
+        langnes_json_value_t* result = NULL;
+        REQUIRE(langnes_json_succeeded(
+            langnes_json_value_clone(json_value, &result)));
+        REQUIRE(result != NULL);
+        REQUIRE(json_value != result);
+        REQUIRE(langnes_json_value_get_number_s(result) == 123);
+    }
+}
+
+TEST_CASE("langnes_json_value_clone_s") {
+    langnes_json_value_t* value = langnes_json_value_number_new_s(123);
+    langnes_json_value_t* cloned = langnes_json_value_clone_s(value);
+    REQUIRE(langnes_json_value_get_number_s(cloned) == 123);
+}
+
 TEST_CASE("langnes_json_string_get_cstring - argument validity") {
     SECTION("Should fail with NULL string") {
         const char* result = NULL;
