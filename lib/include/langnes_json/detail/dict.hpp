@@ -38,7 +38,15 @@ public:
         return m_data.at(key);
     }
 
-    Value& operator[](const std::string& key) { return m_data[key]; }
+    Value& operator[](const std::string& key) {
+        auto found{m_data.find(key)};
+        if (found != m_data.end()) {
+            return found->second;
+        }
+        auto inserted{m_data.insert(std::make_pair(key, Value{})).first};
+        track_entry(inserted);
+        return inserted->second;
+    }
 
     size_t size() const noexcept { return m_data.size(); }
     iterator begin() noexcept { return m_data.begin(); }
