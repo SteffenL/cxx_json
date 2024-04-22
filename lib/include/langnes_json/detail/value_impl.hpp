@@ -35,11 +35,11 @@ struct value_impl_base {
 public:
     virtual ~value_impl_base() = default;
     virtual std::unique_ptr<value_impl_base> clone() const noexcept = 0;
-    value::type get_type() const { return m_type; }
+    value::type get_type() const noexcept { return m_type; }
     bool is_type(value::type type) const noexcept { return m_type == type; }
 
 protected:
-    explicit value_impl_base(value::type type) : m_type{type} {}
+    explicit value_impl_base(value::type type) noexcept : m_type{type} {}
     value_impl_base() = default;
     value_impl_base(const value_impl_base&) = default;
     value_impl_base& operator=(const value_impl_base&) = default;
@@ -51,11 +51,11 @@ private:
 };
 
 struct string_impl : public value_impl_base {
-    string_impl() : value_impl_base{value::type::string} {}
+    string_impl() noexcept : value_impl_base{value::type::string} {}
 
     template<typename T,
              enable_if_t<std::is_convertible<T, std::string>::value>* = nullptr>
-    explicit string_impl(T&& data)
+    explicit string_impl(T&& data) noexcept
         : value_impl_base{value::type::string},
           m_data{std::forward<T>(data)} {}
 
@@ -63,22 +63,23 @@ struct string_impl : public value_impl_base {
         return make_unique<string_impl>(*this);
     }
 
-    const std::string& data() const { return m_data; }
-    std::string& data() { return m_data; }
+    const std::string& data() const noexcept { return m_data; }
+    std::string& data() noexcept { return m_data; }
 
 private:
     std::string m_data;
 };
 
 struct number_impl : public value_impl_base {
-    number_impl() : value_impl_base{value::type::number} {}
+    number_impl() noexcept : value_impl_base{value::type::number} {}
 
     template<typename T, enable_if_t<std::is_integral<T>::value>* = nullptr>
-    explicit number_impl(T data) : number_impl{static_cast<double>(data)} {}
+    explicit number_impl(T data) noexcept
+        : number_impl{static_cast<double>(data)} {}
 
     template<typename T,
              enable_if_t<std::is_floating_point<T>::value>* = nullptr>
-    explicit number_impl(T data)
+    explicit number_impl(T data) noexcept
         : value_impl_base{value::type::number},
           m_data{data} {}
 
@@ -86,17 +87,17 @@ struct number_impl : public value_impl_base {
         return make_unique<number_impl>(*this);
     }
 
-    double data() const { return m_data; }
-    double& data() { return m_data; }
+    double data() const noexcept { return m_data; }
+    double& data() noexcept { return m_data; }
 
 private:
     double m_data{};
 };
 
 struct boolean_impl : public value_impl_base {
-    boolean_impl() : value_impl_base{value::type::boolean} {}
+    boolean_impl() noexcept : value_impl_base{value::type::boolean} {}
 
-    explicit boolean_impl(bool data)
+    explicit boolean_impl(bool data) noexcept
         : value_impl_base{value::type::boolean},
           m_data{data} {}
 
@@ -104,15 +105,15 @@ struct boolean_impl : public value_impl_base {
         return make_unique<boolean_impl>(*this);
     }
 
-    bool data() const { return m_data; }
-    bool& data() { return m_data; }
+    bool data() const noexcept { return m_data; }
+    bool& data() noexcept { return m_data; }
 
 private:
     bool m_data{};
 };
 
 struct null_impl : public value_impl_base {
-    null_impl() : value_impl_base{value::type::null} {}
+    null_impl() noexcept : value_impl_base{value::type::null} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<null_impl>(*this);
@@ -120,28 +121,30 @@ struct null_impl : public value_impl_base {
 };
 
 struct object_impl : public value_impl_base {
-    object_impl() : value_impl_base{value::type::object} {}
+    object_impl() noexcept : value_impl_base{value::type::object} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<object_impl>(*this);
     }
 
-    const dict<std::string, value>& members() const { return m_members; }
-    dict<std::string, value>& members() { return m_members; }
+    const dict<std::string, value>& members() const noexcept {
+        return m_members;
+    }
+    dict<std::string, value>& members() noexcept { return m_members; }
 
 private:
     dict<std::string, value> m_members;
 };
 
 struct array_impl : public value_impl_base {
-    array_impl() : value_impl_base{value::type::array} {}
+    array_impl() noexcept : value_impl_base{value::type::array} {}
 
     std::unique_ptr<value_impl_base> clone() const noexcept override {
         return make_unique<array_impl>(*this);
     }
 
-    const std::deque<value>& elements() const { return m_elements; }
-    std::deque<value>& elements() { return m_elements; }
+    const std::deque<value>& elements() const noexcept { return m_elements; }
+    std::deque<value>& elements() noexcept { return m_elements; }
 
 private:
     std::deque<value> m_elements;
@@ -279,7 +282,9 @@ template<typename T, enable_if_t<std::is_same<remove_cvref_t<T>, bool>::value>*>
 value::value(T from) noexcept
     : m_impl{make_unique<boolean_impl>(std::forward<T>(from))} {}
 
-inline value::type value::get_type() const { return m_impl->get_type(); }
+inline value::type value::get_type() const noexcept {
+    return m_impl->get_type();
+}
 
 template<typename T,
          enable_if_t<(std::is_integral<T>::value &&

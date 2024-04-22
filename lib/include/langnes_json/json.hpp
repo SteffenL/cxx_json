@@ -32,10 +32,11 @@ namespace json {
 namespace detail {
 
 template<typename Container>
-inline void put_array(Container& /*unused*/) {}
+inline void put_array(Container& /*unused*/) noexcept {}
 
 template<typename Container, typename First, typename... Rest>
-inline void put_array(Container& container, First&& first, Rest&&... rest) {
+inline void put_array(Container& container, First&& first,
+                      Rest&&... rest) noexcept {
     container.emplace_back(std::forward<First>(first));
     put_array(container, std::forward<Rest>(rest)...);
 }
@@ -130,8 +131,8 @@ inline std::string save(const value& v,
  * values.
  * @return The JSON value.
  */
-inline value
-make_object(std::initializer_list<std::pair<std::string, value>> members) {
+inline value make_object(
+    std::initializer_list<std::pair<std::string, value>> members) noexcept {
     // FIXME: Avoid copies.
     auto impl{detail::make_unique<detail::object_impl>()};
     for (const auto& member : members) {
@@ -147,7 +148,7 @@ make_object(std::initializer_list<std::pair<std::string, value>> members) {
  * @return The JSON value.
  */
 template<typename... Args>
-inline value make_array(Args&&... elements) {
+inline value make_array(Args&&... elements) noexcept {
     auto impl{detail::make_unique<detail::array_impl>()};
     detail::put_array(impl->elements(), std::forward<Args>(elements)...);
     return value{std::move(impl)};

@@ -23,9 +23,8 @@ private:
     failure_info m_info;
 };
 
-// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 struct test_reg {
-    const char* name;
+    std::string name;
     std::function<void()> fn;
 };
 

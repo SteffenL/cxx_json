@@ -96,7 +96,7 @@ public:
     value& operator=(std::string&& rhs) noexcept;
     value& operator=(std::nullptr_t) noexcept;
 
-    type get_type() const;
+    type get_type() const noexcept;
 
 private:
     std::unique_ptr<value_impl_base> m_impl;

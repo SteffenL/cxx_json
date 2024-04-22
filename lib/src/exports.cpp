@@ -50,6 +50,14 @@ namespace langnes {
 namespace json {
 namespace detail {
 
+template<typename To, typename From>
+To required_dynamic_cast(From p) noexcept {
+    if (auto p2{dynamic_cast<To>(p)}) {
+        return p2;
+    }
+    std::terminate();
+}
+
 template<typename WorkFn>
 langnes_json_error_code_t filter_error(WorkFn&& do_work) noexcept {
     try {
@@ -64,44 +72,47 @@ langnes_json_error_code_t filter_error(WorkFn&& do_work) noexcept {
     }
 }
 
-void free_object_members(langnes_json_object_member_t* members, size_t length) {
+void free_object_members(langnes_json_object_member_t* members,
+                         size_t length) noexcept {
     for (size_t i{}; i < length; ++i) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         langnes_json_value_free(members[i].value);
     }
 }
 
-void free_values(langnes_json_value_t** values, size_t length) {
+void free_values(langnes_json_value_t** values, size_t length) noexcept {
     for (size_t i{}; i < length; ++i) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         langnes_json_value_free(values[i]);
     }
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape) - should never throw
 void set_object_members(value& object, langnes_json_object_member_t* members,
-                        size_t length) {
+                        size_t length) noexcept {
     if (!members) {
-        std::abort();
+        std::terminate();
     }
     auto& entries{object.as_object()};
     for (size_t i{}; i < length; ++i) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         auto& member{members[i]};
-        entries.emplace(member.name,
-                        std::move(*dynamic_cast<value*>(member.value)));
+        entries.emplace(member.name, std::move(*required_dynamic_cast<value*>(
+                                         member.value)));
         langnes_json_value_free(member.value);
     }
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape) - should never throw
 void set_array_elements(value& array, langnes_json_value_t** elements,
-                        size_t length) {
+                        size_t length) noexcept {
     if (!elements) {
-        std::abort();
+        std::terminate();
     }
     auto& elements_{array.as_array()};
     for (size_t i{}; i < length; ++i) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        auto* element{dynamic_cast<value*>(elements[i])};
+        auto* element{required_dynamic_cast<value*>(elements[i])};
         elements_.push_back(std::move(*element));
         langnes_json_value_free(element);
     }
@@ -149,17 +160,18 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_save_to_string(
         }
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         *result = reinterpret_cast<langnes_json_string_t*>(
-            new std::string{save(*dynamic_cast<value*>(json_value))});
+            new std::string{save(*required_dynamic_cast<value*>(json_value))});
     });
 }
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_free(langnes_json_value_t* json_value) {
     using namespace langnes::json;
+    using namespace langnes::json::detail;
     if (!json_value) {
         return langnes_json_error_invalid_argument;
     }
-    delete dynamic_cast<value*>(json_value);
+    delete required_dynamic_cast<value*>(json_value);
     return langnes_json_error_ok;
 }
 
@@ -171,8 +183,8 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_replace(
         if (!target || !replacement) {
             throw invalid_argument{};
         }
-        *dynamic_cast<value*>(target) =
-            std::move(*dynamic_cast<value*>(replacement));
+        *required_dynamic_cast<value*>(target) =
+            std::move(*required_dynamic_cast<value*>(replacement));
         langnes_json_value_free(replacement);
     });
 }
@@ -186,7 +198,7 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_get_type(
             throw invalid_argument{};
         }
         *result = static_cast<langnes_json_value_type_t>(
-            dynamic_cast<value*>(json_value)->get_type());
+            required_dynamic_cast<value*>(json_value)->get_type());
     });
 }
 
@@ -282,7 +294,7 @@ langnes_json_value_is_string(langnes_json_value_t* json_value, bool* result) {
         if (!json_value || !result) {
             throw invalid_argument{};
         }
-        *result = dynamic_cast<value*>(json_value)->is_string();
+        *result = required_dynamic_cast<value*>(json_value)->is_string();
     });
 }
 
@@ -302,8 +314,8 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_get_string(
             throw invalid_argument{};
         }
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        *result = reinterpret_cast<langnes_json_string_t*>(
-            std::addressof(dynamic_cast<value*>(json_value)->as_string()));
+        *result = reinterpret_cast<langnes_json_string_t*>(std::addressof(
+            required_dynamic_cast<value*>(json_value)->as_string()));
     });
 }
 
@@ -323,7 +335,8 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_get_cstring(
         if (!json_value || !result) {
             throw invalid_argument{};
         }
-        *result = dynamic_cast<value*>(json_value)->as_string().c_str();
+        *result =
+            required_dynamic_cast<value*>(json_value)->as_string().c_str();
     });
 }
 
@@ -343,7 +356,7 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_set_string(
         if (!json_value || !data) {
             throw invalid_argument{};
         }
-        *dynamic_cast<value*>(json_value) = data;
+        *required_dynamic_cast<value*>(json_value) = data;
     });
 }
 
@@ -378,7 +391,7 @@ langnes_json_value_is_number(langnes_json_value_t* json_value, bool* result) {
         if (!json_value || !result) {
             throw invalid_argument{};
         }
-        *result = dynamic_cast<value*>(json_value)->is_number();
+        *result = required_dynamic_cast<value*>(json_value)->is_number();
     });
 }
 
@@ -397,7 +410,7 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_get_number(
         if (!json_value || !result) {
             throw invalid_argument{};
         }
-        *result = dynamic_cast<value*>(json_value)->as_number();
+        *result = required_dynamic_cast<value*>(json_value)->as_number();
     });
 }
 
@@ -417,7 +430,7 @@ langnes_json_value_set_number(langnes_json_value_t* json_value, double value) {
         if (!json_value) {
             throw invalid_argument{};
         }
-        auto* value_{dynamic_cast<class value*>(json_value)};
+        auto* value_{required_dynamic_cast<class value*>(json_value)};
         *value_ = value;
     });
 }
@@ -453,7 +466,7 @@ langnes_json_value_is_boolean(langnes_json_value_t* json_value, bool* result) {
         if (!json_value || !result) {
             throw invalid_argument{};
         }
-        *result = dynamic_cast<value*>(json_value)->is_boolean();
+        *result = required_dynamic_cast<value*>(json_value)->is_boolean();
     });
 }
 
@@ -473,7 +486,7 @@ langnes_json_value_get_boolean(langnes_json_value_t* json_value, bool* result) {
         if (!json_value || !result) {
             throw invalid_argument{};
         }
-        *result = dynamic_cast<value*>(json_value)->as_boolean();
+        *result = required_dynamic_cast<value*>(json_value)->as_boolean();
     });
 }
 
@@ -493,7 +506,7 @@ langnes_json_value_set_boolean(langnes_json_value_t* json_value, bool value) {
         if (!json_value) {
             throw invalid_argument{};
         }
-        *dynamic_cast<class value*>(json_value) = value;
+        *required_dynamic_cast<class value*>(json_value) = value;
     });
 }
 
@@ -527,7 +540,7 @@ langnes_json_value_is_null(langnes_json_value_t* json_value, bool* result) {
         if (!json_value || !result) {
             throw invalid_argument{};
         }
-        *result = dynamic_cast<value*>(json_value)->is_null();
+        *result = required_dynamic_cast<value*>(json_value)->is_null();
     });
 }
 
@@ -546,7 +559,7 @@ langnes_json_value_set_null(langnes_json_value_t* json_value) {
         if (!json_value) {
             throw invalid_argument{};
         }
-        *dynamic_cast<value*>(json_value) = nullptr;
+        *required_dynamic_cast<value*>(json_value) = nullptr;
     });
 }
 
@@ -609,7 +622,7 @@ langnes_json_value_is_object(langnes_json_value_t* json_value, bool* result) {
         if (!json_value || !result) {
             throw invalid_argument{};
         }
-        *result = dynamic_cast<value*>(json_value)->is_object();
+        *result = required_dynamic_cast<value*>(json_value)->is_object();
     });
 }
 
@@ -629,8 +642,8 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_object_get_value(
         if (!json_object || !member_name || !result) {
             throw invalid_argument{};
         }
-        *result = std::addressof(
-            dynamic_cast<value*>(json_object)->as_object()[member_name]);
+        *result = std::addressof(required_dynamic_cast<value*>(json_object)
+                                     ->as_object()[member_name]);
     });
 }
 
@@ -652,8 +665,8 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_object_set_value(
         if (!json_object || !member_name || !member_value) {
             throw invalid_argument{};
         }
-        dynamic_cast<value*>(json_object)->as_object()[member_name] =
-            std::move(*dynamic_cast<value*>(member_value));
+        required_dynamic_cast<value*>(json_object)->as_object()[member_name] =
+            std::move(*required_dynamic_cast<value*>(member_value));
         langnes_json_value_free(member_value);
     });
 }
@@ -666,7 +679,7 @@ langnes_json_value_set_object(langnes_json_value_t* json_object) {
         if (!json_object) {
             throw invalid_argument{};
         }
-        *dynamic_cast<value*>(json_object) = make_object({});
+        *required_dynamic_cast<value*>(json_object) = make_object({});
     });
 }
 
@@ -684,7 +697,7 @@ langnes_json_value_set_object_with_members(
             }
             throw invalid_argument{};
         }
-        auto& object{*dynamic_cast<value*>(json_object)};
+        auto& object{*required_dynamic_cast<value*>(json_object)};
         object = make_object({});
         set_object_members(object, members, length);
     });
@@ -699,7 +712,8 @@ langnes_json_value_object_get_members_length(langnes_json_value_t* json_object,
         if (!json_object || !result) {
             throw invalid_argument{};
         }
-        *result = dynamic_cast<value*>(json_object)->as_object().size();
+        *result =
+            required_dynamic_cast<value*>(json_object)->as_object().size();
     });
 }
 
@@ -720,8 +734,9 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_object_get_member(
         if (!json_object || !result) {
             throw invalid_argument{};
         }
-        auto& entry{
-            dynamic_cast<value*>(json_object)->as_object().entry_at(index)};
+        auto& entry{required_dynamic_cast<value*>(json_object)
+                        ->as_object()
+                        .entry_at(index)};
         *result = langnes_json_object_member_t{entry.first.c_str(),
                                                std::addressof(entry.second)};
     });
@@ -744,7 +759,7 @@ langnes_json_value_object_clear(langnes_json_value_t* json_object) {
         if (!json_object) {
             throw invalid_argument{};
         }
-        dynamic_cast<value*>(json_object)->as_object().clear();
+        required_dynamic_cast<value*>(json_object)->as_object().clear();
     });
 }
 
@@ -807,7 +822,7 @@ langnes_json_value_is_array(langnes_json_value_t* json_value, bool* result) {
         if (!json_value || !result) {
             throw invalid_argument{};
         }
-        *result = dynamic_cast<value*>(json_value)->is_array();
+        *result = required_dynamic_cast<value*>(json_value)->is_array();
     });
 }
 
@@ -826,7 +841,7 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_array_get_length(
         if (!json_array || !result) {
             throw invalid_argument{};
         }
-        *result = dynamic_cast<value*>(json_array)->as_array().size();
+        *result = required_dynamic_cast<value*>(json_array)->as_array().size();
     });
 }
 
@@ -846,7 +861,7 @@ langnes_json_value_array_clear(langnes_json_value_t* json_array) {
         if (!json_array) {
             throw invalid_argument{};
         }
-        dynamic_cast<value*>(json_array)->as_array().clear();
+        required_dynamic_cast<value*>(json_array)->as_array().clear();
     });
 }
 
@@ -859,9 +874,10 @@ langnes_json_value_array_push(langnes_json_value_t* json_array,
         if (!json_array || !json_array_element) {
             throw invalid_argument{};
         }
-        dynamic_cast<value*>(json_array)
+        required_dynamic_cast<value*>(json_array)
             ->as_array()
-            .push_back(std::move(*dynamic_cast<value*>(json_array_element)));
+            .push_back(
+                std::move(*required_dynamic_cast<value*>(json_array_element)));
         langnes_json_value_free(json_array_element);
     });
 }
@@ -875,7 +891,7 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_array_get_item(
             throw invalid_argument{};
         }
         *result = std::addressof(
-            dynamic_cast<langnes::json::value*>(value)->as_array().at(index));
+            required_dynamic_cast<class value*>(value)->as_array().at(index));
     });
 }
 
@@ -895,7 +911,8 @@ langnes_json_value_set_array(langnes_json_value_t* json_array) {
         if (!json_array) {
             throw invalid_argument{};
         }
-        *dynamic_cast<value*>(json_array) = langnes::json::make_array();
+        *required_dynamic_cast<value*>(json_array) =
+            langnes::json::make_array();
     });
 }
 
@@ -913,7 +930,7 @@ langnes_json_value_set_array_with_elements(langnes_json_value_t* json_array,
             }
             throw invalid_argument{};
         }
-        auto& array{*dynamic_cast<value*>(json_array)};
+        auto& array{*required_dynamic_cast<value*>(json_array)};
         array = make_array();
         set_array_elements(array, values, length);
     });

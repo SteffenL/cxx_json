@@ -26,7 +26,7 @@ namespace detail {
 
 class string_streambuf : public std::streambuf {
 public:
-    string_streambuf(const char* data, size_t length) {
+    string_streambuf(const char* data, size_t length) noexcept {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
         auto* p{const_cast<char*>(data)};
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -97,12 +97,12 @@ public:
     ~string_istream() override = default;
 };
 
-inline string_istream make_istream(const char* data, size_t length) {
+inline string_istream make_istream(const char* data, size_t length) noexcept {
     return string_istream{data, length};
 }
 
 template<typename Container>
-inline string_istream make_istream(Container&& data) {
+inline string_istream make_istream(Container&& data) noexcept {
     return string_istream{std::forward<Container>(data)};
 }
 
