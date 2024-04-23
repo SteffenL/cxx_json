@@ -68,7 +68,7 @@ int cmd_run_test(const std::string& test_name) {
                   << "\".\n";
         exit_code = failure_exit_codes::exception_thrown;
     }
-    return failure_exit_codes::success;
+    return exit_code;
 }
 
 int cmd_run_all_tests() {
