@@ -111,3 +111,4 @@ jobs:
         with:
           name: package
           pattern: package_*
+          delete-merged: true

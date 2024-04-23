@@ -104,6 +104,7 @@ jobs:
         with:
           name: test_coverage
           pattern: test_coverage_data_*
+          delete-merged: true
 
       - name: Download test coverage artifacts
         uses: actions/download-artifact@v4
