@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 void indent(size_t level);
@@ -148,6 +149,9 @@ bool dump_value(langnes_json_value_t* value_to_dump, size_t level) {
         }
         break;
     }
+    default:
+        abort();
+        break;
     }
     return true;
 }
