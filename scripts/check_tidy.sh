@@ -13,7 +13,7 @@ while read f; do
     "${CLANG_TIDY_EXE}" -p "${build_dir}" "--warnings-as-errors=*" "${f}" || exit 1
     processed_count=$((processed_count+1))
 done <<EOF
-$(find "${project_dir}" -iname "*.cpp" -not -iwholename "${build_dir}/*")
+$(find "${project_dir}" \( -iname "*.c" -or -iname "*.cpp" \) -not -iwholename "${build_dir}/*")
 EOF
 
 if [ "${processed_count}" -lt 1 ]; then
