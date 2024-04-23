@@ -35,7 +35,7 @@ inline std::string to_utf8_char(size_t c) {
         s.push_back(static_cast<char>(0x80U | ((c >> 6U) & 0x3fU)));
         s.push_back(static_cast<char>(0x80U | (c & 0x3fU)));
     } else if (c <= 0x10ffffU) {
-        s.push_back(static_cast<char>(0xe0U | (c >> 18U)));
+        s.push_back(static_cast<char>(0xf0U | (c >> 18U)));
         s.push_back(static_cast<char>(0x80U | ((c >> 12U) & 0x3fU)));
         s.push_back(static_cast<char>(0x80U | ((c >> 6U) & 0x3fU)));
         s.push_back(static_cast<char>(0x80U | (c & 0x3fU)));
