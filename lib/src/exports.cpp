@@ -687,7 +687,8 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_object_get_value(
             throw invalid_argument{};
         }
         *result = std::addressof(required_dynamic_cast<value*>(json_object)
-                                     ->as_object()[member_name]);
+                                     ->as_object()
+                                     .at(member_name));
     });
 }
 

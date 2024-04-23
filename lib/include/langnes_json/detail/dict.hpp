@@ -34,6 +34,9 @@ class dict {
     using value_type = std::pair<const Key, Value>;
 
 public:
+    const Value& at(const std::string& key) const { return m_data.at(key); }
+    Value& at(const std::string& key) { return m_data.at(key); }
+
     const Value& operator[](const std::string& key) const {
         return m_data.at(key);
     }
