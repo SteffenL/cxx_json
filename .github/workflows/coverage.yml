@@ -102,14 +102,14 @@ jobs:
       - name: Merge test coverage artifacts
         uses: actions/upload-artifact/merge@v4
         with:
-          name: test_coverage
+          name: test_coverage_data
           pattern: test_coverage_data_*
           delete-merged: true
 
       - name: Download test coverage artifacts
         uses: actions/download-artifact@v4
         with:
-          name: test_coverage
+          name: test_coverage_data
 
       - name: Generate report
         run: |
