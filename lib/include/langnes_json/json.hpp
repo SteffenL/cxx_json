@@ -41,11 +41,17 @@ inline void put_array(Container& container, First&& first,
 
 } // namespace detail
 
+/// Library version information.
 namespace library_version {
+/// Major version.
 constexpr unsigned int major{0};
+/// Minor version.
 constexpr unsigned int minor{1};
+/// Patch version.
 constexpr unsigned int patch{0};
+/// Pre-release label(s) prefixed with "-".
 constexpr const char* pre_release{"-dev"};
+/// Build metadata prefixed with "+".
 constexpr const char* build_metadata{""};
 }; // namespace library_version
 

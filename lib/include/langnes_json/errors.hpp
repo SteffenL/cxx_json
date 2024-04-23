@@ -22,6 +22,9 @@
 namespace langnes {
 namespace json {
 
+/**
+ * Error code.
+ */
 enum class error_code {
     parse_error = -6,
     out_of_range = -5,
@@ -32,8 +35,18 @@ enum class error_code {
     ok = 0,
 };
 
+/**
+ * Base class for errors.
+ */
 class error : public std::exception {
 public:
+    /**
+     * Construct a new error.
+     *
+     * @param code Error code.
+     * @param message Error message.
+     * @param cause Exception that caused the error.
+     */
     error(error_code code, const std::string& message,
           std::exception_ptr cause) noexcept
         : m_code{code},
@@ -41,15 +54,38 @@ public:
           // NOLINTNEXTLINE(bugprone-throw-keyword-missing)
           m_cause{std::move(cause)} {}
 
+    /**
+     * Construct a new error.
+     *
+     * @param code Error code.
+     * @param message Error message.
+     */
     error(error_code code, const std::string& message) noexcept
         : m_code{code},
           m_message{message} {}
 
+    /// Default constructor.
     error() = default;
 
+    /**
+     * Get the error code.
+     *
+     * @return Error code.
+     */
     error_code code() const { return m_code; }
+
+    /**
+     * Get the exception that caused the error.
+     *
+     * @return Pointer of the exception that caused the error.
+     */
     std::exception_ptr cause() const { return m_cause; }
 
+    /**
+     * Get the error message.
+     *
+     * @return The error message as a C string.
+     */
     const char* what() const noexcept override { return m_message.c_str(); }
 
 private:
@@ -58,33 +94,66 @@ private:
     std::exception_ptr m_cause;
 };
 
+/**
+ * Parse error.
+ */
 class parse_error : public error {
 public:
+    /**
+     * Construct a new parse error.
+     *
+     * @param message Error message.
+     */
     explicit parse_error(const std::string& message)
         : error{error_code::parse_error, "Parse error: " + message} {}
 };
 
+/**
+ * Bad access error.
+ */
 class bad_access : public error {
 public:
+    /// Default constructor.
     bad_access() : error{error_code::bad_access, "Bad access"} {}
 };
 
+/**
+ * Invalid argument error.
+ */
 class invalid_argument : public error {
 public:
+    /// Default constructor.
     invalid_argument()
         : error{error_code::invalid_argument, "Invalid argument"} {}
 };
 
+/**
+ * Invalid state error.
+ */
 class invalid_state : public error {
 public:
+    /// Default constructor.
     invalid_state() : error{error_code::invalid_state, "Invalid state"} {}
 
+    /**
+     * Construct a new invalid state error.
+     *
+     * @param message Error message.
+     */
     explicit invalid_state(const std::string& message)
         : error{error_code::invalid_state, "Invalid state: " + message} {}
 };
 
+/**
+ * Out of range error.
+ */
 class out_of_range : public error {
 public:
+    /**
+     * Construct a new out-of-range error.
+     *
+     * @param message Error message.
+     */
     explicit out_of_range(const std::string& message)
         : error{error_code::out_of_range, "Out of range: " + message} {}
 };

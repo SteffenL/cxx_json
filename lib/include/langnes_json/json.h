@@ -48,8 +48,32 @@
 extern "C" {
 #endif
 
+/**
+ * Checks an error code and terminates the program if the code denotes failure.
+ *
+ * @param ec Error code.
+ * @see langnes_json_succeeded
+ * @see langnes_json_failed
+ */
 LANGNES_JSON_API void langnes_json_check_error(langnes_json_error_code_t ec);
+
+/**
+ * Checks whether an error code denotes non-failure, i.e. success or additional
+ * information (greater or equal to zero).
+ *
+ * @param ec Error code.
+ * @returns Whether the error code denotes non-failure.
+ * @see langnes_json_check_error
+ */
 LANGNES_JSON_API bool langnes_json_succeeded(langnes_json_error_code_t ec);
+
+/**
+ * Checks whether an error code denotes failure (less than zero).
+ *
+ * @param ec Error code.
+ * @returns Whether the error code denotes failure.
+ * @see langnes_json_check_error
+ */
 LANGNES_JSON_API bool langnes_json_failed(langnes_json_error_code_t ec);
 
 LANGNES_JSON_API langnes_json_error_code_t
@@ -170,8 +194,13 @@ langnes_json_value_set_null(langnes_json_value_t* json_value);
 // JSON object
 //
 
+/**
+ * JSON object member.
+ */
 struct langnes_json_object_member_t {
+    /// Member name.
     const char* name;
+    /// Member value.
     langnes_json_value_t* value;
 };
 
@@ -225,6 +254,12 @@ langnes_json_value_object_clear(langnes_json_value_t* json_object);
 // JSON array
 //
 
+/**
+ * Creates an empty JSON array value.
+ *
+ * @param result Output parameter of the resulting JSON value.
+ * @return Error code.
+ */
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_array_new(langnes_json_value_t** result);
 LANGNES_JSON_API langnes_json_value_t* langnes_json_value_array_new_s(void);
