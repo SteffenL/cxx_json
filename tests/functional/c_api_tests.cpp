@@ -7,6 +7,7 @@
 // NOLINTBEGIN(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
 // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
 // NOLINTBEGIN(hicpp-use-nullptr,modernize-use-nullptr)
+// NOLINTBEGIN(modernize-raw-string-literal)
 
 namespace {
 const auto bad{langnes_json_failed};
@@ -400,6 +401,40 @@ TEST_CASE("langnes_json_save_to_string - argument validity") {
         langnes_json_value_t* json_value = langnes_json_value_null_new_s();
         langnes_json_string_t* result = NULL;
         REQUIRE(good(langnes_json_save_to_string(json_value, &result)));
+    }
+}
+
+TEST_CASE("langnes_json_save_to_string - escape") {
+    SECTION("Unicode characters don't need escaping") {
+        langnes_json_string_t* result = NULL;
+        const char* input_cstr = "foo\u2753\x24\u00a3\u0418\u0939\u20ac\ud55c";
+        REQUIRE(good(langnes_json_save_to_string(
+            langnes_json_value_string_new_with_cstring_s(input_cstr),
+            &result)));
+        const char* cstr = langnes_json_string_get_cstring_s(result);
+        const char* expected_result_cstr =
+            "\"foo\u2753\x24\u00a3\u0418\u0939\u20ac\ud55c\"";
+        REQUIRE(strcmp(cstr, expected_result_cstr) == 0);
+    }
+    SECTION("Control characters must be escaped") {
+        langnes_json_string_t* result = NULL;
+        const char* input_cstr = "\x01\x1f";
+        REQUIRE(good(langnes_json_save_to_string(
+            langnes_json_value_string_new_with_cstring_s(input_cstr),
+            &result)));
+        const char* cstr = langnes_json_string_get_cstring_s(result);
+        const char* expected_result_cstr = "\"\\u0001\\u001f\"";
+        REQUIRE(strcmp(cstr, expected_result_cstr) == 0);
+    }
+    SECTION("Special characters must be escaped") {
+        langnes_json_string_t* result = NULL;
+        const char* input_cstr = "\"\\\b\f\n\r\t";
+        REQUIRE(good(langnes_json_save_to_string(
+            langnes_json_value_string_new_with_cstring_s(input_cstr),
+            &result)));
+        const char* cstr = langnes_json_string_get_cstring_s(result);
+        const char* expected_result_cstr = "\"\\\"\\\\\\b\\f\\n\\r\\t\"";
+        REQUIRE(strcmp(cstr, expected_result_cstr) == 0);
     }
 }
 
@@ -1246,6 +1281,7 @@ TEST_CASE("langnes_json_value_set_array_with_elements - argument validity") {
     }
 }
 
+// NOLINTEND(modernize-raw-string-literal)
 // NOLINTEND(hicpp-use-nullptr,modernize-use-nullptr)
 // NOLINTEND(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays,modernize-avoid-c-arrays)
 // NOLINTEND(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
