@@ -19,8 +19,12 @@
 #include "errors.h"
 #include "types.h"
 
+#ifdef __cplusplus
+#include <cstddef>
+#else
 #include <stdbool.h>
 #include <stddef.h>
+#endif
 
 #ifndef LANGNES_JSON_API
 #if defined(LANGNES_JSON_SHARED) || defined(LANGNES_JSON_BUILD_SHARED)
