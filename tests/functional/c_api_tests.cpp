@@ -340,7 +340,7 @@ TEST_CASE("langnes_json_load_from_cstring - UTF-8") {
     REQUIRE(langnes_json_value_is_string_s(result));
     langnes_json_string_t* str = langnes_json_value_get_string_s(result);
     const char* cstr = langnes_json_string_get_cstring_s(str);
-    REQUIRE(strcmp(cstr, "foo\u2753\x24\u00a3\u0418\u0939\u20ac\ud55c") == 0);
+    REQUIRE(strcmp(cstr, "foo❓$£Иह€한") == 0);
 }
 
 TEST_CASE("langnes_json_load_from_cstring - invalid input") {
@@ -407,13 +407,12 @@ TEST_CASE("langnes_json_save_to_string - argument validity") {
 TEST_CASE("langnes_json_save_to_string - escape") {
     SECTION("Unicode characters don't need escaping") {
         langnes_json_string_t* result = NULL;
-        const char* input_cstr = "foo\u2753\x24\u00a3\u0418\u0939\u20ac\ud55c";
+        const char* input_cstr = "foo❓$£Иह€한";
         REQUIRE(good(langnes_json_save_to_string(
             langnes_json_value_string_new_with_cstring_s(input_cstr),
             &result)));
         const char* cstr = langnes_json_string_get_cstring_s(result);
-        const char* expected_result_cstr =
-            "\"foo\u2753\x24\u00a3\u0418\u0939\u20ac\ud55c\"";
+        const char* expected_result_cstr = "\"foo❓$£Иह€한\"";
         REQUIRE(strcmp(cstr, expected_result_cstr) == 0);
     }
     SECTION("Control characters must be escaped") {
