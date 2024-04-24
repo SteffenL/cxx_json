@@ -29,6 +29,10 @@ runs:
         brew install \
           doxygen
       shell: bash
+    - if: runner.os == 'Windows' && inputs.msys == ''
+      name: Install package (winget)
+      run: winget install DimitriVanHeesch.Doxygen
+      shell: bash
     - if: runner.os == 'Windows' && inputs.msys != ''
       name: Set up MSYS2
       uses: msys2/setup-msys2@v2
