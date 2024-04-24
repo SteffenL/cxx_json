@@ -16,11 +16,18 @@ runs:
         packages=(${{ inputs.apt }})
         sudo apt-get install --no-install-recommends -y \
           cmake \
+          doxygen \
           ninja-build \
           python3 \
           python3-lxml \
           python3-pip \
           "${packages[@]}"
+      shell: bash
+    - if: runner.os == 'macOS'
+      name: Install packages (brew)
+      run: |
+        brew install \
+          doxygen
       shell: bash
     - if: runner.os == 'Windows' && inputs.msys != ''
       name: Set up MSYS2
@@ -31,6 +38,7 @@ runs:
         install: base-devel
         pacboy: >-
           cmake:p
+          doxygen:p
           ninja:p
           python:p
           python-lxml:p

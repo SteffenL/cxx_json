@@ -14,6 +14,10 @@ langnes_json_init_post_project()
 
 add_subdirectory(lib)
 
+if(LANGNES_JSON_BUILD_DOCS)
+    add_subdirectory(docs)
+endif()
+
 if(LANGNES_JSON_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()

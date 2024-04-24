@@ -14,5 +14,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get install --no-install-recommends -y clang-tidy-15
-      - run: cmake -B build -S .
+      - run: cmake -B build -S . -DLANGNES_JSON_BUILD_EXTRAS=OFF
       - run: CLANG_TIDY_EXE=clang-tidy-15 ./scripts/check_tidy.sh
