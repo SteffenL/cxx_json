@@ -1,3 +1,4 @@
 add_library(langnes_json_test_driver STATIC src/testing.cpp)
 target_include_directories(langnes_json_test_driver PUBLIC include)
 target_compile_features(langnes_json_test_driver PRIVATE cxx_std_11)
+target_link_libraries(langnes_json_test_driver PRIVATE langnes_json_private)
