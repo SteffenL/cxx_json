@@ -163,13 +163,23 @@ macro(langnes_json_install)
             "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-config-version.cmake"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/langnes_json"
         COMPONENT langnes_json_development)
+
+    # Install documentation
+    if(LANGNES_JSON_BUILD_DOCS)
+        install(
+            DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/docs/html"
+            DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+            COMPONENT langnes_json_development)
+    endif()
 endmacro()
 
 # Add CMake options.
 macro(langnes_json_add_options)
-    option(LANGNES_JSON_BUILD_EXAMPLES "Build examples" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
-    option(LANGNES_JSON_BUILD_TESTS "Build tests" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
-    option(LANGNES_JSON_BUILD_PACKAGE "Build package" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
+    option(LANGNES_JSON_BUILD_EXTRAS "Build extras (docs, examples, tests, package)" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
+    option(LANGNES_JSON_BUILD_DOCS "Build documentation" "${LANGNES_JSON_BUILD_EXTRAS}")
+    option(LANGNES_JSON_BUILD_EXAMPLES "Build examples" "${LANGNES_JSON_BUILD_EXTRAS}")
+    option(LANGNES_JSON_BUILD_TESTS "Build tests" "${LANGNES_JSON_BUILD_EXTRAS}")
+    option(LANGNES_JSON_BUILD_PACKAGE "Build package" "${LANGNES_JSON_BUILD_EXTRAS}")
 endmacro()
 
 # Call this before project().
