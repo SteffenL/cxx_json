@@ -6,7 +6,7 @@ langnes_json_init_pre_project()
 project(
     langnes_json
     VERSION ${LANGNES_JSON_VERSION_NUMBER}
-    DESCRIPTION "A simple C++ library for working with JSON"
+    DESCRIPTION "A simple library for working with JSON which offers both a header-only implementation compatible with C++11 and an accompanying C API"
     HOMEPAGE_URL https://github.com/SteffenL/cxx_json
     LANGUAGES C CXX)
 
