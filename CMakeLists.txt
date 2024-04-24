@@ -14,10 +14,16 @@ langnes_json_init_post_project()
 
 add_subdirectory(lib)
 
-if(LANGNES_JSON_IS_TOP_LEVEL_BUILD)
+if(LANGNES_JSON_BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+if(LANGNES_JSON_BUILD_TESTS)
     add_subdirectory(test_driver)
     add_subdirectory(tests)
+endif()
+
+if(LANGNES_JSON_BUILD_PACKAGE)
     add_subdirectory(packaging)
     langnes_json_install()
 endif()

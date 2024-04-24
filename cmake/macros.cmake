@@ -165,6 +165,13 @@ macro(langnes_json_install)
         COMPONENT langnes_json_development)
 endmacro()
 
+# Add CMake options.
+macro(langnes_json_add_options)
+    option(LANGNES_JSON_BUILD_EXAMPLES "Build examples" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
+    option(LANGNES_JSON_BUILD_TESTS "Build tests" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
+    option(LANGNES_JSON_BUILD_PACKAGE "Build package" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
+endmacro()
+
 # Call this before project().
 macro(langnes_json_init_pre_project)
     if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -184,6 +191,8 @@ endmacro()
 
 # Call this after project().
 macro(langnes_json_init_post_project)
+    langnes_json_add_options()
+
     if(LANGNES_JSON_IS_TOP_LEVEL_BUILD)
         include(GNUInstallDirs)
         include(CMakePackageConfigHelpers)
