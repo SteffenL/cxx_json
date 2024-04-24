@@ -1043,7 +1043,6 @@ TEST_CASE("langnes_json_value_set_object_with_members - argument validity") {
         langnes_json_value_t* json_value = langnes_json_value_null_new_s();
         langnes_json_object_member_t object_members[] = {
             {"x", langnes_json_value_number_new_s(1)}};
-        langnes_json_value_t* result = NULL;
         REQUIRE(good(langnes_json_value_set_object_with_members(
             json_value, object_members, 1)));
     }
@@ -1078,7 +1077,6 @@ TEST_CASE("langnes_json_value_object_get_member - argument validity") {
         langnes_json_value_t* json_value = langnes_json_value_object_new_s();
         langnes_json_value_object_set_value(
             json_value, "x", langnes_json_value_number_new_s(123));
-        langnes_json_object_member_t result = {};
         REQUIRE(bad(langnes_json_value_object_get_member(json_value, 0, NULL)));
     }
     SECTION("Should succeed with valid arguments") {
@@ -1221,7 +1219,6 @@ TEST_CASE("langnes_json_value_array_get_item - argument validity") {
         langnes_json_value_t* json_value = langnes_json_value_array_new_s();
         langnes_json_value_array_push(json_value,
                                       langnes_json_value_number_new_s(123));
-        langnes_json_value_t* result = NULL;
         REQUIRE(bad(langnes_json_value_array_get_item(json_value, 0, NULL)));
     }
     SECTION("Should succeed with valid arguments") {
@@ -1274,7 +1271,6 @@ TEST_CASE("langnes_json_value_set_array_with_elements - argument validity") {
         langnes_json_value_t* json_value = langnes_json_value_null_new_s();
         langnes_json_value_t* array_members[] = {
             langnes_json_value_number_new_s(1)};
-        langnes_json_value_t* result = NULL;
         REQUIRE(good(langnes_json_value_set_array_with_elements(
             json_value, array_members, 1)));
     }
