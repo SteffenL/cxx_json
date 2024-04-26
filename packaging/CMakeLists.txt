@@ -78,15 +78,10 @@ if(LANGNES_JSON_PACKAGE_DOCS)
     list(APPEND CPACK_COMPONENTS_ALL langnes_json_library_docs)
 endif()
 
-if(LANGNES_JSON_PACKAGE_CMAKE)
-    list(APPEND CPACK_COMPONENTS_ALL langnes_json_library_cmake)
-endif()
-
 # Component groups
 set(CPACK_COMPONENT_LANGNES_JSON_LIBRARY_RUNTIME_GROUP runtime)
 set(CPACK_COMPONENT_LANGNES_JSON_LIBRARY_LINK_GROUP development_platform_dependent)
 set(CPACK_COMPONENT_LANGNES_JSON_LIBRARY_HEADERS_GROUP development_cross_platform)
 set(CPACK_COMPONENT_LANGNES_JSON_LIBRARY_DOCS_GROUP development_cross_platform)
-set(CPACK_COMPONENT_LANGNES_JSON_LIBRARY_CMAKE_GROUP development_platform_dependent)
 
 include(CPack)
