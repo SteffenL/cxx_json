@@ -1,3 +1,16 @@
 @PACKAGE_INIT@
 
-include("${CMAKE_CURRENT_LIST_DIR}/langnes_json-targets.cmake")
+if(${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS)
+    set(COMPONENTS ${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS)
+    if(c IN_LIST comps AND NOT Runtime IN_LIST comps)
+        list(APPEND comps Runtime)
+    endif()
+else()
+    set(COMPONENTS cxx)
+endif()
+
+set(${CMAKE_FIND_PACKAGE_NAME}_COMPONENTS ${COMPONENTS})
+
+foreach(COMPONENT IN LISTS ${CMAKE_FIND_PACKAGE_NAME}_COMPONENTS)
+    include(${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}_${COMPONENT}-config.cmake)
+endforeach()

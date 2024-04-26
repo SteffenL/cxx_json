@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "langnes_json/errors.hpp"
-#include "langnes_json/json.h"
-#include "langnes_json/json.hpp"
+
+#include "langnes_json/c/json.h"
+#include "langnes_json/cxx/errors.hpp"
+#include "langnes_json/cxx/json.hpp"
 
 #include <cstdlib>
 

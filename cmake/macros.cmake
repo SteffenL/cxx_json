@@ -68,10 +68,10 @@ macro(langnes_json_set_language_standards)
 endmacro()
 
 macro(langnes_json_extract_version)
-    set(LANGNES_JSON_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/lib/include)
+    set(LANGNES_JSON_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/lib/cxx/include)
 
     # Extract version information from source code
-    file(READ "${LANGNES_JSON_INCLUDE_DIR}/langnes_json/json.hpp" LANGNES_JSON_H_CONTENT)
+    file(READ "${LANGNES_JSON_INCLUDE_DIR}/langnes_json/cxx/json.hpp" LANGNES_JSON_H_CONTENT)
     string(REGEX MATCH "namespace library_version \{.+\}; \/\/ namespace library_version" LANGNES_JSON_VERSION_VARS_CONTENT_MATCH "${LANGNES_JSON_H_CONTENT}")
 
     if(NOT DEFINED LANGNES_JSON_VERSION_MAJOR)

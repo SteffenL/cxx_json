@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "langnes_json/errors.h"
-#include "langnes_json/errors.hpp"
+#include "langnes_json/c/errors.h"
+#include "langnes_json/cxx/errors.hpp"
 
 const langnes_json_error_code_t langnes_json_error_invalid_argument =
     static_cast<langnes_json_error_code_t>(
