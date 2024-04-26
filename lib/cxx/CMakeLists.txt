@@ -14,7 +14,7 @@ target_compile_features(langnes_json_cxx_headers INTERFACE cxx_std_11)
 if(LANGNES_JSON_INSTALL)
     install(DIRECTORY "include/langnes_json/cxx"
         DESTINATION "include/langnes_json"
-        COMPONENT langnes_json_cxx_headers)
+        COMPONENT langnes_json_headers)
 
     install(TARGETS langnes_json_cxx_headers EXPORT langnes_json_cxx_targets)
 
@@ -22,7 +22,7 @@ if(LANGNES_JSON_INSTALL)
         DESTINATION "lib/cmake/langnes_json/cxx"
         NAMESPACE langnes::json::cxx::
         FILE targets.cmake
-        COMPONENT langnes_json_cxx_cmake)
+        COMPONENT langnes_json_cmake)
 
     export(EXPORT langnes_json_cxx_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/targets.cmake")
 endif()
