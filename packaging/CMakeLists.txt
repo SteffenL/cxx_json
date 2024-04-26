@@ -1,5 +1,5 @@
-set(CPACK_PACKAGE_NAME "liblangnes_json")
-set(CPACK_PACKAGE_VENDOR "Langnes")
+set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+set(CPACK_PACKAGE_VENDOR "Steffen André Langnes")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${PROJECT_DESCRIPTION}")
 set(CPACK_PACKAGE_CONTACT "${CPACK_PACKAGE_VENDOR}")
@@ -17,12 +17,12 @@ set(CPACK_SOURCE_IGNORE_FILES
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL Windows)
-    set(CPACK_GENERATOR TGZ ZIP)
+    set(CPACK_GENERATOR ZIP)
 else()
     set(CPACK_GENERATOR TGZ)
 endif()
 
-set(CPACK_SOURCE_GENERATOR TGZ)
+set(CPACK_SOURCE_GENERATOR TGZ ZIP)
 
 string(TOLOWER "${CMAKE_SYSTEM_NAME}" CMAKE_SYSTEM_NAME_LC)
 string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" CMAKE_SYSTEM_PROCESSOR_LC)
@@ -59,6 +59,16 @@ set(CPACK_ARCHIVE_RUNTIME_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSI
 set(CPACK_ARCHIVE_LINK_LIBRARIES_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-dev-${CMAKE_SYSTEM_NAME_LC}-${PACKAGE_NAME_ARCH}-${COMPILER}-${CXX_STANDARD}")
 set(CPACK_ARCHIVE_DEVELOPMENT_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-dev")
 
+get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
+
+# Don't pack binaries on systems other than Windows
+if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
+    list(REMOVE_ITEM CPACK_COMPONENTS_ALL
+        langnes_json_library_runtime
+        langnes_json_library_link
+    )
+endif()
+
 include(CPack)
 
 #
@@ -66,49 +76,38 @@ include(CPack)
 #
 
 cpack_add_component(langnes_json_library_runtime
-    DISPLAY_NAME "Library runtime"
-    DESCRIPTION "Shared libraries"
+    DISPLAY_NAME "Shared libraries"
     GROUP runtime
-    INSTALL_TYPES full development minimal)
+    INSTALL_TYPES development minimal)
 
 cpack_add_component(langnes_json_library_link
     DISPLAY_NAME "Link libraries"
     DESCRIPTION "Static- and import libraries"
-    GROUP link_libraries
+    GROUP development
     DEPENDS langnes_json_library_headers
-    INSTALL_TYPES full development)
+    INSTALL_TYPES development)
 
 cpack_add_component(langnes_json_library_headers
-    DISPLAY_NAME "Library headers"
-    DESCRIPTION "Library header files"
+    DISPLAY_NAME "Headers"
+    DESCRIPTION "C and C++ header files"
     GROUP development
-    INSTALL_TYPES full development)
+    INSTALL_TYPES development)
 
 cpack_add_component(langnes_json_library_docs
-    DISPLAY_NAME "Library documentation"
-    DESCRIPTION "Library API documentation"
+    DISPLAY_NAME "Documentation"
     GROUP development
-    INSTALL_TYPES full development)
+    INSTALL_TYPES development)
 
 cpack_add_component(langnes_json_library_cmake
-    DISPLAY_NAME "Library CMake files"
-    DESCRIPTION "Library integration for CMake"
+    DISPLAY_NAME "CMake files"
     GROUP development
-    INSTALL_TYPES full development)
+    INSTALL_TYPES development)
 
 cpack_add_component_group(runtime
-    DISPLAY_NAME "Runtime"
-    DESCRIPTION "Runtime components")
+    DISPLAY_NAME "Runtime")
 
 cpack_add_component_group(development
-    DISPLAY_NAME "Development"
-    DESCRIPTION "Development components")
+    DISPLAY_NAME "Development")
 
-cpack_add_component_group(link_libraries
-    DISPLAY_NAME "Runtime"
-    DESCRIPTION "Link-time components"
-    PARENT_GROUP development)
-
-cpack_add_install_type(full DISPLAY_NAME "Everything")
 cpack_add_install_type(development DISPLAY_NAME "Development")
 cpack_add_install_type(minimal DISPLAY_NAME "Minimal")
