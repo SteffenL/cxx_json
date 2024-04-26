@@ -1,4 +1,4 @@
-#include "langnes_json/json.h"
+#include "langnes_json/c/json.h"
 
 #include <stdbool.h>
 #include <stdio.h>

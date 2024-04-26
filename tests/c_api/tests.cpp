@@ -1,6 +1,6 @@
 #include "langnes_json/testing.hpp"
 
-#include <langnes_json/json.h>
+#include <langnes_json/c/json.h>
 
 #include <cstring>
 

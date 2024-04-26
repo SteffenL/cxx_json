@@ -1,4 +1,4 @@
 add_executable(langnes_json_example_c main.c)
 add_executable(langnes_json_example_cxx main.cpp)
-target_link_libraries(langnes_json_example_c PRIVATE langnes::json_shared langnes_json_private)
-target_link_libraries(langnes_json_example_cxx PRIVATE langnes::json langnes_json_private)
+target_link_libraries(langnes_json_example_c PRIVATE langnes_json_c_shared langnes_json_private)
+target_link_libraries(langnes_json_example_cxx PRIVATE langnes_json_cxx_headers langnes_json_private)

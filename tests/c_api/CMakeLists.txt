@@ -1,0 +1,3 @@
+add_executable(langnes_json_c_api_tests tests.cpp)
+target_link_libraries(langnes_json_c_api_tests PRIVATE langnes_json_c_static langnes_json_test_driver langnes_json_private)
+langnes_json_discover_tests(langnes_json_c_api_tests)

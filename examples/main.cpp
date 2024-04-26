@@ -1,4 +1,4 @@
-#include "langnes_json/json.hpp"
+#include "langnes_json/cxx/json.hpp"
 
 #include <iomanip>
 #include <iostream>

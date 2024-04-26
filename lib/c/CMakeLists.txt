@@ -1,15 +1,3 @@
-# Targets should either link this with PRIVATE visibility or not link it at all.
-add_library(langnes_json_c_private INTERFACE)
-add_library(langnes::json::c::private ALIAS langnes_json_c_private)
-langnes_json_target_enable_warnings(langnes_json_c_private INTERFACE)
-
-set_target_properties(langnes_json_c_private PROPERTIES
-    EXPORT_NAME private)
-
-if(MSVC)
-    target_compile_options(langnes_json_c_private INTERFACE /utf-8)
-endif()
-
 #
 # Header library
 #
@@ -34,8 +22,8 @@ target_compile_features(langnes_json_c_headers INTERFACE c_std_99)
 add_library(langnes_json_c_static STATIC src/exports.cpp)
 add_library(langnes::json::c::static ALIAS langnes_json_c_static)
 
-target_link_libraries(langnes_json_c_static PUBLIC langnes::json::c PRIVATE langnes::json::cxx langnes::json::c::private)
-target_compile_definitions(langnes_json_c_static PUBLIC langnes_json_c_static)
+target_link_libraries(langnes_json_c_static PUBLIC langnes::json::c PRIVATE langnes_json_cxx_headers langnes_json_private)
+target_compile_definitions(langnes_json_c_static PUBLIC LANGNES_JSON_STATIC)
 
 # Change .lib file name for MSVC because otherwise it would be the same for shared and static
 if(MSVC)
@@ -56,8 +44,8 @@ set_target_properties(langnes_json_c_static PROPERTIES
 add_library(langnes_json_c_shared SHARED src/exports.cpp)
 add_library(langnes::json::c::shared ALIAS langnes_json_c_shared)
 
-target_link_libraries(langnes_json_c_shared PUBLIC PUBLIC langnes::json::c PRIVATE langnes::json::cxx langnes::json::c::private)
-target_compile_definitions(langnes_json_c_shared INTERFACE langnes_json_c_shared PRIVATE LANGNES_JSON_BUILD_SHARED)
+target_link_libraries(langnes_json_c_shared PUBLIC PUBLIC langnes::json::c PRIVATE langnes_json_cxx_headers langnes_json_private)
+target_compile_definitions(langnes_json_c_shared INTERFACE LANGNES_JSON_SHARED PRIVATE LANGNES_JSON_BUILD_SHARED)
 
 set_target_properties(langnes_json_c_shared PROPERTIES
     OUTPUT_NAME langnes_json
@@ -75,7 +63,6 @@ if(LANGNES_JSON_INSTALL)
         COMPONENT langnes_json_c_headers)
 
     install(TARGETS langnes_json_c_headers EXPORT langnes_json_c_targets)
-    install(TARGETS langnes_json_c_private EXPORT langnes_json_c_targets)
 
     install(EXPORT langnes_json_c_targets
         DESTINATION "lib/cmake/langnes_json/c"
