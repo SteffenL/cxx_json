@@ -1,6 +1,10 @@
 # Targets should either link this with PRIVATE visibility or not link it at all.
 add_library(langnes_json_c_private INTERFACE)
+add_library(langnes::json::c::private ALIAS langnes_json_c_private)
 langnes_json_target_enable_warnings(langnes_json_c_private INTERFACE)
+
+set_target_properties(langnes_json_c_private PROPERTIES
+    EXPORT_NAME private)
 
 if(MSVC)
     target_compile_options(langnes_json_c_private INTERFACE /utf-8)
@@ -30,12 +34,12 @@ target_compile_features(langnes_json_c_headers INTERFACE c_std_99)
 add_library(langnes_json_c_static STATIC src/exports.cpp)
 add_library(langnes::json::c::static ALIAS langnes_json_c_static)
 
-target_link_libraries(langnes_json_c_static PUBLIC langnes::json::c PRIVATE langnes::json::cxx langnes_json_c_private)
+target_link_libraries(langnes_json_c_static PUBLIC langnes::json::c PRIVATE langnes::json::cxx langnes::json::c::private)
 target_compile_definitions(langnes_json_c_static PUBLIC langnes_json_c_static)
 
 # Change .lib file name for MSVC because otherwise it would be the same for shared and static
 if(MSVC)
-    set(STATIC_LIBRARY_OUTPUT_NAME langnes_json_c_static)
+    set(STATIC_LIBRARY_OUTPUT_NAME langnes_json_static)
 else()
     set(STATIC_LIBRARY_OUTPUT_NAME langnes_json)
 endif()
@@ -52,7 +56,7 @@ set_target_properties(langnes_json_c_static PROPERTIES
 add_library(langnes_json_c_shared SHARED src/exports.cpp)
 add_library(langnes::json::c::shared ALIAS langnes_json_c_shared)
 
-target_link_libraries(langnes_json_c_shared PUBLIC PUBLIC langnes::json::c PRIVATE langnes::json::cxx langnes_json_c_private)
+target_link_libraries(langnes_json_c_shared PUBLIC PUBLIC langnes::json::c PRIVATE langnes::json::cxx langnes::json::c::private)
 target_compile_definitions(langnes_json_c_shared INTERFACE langnes_json_c_shared PRIVATE LANGNES_JSON_BUILD_SHARED)
 
 set_target_properties(langnes_json_c_shared PROPERTIES
@@ -68,49 +72,40 @@ set_target_properties(langnes_json_c_shared PROPERTIES
 if(LANGNES_JSON_INSTALL)
     install(DIRECTORY "include/langnes_json/c"
         DESTINATION "include/langnes_json"
-        COMPONENT langnes_json_c_library_headers)
+        COMPONENT langnes_json_c_headers)
 
     install(TARGETS langnes_json_c_headers EXPORT langnes_json_c_targets)
     install(TARGETS langnes_json_c_private EXPORT langnes_json_c_targets)
 
     install(EXPORT langnes_json_c_targets
-        DESTINATION "lib/cmake/langnes_json_c"
+        DESTINATION "lib/cmake/langnes_json/c"
         NAMESPACE langnes::json::c::
-        FILE langnes_json_c-targets.cmake
-        COMPONENT langnes_json_c_library_cmake)
+        FILE targets.cmake
+        COMPONENT langnes_json_c_cmake)
 
-    install(TARGETS langnes_json_c_static langnes_json_c_shared
+    install(TARGETS langnes_json_c_shared
         EXPORT langnes_json_c_targets
         RUNTIME
             DESTINATION "bin/$<CONFIG>"
-            COMPONENT langnes_json_c_library_runtime
+            COMPONENT langnes_json_c_shared_lib
         LIBRARY
             DESTINATION "lib/$<CONFIG>"
-            COMPONENT langnes_json_c_library_runtime
-            NAMELINK_COMPONENT langnes_json_c_library_link
+            COMPONENT langnes_json_c_shared_lib
+            NAMELINK_COMPONENT langnes_json_c_shared_lib_dev
         ARCHIVE
             DESTINATION "lib/$<CONFIG>"
-            COMPONENT langnes_json_c_library_link
+            COMPONENT langnes_json_c_shared_lib_dev
     )
 
-    export(EXPORT langnes_json_c_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/langnes_json_c-targets.cmake")
+    install(TARGETS langnes_json_c_static
+        EXPORT langnes_json_c_targets
+        LIBRARY
+            DESTINATION "lib/$<CONFIG>"
+            COMPONENT langnes_json_c_static_lib_dev
+        ARCHIVE
+            DESTINATION "lib/$<CONFIG>"
+            COMPONENT langnes_json_c_static_lib_dev
+    )
 
-    write_basic_package_version_file(
-        "${CMAKE_CURRENT_BINARY_DIR}/langnes_json_c-config-version.cmake"
-        VERSION "${LANGNES_JSON_VERSION_COMPATIBILITY}"
-        COMPATIBILITY SameMinorVersion)
-
-    configure_package_config_file(
-        langnes_json_c-config.cmake.in
-        "${CMAKE_CURRENT_BINARY_DIR}/langnes_json_c-config.cmake"
-        INSTALL_DESTINATION "lib/cmake/langnes_json_c"
-        NO_SET_AND_CHECK_MACRO
-        NO_CHECK_REQUIRED_COMPONENTS_MACRO)
-
-    install(
-        FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/langnes_json_c-config.cmake"
-            "${CMAKE_CURRENT_BINARY_DIR}/langnes_json_c-config-version.cmake"
-        DESTINATION "lib/cmake/langnes_json_c"
-        COMPONENT langnes_json_c_library_cmake)
+    export(EXPORT langnes_json_c_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/targets.cmake")
 endif()

@@ -14,10 +14,10 @@ langnes_json_init_post_project()
 
 add_subdirectory(lib)
 
-#if(LANGNES_JSON_BUILD_DOCS)
-#    add_subdirectory(docs)
-#endif()
-#
+if(LANGNES_JSON_BUILD_DOCS)
+    add_subdirectory(docs)
+endif()
+
 #if(LANGNES_JSON_BUILD_EXAMPLES)
 #    add_subdirectory(examples)
 #endif()
@@ -26,7 +26,7 @@ add_subdirectory(lib)
 #    add_subdirectory(test_driver)
 #    add_subdirectory(tests)
 #endif()
-#
-#if(LANGNES_JSON_PACKAGE)
-#    add_subdirectory(packaging)
-#endif()
+
+if(LANGNES_JSON_PACKAGE)
+    add_subdirectory(packaging)
+endif()
