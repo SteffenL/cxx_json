@@ -159,9 +159,6 @@ macro(langnes_json_init_post_project)
         set(CMAKE_CXX_VISIBILITY_PRESET hidden)
         set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 
-        # Use debug postfix to separate debug/release binaries for the library
-        set(CMAKE_DEBUG_POSTFIX d)
-
         # Useful to build tools and clang-tidy
         set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     endif()

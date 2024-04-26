@@ -80,17 +80,17 @@ if(LANGNES_JSON_INSTALL)
 
     install(TARGETS langnes_json_static langnes_json_shared
         EXPORT langnes_json_targets
-        CONFIGURATIONS ${RELEASE_BUILD_CONFIGS}
         RUNTIME
-            DESTINATION "${CMAKE_INSTALL_BINDIR}"
+            DESTINATION "${CMAKE_INSTALL_BINDIR}/$<CONFIG>"
             COMPONENT langnes_json_library_runtime
         LIBRARY
-            DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/$<CONFIG>"
             COMPONENT langnes_json_library_runtime
             NAMELINK_COMPONENT langnes_json_library_link
         ARCHIVE
-            DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-            COMPONENT langnes_json_library_link)
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/$<CONFIG>"
+            COMPONENT langnes_json_library_link
+        )
 
     install(EXPORT langnes_json_targets
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/langnes_json"
