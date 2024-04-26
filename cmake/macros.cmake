@@ -118,11 +118,6 @@ macro(langnes_json_add_options)
     option(LANGNES_JSON_BUILD_TESTS "Build tests" "${LANGNES_JSON_BUILD_EXTRAS}")
     option(LANGNES_JSON_INSTALL "Generate installation rules" "${LANGNES_JSON_BUILD_EXTRAS}")
     option(LANGNES_JSON_PACKAGE "Build packages" "${LANGNES_JSON_BUILD_EXTRAS}")
-    option(LANGNES_JSON_PACKAGE_HEADERS "Build package for headers" "${LANGNES_JSON_PACKAGE}")
-    option(LANGNES_JSON_PACKAGE_RUNTIME "Build package for runtime" "${LANGNES_JSON_PACKAGE}")
-    option(LANGNES_JSON_PACKAGE_LINK "Build package for link libraries" "${LANGNES_JSON_PACKAGE}")
-    option(LANGNES_JSON_PACKAGE_DOCS "Build package for documentation" "${LANGNES_JSON_PACKAGE}")
-    option(LANGNES_JSON_PACKAGE_CMAKE "Build package for CMake files" "${LANGNES_JSON_PACKAGE}")
 endmacro()
 
 # Call this before project().
