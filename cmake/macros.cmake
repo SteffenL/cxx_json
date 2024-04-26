@@ -116,8 +116,8 @@ macro(langnes_json_add_options)
     option(LANGNES_JSON_BUILD_DOCS "Build documentation" "${LANGNES_JSON_BUILD_EXTRAS}")
     option(LANGNES_JSON_BUILD_EXAMPLES "Build examples" "${LANGNES_JSON_BUILD_EXTRAS}")
     option(LANGNES_JSON_BUILD_TESTS "Build tests" "${LANGNES_JSON_BUILD_EXTRAS}")
-    option(LANGNES_JSON_INSTALL "Generate installation rules" "${LANGNES_JSON_BUILD_EXTRAS}")
     option(LANGNES_JSON_PACKAGE "Build packages" "${LANGNES_JSON_BUILD_EXTRAS}")
+    option(LANGNES_JSON_INSTALL "Generate installation rules" "${LANGNES_JSON_PACKAGE}")
 endmacro()
 
 # Call this before project().

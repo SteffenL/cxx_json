@@ -93,10 +93,12 @@ cpack_add_component(langnes_json_library_headers
     GROUP development
     INSTALL_TYPES development)
 
-cpack_add_component(langnes_json_library_docs
-    DISPLAY_NAME "Documentation"
-    GROUP development
-    INSTALL_TYPES development)
+if(LANGNES_JSON_BUILD_DOCS)
+    cpack_add_component(langnes_json_library_docs
+        DISPLAY_NAME "Documentation"
+        GROUP development
+        INSTALL_TYPES development)
+endif()
 
 cpack_add_component(langnes_json_library_cmake
     DISPLAY_NAME "CMake files"
