@@ -17,6 +17,6 @@ doxygen_add_docs(
 
 if(LANGNES_JSON_INSTALL)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/html"
-        DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+        DESTINATION "docs"
         COMPONENT langnes_json_library_docs)
 endif()

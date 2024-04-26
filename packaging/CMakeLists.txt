@@ -56,17 +56,39 @@ endif()
 # Package file names
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-src")
 set(CPACK_ARCHIVE_RUNTIME_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-bin-${CMAKE_SYSTEM_NAME_LC}-${PACKAGE_NAME_ARCH}-${COMPILER}-${CXX_STANDARD}")
-set(CPACK_ARCHIVE_LINK_LIBRARIES_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-dev-${CMAKE_SYSTEM_NAME_LC}-${PACKAGE_NAME_ARCH}-${COMPILER}-${CXX_STANDARD}")
-set(CPACK_ARCHIVE_DEVELOPMENT_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-dev")
+set(CPACK_ARCHIVE_DEVELOPMENT_PLATFORM_DEPENDENT_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-dev-${CMAKE_SYSTEM_NAME_LC}-${PACKAGE_NAME_ARCH}-${COMPILER}-${CXX_STANDARD}")
+set(CPACK_ARCHIVE_DEVELOPMENT_CROSS_PLATFORM_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-dev")
 
 get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
 
 # Only pack binaries on Windows
-if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
-    list(REMOVE_ITEM CPACK_COMPONENTS_ALL
-        langnes_json_library_runtime
-        langnes_json_library_link
-    )
+#if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
+#    list(REMOVE_ITEM CPACK_COMPONENTS_ALL
+#        langnes_json_library_runtime
+#        langnes_json_library_link
+#    )
+#endif()
+
+set(CPACK_COMPONENTS_ALL)
+
+if(LANGNES_JSON_PACKAGE_RUNTIME)
+    list(APPEND CPACK_COMPONENTS_ALL langnes_json_library_runtime)
+endif()
+
+if(LANGNES_JSON_PACKAGE_LINK)
+    list(APPEND CPACK_COMPONENTS_ALL langnes_json_library_link)
+endif()
+
+if(LANGNES_JSON_PACKAGE_HEADERS)
+    list(APPEND CPACK_COMPONENTS_ALL langnes_json_library_headers)
+endif()
+
+if(LANGNES_JSON_PACKAGE_DOCS)
+    list(APPEND CPACK_COMPONENTS_ALL langnes_json_library_docs)
+endif()
+
+if(LANGNES_JSON_PACKAGE_CMAKE)
+    list(APPEND CPACK_COMPONENTS_ALL langnes_json_library_cmake)
 endif()
 
 include(CPack)
@@ -83,30 +105,39 @@ cpack_add_component(langnes_json_library_runtime
 cpack_add_component(langnes_json_library_link
     DISPLAY_NAME "Link libraries"
     DESCRIPTION "Static- and import libraries"
-    GROUP development
+    GROUP development_platform_dependent
     DEPENDS langnes_json_library_headers
     INSTALL_TYPES development)
 
 cpack_add_component(langnes_json_library_headers
     DISPLAY_NAME "Headers"
     DESCRIPTION "C and C++ header files"
-    GROUP development
+    GROUP development_cross_platform
     INSTALL_TYPES development)
 
 if(LANGNES_JSON_BUILD_DOCS)
     cpack_add_component(langnes_json_library_docs
         DISPLAY_NAME "Documentation"
-        GROUP development
+        GROUP development_cross_platform
         INSTALL_TYPES development)
 endif()
 
 cpack_add_component(langnes_json_library_cmake
     DISPLAY_NAME "CMake files"
-    GROUP development
+    GROUP development_platform_dependent
+    DEPENDS langnes_json_library_link langnes_json_library_headers
     INSTALL_TYPES development)
 
 cpack_add_component_group(runtime DISPLAY_NAME "Runtime")
 cpack_add_component_group(development DISPLAY_NAME "Development")
+
+cpack_add_component_group(development_cross_platform
+    DISPLAY_NAME "Cross-platform"
+    PARENT_GROUP development)
+
+cpack_add_component_group(development_platform_dependent
+    DISPLAY_NAME "Platform-dependent"
+    PARENT_GROUP development)
 
 cpack_add_install_type(development DISPLAY_NAME "Development")
 cpack_add_install_type(minimal DISPLAY_NAME "Minimal")

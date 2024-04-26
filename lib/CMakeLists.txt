@@ -78,19 +78,19 @@ if(LANGNES_JSON_INSTALL)
     install(TARGETS langnes_json_static langnes_json_shared
         EXPORT langnes_json_targets
         RUNTIME
-            DESTINATION "${CMAKE_INSTALL_BINDIR}/$<CONFIG>"
+            DESTINATION "bin/$<CONFIG>"
             COMPONENT langnes_json_library_runtime
         LIBRARY
-            DESTINATION "${CMAKE_INSTALL_LIBDIR}/$<CONFIG>"
+            DESTINATION "lib/$<CONFIG>"
             COMPONENT langnes_json_library_runtime
             NAMELINK_COMPONENT langnes_json_library_link
         ARCHIVE
-            DESTINATION "${CMAKE_INSTALL_LIBDIR}/$<CONFIG>"
+            DESTINATION "lib/$<CONFIG>"
             COMPONENT langnes_json_library_link
         )
 
     install(EXPORT langnes_json_targets
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/langnes_json"
+        DESTINATION "lib/cmake/langnes_json"
         NAMESPACE langnes_json::
         FILE langnes_json-targets.cmake
         COMPONENT langnes_json_library_cmake)
@@ -101,7 +101,7 @@ if(LANGNES_JSON_INSTALL)
     configure_package_config_file(
         langnes_json-config.cmake.in
         "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-config.cmake"
-        INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/langnes_json"
+        INSTALL_DESTINATION "lib/cmake/langnes_json"
         NO_SET_AND_CHECK_MACRO
         NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
@@ -114,6 +114,6 @@ if(LANGNES_JSON_INSTALL)
         FILES
             "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-config.cmake"
             "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-config-version.cmake"
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/langnes_json"
+        DESTINATION "lib/cmake/langnes_json"
         COMPONENT langnes_json_library_cmake)
 endif()
