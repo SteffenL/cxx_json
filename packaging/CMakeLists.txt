@@ -61,7 +61,7 @@ set(CPACK_ARCHIVE_DEVELOPMENT_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_V
 
 get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
 
-# Don't pack binaries on systems other than Windows
+# Only pack binaries on Windows
 if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
     list(REMOVE_ITEM CPACK_COMPONENTS_ALL
         langnes_json_library_runtime
@@ -103,11 +103,8 @@ cpack_add_component(langnes_json_library_cmake
     GROUP development
     INSTALL_TYPES development)
 
-cpack_add_component_group(runtime
-    DISPLAY_NAME "Runtime")
-
-cpack_add_component_group(development
-    DISPLAY_NAME "Development")
+cpack_add_component_group(runtime DISPLAY_NAME "Runtime")
+cpack_add_component_group(development DISPLAY_NAME "Development")
 
 cpack_add_install_type(development DISPLAY_NAME "Development")
 cpack_add_install_type(minimal DISPLAY_NAME "Minimal")
