@@ -65,9 +65,6 @@ set_target_properties(langnes_json_shared PROPERTIES
 # Installation
 #
 
-set(DEBUG_BUILD_CONFIGS Debug)
-set(RELEASE_BUILD_CONFIGS Release RelWithDebInfo MinSizeRel)
-
 if(LANGNES_JSON_INSTALL)
     # Install library headers
     install(DIRECTORY "${LANGNES_JSON_INCLUDE_DIR}/langnes_json"
