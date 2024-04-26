@@ -110,76 +110,19 @@ macro(langnes_json_extract_version)
     endif()
 endmacro()
 
-# Installs targets, etc.
-macro(langnes_json_install)
-    # Install headers
-    install(DIRECTORY "${LANGNES_JSON_INCLUDE_DIR}/langnes_json"
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-        COMPONENT langnes_json_development)
-
-    # Install targets
-    install(TARGETS langnes_json_private EXPORT langnes_json_targets)
-    install(TARGETS langnes_json_headers EXPORT langnes_json_targets)
-    list(APPEND LANGNES_JSON_INSTALL_TARGET_NAMES langnes_json_shared)
-    list(APPEND LANGNES_JSON_INSTALL_TARGET_NAMES langnes_json_static)
-
-    install(TARGETS ${LANGNES_JSON_INSTALL_TARGET_NAMES}
-        EXPORT langnes_json_targets
-        RUNTIME
-            DESTINATION "${CMAKE_INSTALL_BINDIR}"
-            COMPONENT langnes_json_runtime
-        LIBRARY
-            DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-            COMPONENT langnes_json_runtime
-            NAMELINK_COMPONENT langnes_json_development
-        ARCHIVE
-            DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-            COMPONENT langnes_json_development)
-
-    install(EXPORT langnes_json_targets
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/langnes_json"
-        NAMESPACE langnes_json::
-        FILE langnes_json-targets.cmake
-        COMPONENT langnes_json_development)
-
-    export(EXPORT langnes_json_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-targets.cmake")
-
-    # Install package config
-    configure_package_config_file(
-        langnes_json-config.cmake.in
-        "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-config.cmake"
-        INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/langnes_json"
-        NO_SET_AND_CHECK_MACRO
-        NO_CHECK_REQUIRED_COMPONENTS_MACRO)
-
-    write_basic_package_version_file(
-        "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-config-version.cmake"
-        VERSION "${LANGNES_JSON_VERSION_COMPATIBILITY}"
-        COMPATIBILITY SameMinorVersion)
-
-    install(
-        FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-config.cmake"
-            "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-config-version.cmake"
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/langnes_json"
-        COMPONENT langnes_json_development)
-
-    # Install documentation
-    if(LANGNES_JSON_BUILD_DOCS)
-        install(
-            DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/docs/html"
-            DESTINATION "${CMAKE_INSTALL_DOCDIR}"
-            COMPONENT langnes_json_development)
-    endif()
-endmacro()
-
 # Add CMake options.
 macro(langnes_json_add_options)
     option(LANGNES_JSON_BUILD_EXTRAS "Build extras (docs, examples, tests, package)" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
     option(LANGNES_JSON_BUILD_DOCS "Build documentation" "${LANGNES_JSON_BUILD_EXTRAS}")
     option(LANGNES_JSON_BUILD_EXAMPLES "Build examples" "${LANGNES_JSON_BUILD_EXTRAS}")
     option(LANGNES_JSON_BUILD_TESTS "Build tests" "${LANGNES_JSON_BUILD_EXTRAS}")
-    option(LANGNES_JSON_BUILD_PACKAGE "Build package" "${LANGNES_JSON_BUILD_EXTRAS}")
+    option(LANGNES_JSON_INSTALL "Generate installation rules" "${LANGNES_JSON_BUILD_EXTRAS}")
+    option(LANGNES_JSON_PACKAGE "Build packages" "${LANGNES_JSON_BUILD_EXTRAS}")
+    option(LANGNES_JSON_PACKAGE_HEADERS "Build package for headers" "${LANGNES_JSON_PACKAGE}")
+    option(LANGNES_JSON_PACKAGE_RUNTIME "Build package for runtime" "${LANGNES_JSON_PACKAGE}")
+    option(LANGNES_JSON_PACKAGE_LINK "Build package for link libraries" "${LANGNES_JSON_PACKAGE}")
+    option(LANGNES_JSON_PACKAGE_DOCS "Build package for documentation" "${LANGNES_JSON_PACKAGE}")
+    option(LANGNES_JSON_PACKAGE_CMAKE "Build package for CMake files" "${LANGNES_JSON_PACKAGE}")
 endmacro()
 
 # Call this before project().

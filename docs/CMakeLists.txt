@@ -14,3 +14,9 @@ doxygen_add_docs(
     "${PROJECT_SOURCE_DIR}/lib/include"
     ALL
     COMMENT "Generate API documentation")
+
+if(LANGNES_JSON_INSTALL)
+    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/html"
+        DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+        COMPONENT langnes_json_library_docs)
+endif()

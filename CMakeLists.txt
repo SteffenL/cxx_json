@@ -27,7 +27,6 @@ if(LANGNES_JSON_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-if(LANGNES_JSON_BUILD_PACKAGE)
+if(LANGNES_JSON_PACKAGE)
     add_subdirectory(packaging)
-    langnes_json_install()
 endif()
