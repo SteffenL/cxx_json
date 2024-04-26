@@ -1,5 +1,5 @@
 #
-# Header library
+# Headers
 #
 
 add_library(langnes_json_c_headers INTERFACE)
