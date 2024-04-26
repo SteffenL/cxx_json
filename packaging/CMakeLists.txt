@@ -59,16 +59,7 @@ set(CPACK_ARCHIVE_RUNTIME_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSI
 set(CPACK_ARCHIVE_DEVELOPMENT_PLATFORM_DEPENDENT_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-dev-${CMAKE_SYSTEM_NAME_LC}-${PACKAGE_NAME_ARCH}-${COMPILER}-${CXX_STANDARD}")
 set(CPACK_ARCHIVE_DEVELOPMENT_CROSS_PLATFORM_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-dev")
 
-get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
-
-# Only pack binaries on Windows
-#if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
-#    list(REMOVE_ITEM CPACK_COMPONENTS_ALL
-#        langnes_json_library_runtime
-#        langnes_json_library_link
-#    )
-#endif()
-
+# Specify components to package
 set(CPACK_COMPONENTS_ALL)
 
 if(LANGNES_JSON_PACKAGE_RUNTIME)
@@ -91,53 +82,11 @@ if(LANGNES_JSON_PACKAGE_CMAKE)
     list(APPEND CPACK_COMPONENTS_ALL langnes_json_library_cmake)
 endif()
 
+# Component groups
+set(CPACK_COMPONENT_LANGNES_JSON_LIBRARY_RUNTIME_GROUP runtime)
+set(CPACK_COMPONENT_LANGNES_JSON_LIBRARY_LINK_GROUP development_platform_dependent)
+set(CPACK_COMPONENT_LANGNES_JSON_LIBRARY_HEADERS_GROUP development_cross_platform)
+set(CPACK_COMPONENT_LANGNES_JSON_LIBRARY_DOCS_GROUP development_cross_platform)
+set(CPACK_COMPONENT_LANGNES_JSON_LIBRARY_CMAKE_GROUP development_platform_dependent)
+
 include(CPack)
-
-#
-# Components
-#
-
-cpack_add_component(langnes_json_library_runtime
-    DISPLAY_NAME "Shared libraries"
-    GROUP runtime
-    INSTALL_TYPES development minimal)
-
-cpack_add_component(langnes_json_library_link
-    DISPLAY_NAME "Link libraries"
-    DESCRIPTION "Static- and import libraries"
-    GROUP development_platform_dependent
-    DEPENDS langnes_json_library_headers
-    INSTALL_TYPES development)
-
-cpack_add_component(langnes_json_library_headers
-    DISPLAY_NAME "Headers"
-    DESCRIPTION "C and C++ header files"
-    GROUP development_cross_platform
-    INSTALL_TYPES development)
-
-if(LANGNES_JSON_BUILD_DOCS)
-    cpack_add_component(langnes_json_library_docs
-        DISPLAY_NAME "Documentation"
-        GROUP development_cross_platform
-        INSTALL_TYPES development)
-endif()
-
-cpack_add_component(langnes_json_library_cmake
-    DISPLAY_NAME "CMake files"
-    GROUP development_platform_dependent
-    DEPENDS langnes_json_library_link langnes_json_library_headers
-    INSTALL_TYPES development)
-
-cpack_add_component_group(runtime DISPLAY_NAME "Runtime")
-cpack_add_component_group(development DISPLAY_NAME "Development")
-
-cpack_add_component_group(development_cross_platform
-    DISPLAY_NAME "Cross-platform"
-    PARENT_GROUP development)
-
-cpack_add_component_group(development_platform_dependent
-    DISPLAY_NAME "Platform-dependent"
-    PARENT_GROUP development)
-
-cpack_add_install_type(development DISPLAY_NAME "Development")
-cpack_add_install_type(minimal DISPLAY_NAME "Minimal")

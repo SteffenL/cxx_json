@@ -123,6 +123,7 @@ macro(langnes_json_add_options)
     option(LANGNES_JSON_PACKAGE_DOCS "Package documentation components" "${LANGNES_JSON_PACKAGE}")
     option(LANGNES_JSON_PACKAGE_CMAKE "Package CMake components" "${LANGNES_JSON_PACKAGE}")
     option(LANGNES_JSON_INSTALL "Generate installation rules" "${LANGNES_JSON_PACKAGE}")
+    option(LANGNES_JSON_INSTALL_HEADER_ONLY "Generate installation rules exclusively for header-only library" "${LANGNES_JSON_PACKAGE}")
 endmacro()
 
 # Call this before project().
