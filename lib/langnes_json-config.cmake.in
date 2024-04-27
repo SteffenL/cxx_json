@@ -1,13 +1,10 @@
 @PACKAGE_INIT@
 
-if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/cxx/header_targets.cmake")
-    include("${CMAKE_CURRENT_LIST_DIR}/cxx/header_targets.cmake")
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/cxx/targets.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/cxx/targets.cmake")
 endif()
 
-if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/c/header_targets.cmake")
-    include("${CMAKE_CURRENT_LIST_DIR}/c/header_targets.cmake")
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/c/targets.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/c/targets.cmake")
 endif()
 
-if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/c/lib_targets.cmake")
-    include("${CMAKE_CURRENT_LIST_DIR}/c/lib_targets.cmake")
-endif()

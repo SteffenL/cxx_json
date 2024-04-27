@@ -24,5 +24,5 @@ if(LANGNES_JSON_INSTALL)
         FILE header_targets.cmake
         COMPONENT langnes_json_cxx_cmake_cross_platform)
 
-    export(EXPORT langnes_json_cxx_header_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/header_targets.cmake")
+    #export(EXPORT langnes_json_cxx_header_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/header_targets.cmake")
 endif()

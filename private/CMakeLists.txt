@@ -11,5 +11,6 @@ if(MSVC)
 endif()
 
 if(LANGNES_JSON_INSTALL)
-    install(TARGETS langnes_json_private EXPORT langnes_json_cxx_targets)
+    #install(TARGETS langnes_json_private EXPORT langnes_json_cxx_targets)
+    #install(TARGETS langnes_json_private EXPORT langnes_json_targets)
 endif()

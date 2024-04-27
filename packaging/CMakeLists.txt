@@ -64,7 +64,7 @@ set(CPACK_ARCHIVE_DEVELOPMENT_DOCS_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACK
 set(CPACK_COMPONENTS_ALL)
 
 if(LANGNES_JSON_PACKAGE_RUNTIME)
-    list(APPEND CPACK_COMPONENTS_ALL langnes_json_shared_lib)
+    list(APPEND CPACK_COMPONENTS_ALL langnes_json_lib)
 endif()
 
 if(LANGNES_JSON_PACKAGE_HEADERS)
@@ -72,14 +72,13 @@ if(LANGNES_JSON_PACKAGE_HEADERS)
 endif()
 
 if(LANGNES_JSON_PACKAGE_LINK)
-    list(APPEND CPACK_COMPONENTS_ALL langnes_json_shared_lib_dev)
-    list(APPEND CPACK_COMPONENTS_ALL langnes_json_static_lib_dev)
+    list(APPEND CPACK_COMPONENTS_ALL langnes_json_lib_dev)
 endif()
 
 if(LANGNES_JSON_PACKAGE_CMAKE)
-    list(APPEND CPACK_COMPONENTS_ALL langnes_json_c_cmake)
-    list(APPEND CPACK_COMPONENTS_ALL langnes_json_cxx_cmake)
-    list(APPEND CPACK_COMPONENTS_ALL langnes_json_cmake)
+    #list(APPEND CPACK_COMPONENTS_ALL langnes_json_c_cmake)
+    #list(APPEND CPACK_COMPONENTS_ALL langnes_json_cxx_cmake)
+    #list(APPEND CPACK_COMPONENTS_ALL langnes_json_cmake)
 endif()
 
 if(LANGNES_JSON_PACKAGE_DOCS)
@@ -87,13 +86,12 @@ if(LANGNES_JSON_PACKAGE_DOCS)
 endif()
 
 # Component groups
-set(CPACK_COMPONENT_LANGNES_JSON_HEADERS_GROUP        development_cross_platform)
-set(CPACK_COMPONENT_LANGNES_JSON_SHARED_LIB_GROUP     runtime)
-set(CPACK_COMPONENT_LANGNES_JSON_SHARED_LIB_DEV_GROUP development_platform_dependent)
-set(CPACK_COMPONENT_LANGNES_JSON_STATIC_LIB_DEV_GROUP development_platform_dependent)
-set(CPACK_COMPONENT_LANGNES_JSON_CMAKE_GROUP          development_cross_platform)
-set(CPACK_COMPONENT_LANGNES_JSON_C_CMAKE_GROUP        development_platform_dependent)
-set(CPACK_COMPONENT_LANGNES_JSON_CXX_CMAKE_GROUP      development_cross_platform)
-set(CPACK_COMPONENT_LANGNES_JSON_DOCS_GROUP           development_docs)
+set(CPACK_COMPONENT_LANGNES_JSON_HEADERS_GROUP   development_cross_platform)
+set(CPACK_COMPONENT_LANGNES_JSON_LIB_GROUP       runtime)
+set(CPACK_COMPONENT_LANGNES_JSON_LIB_DEV_GROUP   development_platform_dependent)
+set(CPACK_COMPONENT_LANGNES_JSON_CMAKE_GROUP     development_cross_platform)
+set(CPACK_COMPONENT_LANGNES_JSON_C_CMAKE_GROUP   development_platform_dependent)
+set(CPACK_COMPONENT_LANGNES_JSON_CXX_CMAKE_GROUP development_cross_platform)
+set(CPACK_COMPONENT_LANGNES_JSON_DOCS_GROUP      development_docs)
 
 include(CPack)
