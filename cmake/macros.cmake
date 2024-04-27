@@ -10,9 +10,9 @@ endmacro()
 # Link a library with build (local) interface.
 macro(langnes_json_target_link_private_build_library TARGET LINK_TARGET)
     if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.26")
-        target_link_library("${TARGET}" PRIVATE "$<BUILD_LOCAL_INTERFACE:${LINK_TARGET}>")
+        target_link_libraries("${TARGET}" PRIVATE "$<BUILD_LOCAL_INTERFACE:${LINK_TARGET}>")
     else()
-        target_link_library("${TARGET}" PRIVATE "$<BUILD_INTERFACE:${LINK_TARGET}>")
+        target_link_libraries("${TARGET}" PRIVATE "$<BUILD_INTERFACE:${LINK_TARGET}>")
     endif()
 endmacro()
 
