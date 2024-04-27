@@ -19,5 +19,5 @@ if(LANGNES_JSON_INSTALL)
             "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-config.cmake"
             "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-config-version.cmake"
         DESTINATION "lib/cmake/langnes_json"
-        COMPONENT langnes_json_cmake)
+        COMPONENT langnes_json_cmake_cross_platform)
 endif()

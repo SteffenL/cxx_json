@@ -1,5 +1,9 @@
 add_executable(langnes_json_unit_tests
     utf8_tests.cpp
 )
-target_link_libraries(langnes_json_unit_tests PRIVATE langnes_json_cxx_headers langnes_json_test_driver langnes_json_private)
+target_link_libraries(langnes_json_unit_tests
+    PRIVATE
+        langnes_json_cxx_headers
+        langnes_json_test_driver
+        $<BUILD_INTERFACE:langnes_json_private>)
 langnes_json_discover_tests(langnes_json_unit_tests)

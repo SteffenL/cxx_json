@@ -22,7 +22,13 @@ target_compile_features(langnes_json_c_headers INTERFACE c_std_99)
 add_library(langnes_json_c_static STATIC src/exports.cpp)
 add_library(langnes::json::c::static ALIAS langnes_json_c_static)
 
-target_link_libraries(langnes_json_c_static PUBLIC langnes::json::c PRIVATE langnes_json_cxx_headers langnes_json_private)
+target_link_libraries(langnes_json_c_static
+    PUBLIC
+        langnes::json::c
+    PRIVATE
+        langnes_json_cxx_headers
+        $<BUILD_INTERFACE:langnes_json_private>)
+
 target_compile_definitions(langnes_json_c_static PUBLIC LANGNES_JSON_STATIC)
 
 # Change .lib file name for MSVC because otherwise it would be the same for shared and static
@@ -44,8 +50,18 @@ set_target_properties(langnes_json_c_static PROPERTIES
 add_library(langnes_json_c_shared SHARED src/exports.cpp)
 add_library(langnes::json::c::shared ALIAS langnes_json_c_shared)
 
-target_link_libraries(langnes_json_c_shared PUBLIC PUBLIC langnes::json::c PRIVATE langnes_json_cxx_headers langnes_json_private)
-target_compile_definitions(langnes_json_c_shared INTERFACE LANGNES_JSON_SHARED PRIVATE LANGNES_JSON_BUILD_SHARED)
+target_link_libraries(langnes_json_c_shared
+    PUBLIC
+        langnes::json::c
+    PRIVATE
+        langnes_json_cxx_headers
+        $<BUILD_INTERFACE:langnes_json_private>)
+
+target_compile_definitions(langnes_json_c_shared
+    INTERFACE
+        LANGNES_JSON_SHARED
+    PRIVATE
+        LANGNES_JSON_BUILD_SHARED)
 
 set_target_properties(langnes_json_c_shared PROPERTIES
     OUTPUT_NAME langnes_json
@@ -78,38 +94,29 @@ if(LANGNES_JSON_INSTALL)
 
     #install(TARGETS langnes_json_private EXPORT langnes_json_c_lib_targets)
 
-    install(TARGETS langnes_json_private EXPORT langnes_json_c_lib_targets)
+    #install(TARGETS langnes_json_private EXPORT langnes_json_c_lib_targets)
+    #install(
+    #    FILES
+    #        "${CMAKE_CURRENT_BINARY_DIR}/header_targets.cmake"
+    #        "${CMAKE_CURRENT_BINARY_DIR}/lib_targets.cmake"
+    #    DESTINATION lib/cmake
+    #)
+
+    set(CONFIG_DIR_NAME $<IF:$<CONFIG:Debug>,debug,release>)
 
     install(TARGETS langnes_json_c_shared langnes_json_c_static
-        CONFIGURATIONS Debug
+        EXPORT langnes_json_c_lib_targets
         RUNTIME
-            DESTINATION "$<CONFIG>/bin"
-            COMPONENT langnes_json_lib_dev
+            DESTINATION "bin/${CONFIG_DIR_NAME}"
+            COMPONENT langnes_json_lib
         LIBRARY
-            DESTINATION "$<CONFIG>/lib"
+            DESTINATION "lib/${CONFIG_DIR_NAME}"
             COMPONENT langnes_json_lib
             NAMELINK_COMPONENT langnes_json_lib_dev
         ARCHIVE
-            DESTINATION "$<CONFIG>/lib"
+            DESTINATION "lib/${CONFIG_DIR_NAME}"
             COMPONENT langnes_json_lib_dev
     )
-
-    install(TARGETS langnes_json_c_shared langnes_json_c_static
-        CONFIGURATIONS Release RelWithDebInfo MinSizeRel
-        RUNTIME
-            DESTINATION "$<CONFIG>/bin"
-            COMPONENT langnes_json_lib
-        LIBRARY
-            DESTINATION "$<CONFIG>/lib"
-            COMPONENT langnes_json_lib
-            NAMELINK_COMPONENT langnes_json_lib_dev
-        ARCHIVE
-            DESTINATION "$<CONFIG>/lib"
-            COMPONENT langnes_json_lib_dev
-    )
-
-    install(TARGETS langnes_json_c_shared langnes_json_c_static
-        EXPORT langnes_json_c_lib_targets)
 
     #install(TARGETS langnes_json_private EXPORT langnes_json_c_static)
 
