@@ -49,6 +49,7 @@ jobs:
           "CMAKE_C_COMPILER=${{ matrix.config.cc }}"
           "CMAKE_CXX_COMPILER=${{ matrix.config.cxx }}"
           "CMAKE_CXX_STANDARD=${{ matrix.cxx-std }}"
+          "LANGNES_JSON_BUILD_DOCS=OFF"
 
       - name: Install gcovr
         run: pip install "gcovr==${{ inputs.gcovr-version }}"
