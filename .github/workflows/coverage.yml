@@ -16,6 +16,11 @@ on:
         type: string
         description: CMake options (X=1 Y=2)
         required: false
+      build-config:
+        type: string
+        description: CMake build config
+        required: true
+        default: Profile
 jobs:
   collect:
     runs-on: ${{ matrix.config.image }}
@@ -56,6 +61,7 @@ jobs:
             "-DCMAKE_C_COMPILER=${{ matrix.config.cc }}" \
             "-DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}" \
             "-DCMAKE_CXX_STANDARD=${{ matrix.cxx-std }}" \
+            "-DCMAKE_BUILD_TYPE=${{ inputs.build-config }}" \
             "${args[@]}"
 
       - name: Build
