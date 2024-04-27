@@ -60,18 +60,17 @@ set(CPACK_ARCHIVE_CROSS_PLATFORM_FILE_NAME     "${CPACK_PACKAGE_NAME}-${CPACK_PA
 set(CPACK_ARCHIVE_DOCS_FILE_NAME               "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-docs")
 
 # Components to package based on options
-set(CPACK_COMPONENTS_ALL)
+#set(CPACK_COMPONENTS_ALL)
 
-list(APPEND CPACK_COMPONENTS_ALL langnes_json_headers)
-list(APPEND CPACK_COMPONENTS_ALL langnes_json_cmake)
+get_cmake_property(CPACK_COMPONENTS_ALL COMPONENTS)
 
-if(LANGNES_JSON_PACKAGE_PLATFORM)
-    list(APPEND CPACK_COMPONENTS_ALL langnes_json_lib)
-    list(APPEND CPACK_COMPONENTS_ALL langnes_json_cmake_platform_dependent)
+if(NOT LANGNES_JSON_BUILD_LIBRARY)
+    list(REMOVE_ITEM CPACK_COMPONENTS_ALL langnes_json_lib)
+    list(REMOVE_ITEM CPACK_COMPONENTS_ALL langnes_json_cmake_platform_dependent)
 endif()
 
-if(LANGNES_JSON_PACKAGE_DOCS)
-    list(APPEND CPACK_COMPONENTS_ALL langnes_json_docs)
+if(NOT LANGNES_JSON_BUILD_DOCS)
+    list(REMOVE_ITEM CPACK_COMPONENTS_ALL langnes_json_docs)
 endif()
 
 # Component groups

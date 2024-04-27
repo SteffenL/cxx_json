@@ -13,7 +13,10 @@ project(
 langnes_json_init_post_project()
 
 add_subdirectory(private)
-add_subdirectory(lib)
+
+if(LANGNES_JSON_BUILD_LIBRARY)
+    add_subdirectory(lib)
+endif()
 
 if(LANGNES_JSON_BUILD_DOCS)
     add_subdirectory(docs)

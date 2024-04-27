@@ -121,15 +121,13 @@ endmacro()
 
 # Add CMake options.
 macro(langnes_json_add_options)
-    option(LANGNES_JSON_BUILD_EXTRAS "Build extras (docs, examples, tests, package)" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
-    option(LANGNES_JSON_BUILD_DOCS "Build documentation" "${LANGNES_JSON_BUILD_EXTRAS}")
-    option(LANGNES_JSON_BUILD_EXAMPLES "Build examples" "${LANGNES_JSON_BUILD_EXTRAS}")
-    option(LANGNES_JSON_BUILD_TESTS "Build tests" "${LANGNES_JSON_BUILD_EXTRAS}")
-    option(LANGNES_JSON_PACKAGE "Enable packaging" "${LANGNES_JSON_BUILD_EXTRAS}")
-    option(LANGNES_JSON_PACKAGE_PLATFORM "Package platform-dependent components" "${LANGNES_JSON_PACKAGE}")
-    option(LANGNES_JSON_PACKAGE_DOCS "Package documentation components" "${LANGNES_JSON_PACKAGE}")
-    option(LANGNES_JSON_INSTALL "Generate installation rules" "${LANGNES_JSON_PACKAGE}")
-    option(LANGNES_JSON_INSTALL_HEADER_ONLY "Generate installation rules exclusively for header-only library" "${LANGNES_JSON_PACKAGE}")
+    option(LANGNES_JSON_BUILD_ALL "Build extras (docs, examples, tests, package)" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
+    option(LANGNES_JSON_BUILD_LIBRARY "Build library" "${LANGNES_JSON_BUILD_ALL}")
+    option(LANGNES_JSON_BUILD_DOCS "Build documentation" "${LANGNES_JSON_BUILD_ALL}")
+    option(LANGNES_JSON_BUILD_EXAMPLES "Build examples" "${LANGNES_JSON_BUILD_ALL}")
+    option(LANGNES_JSON_BUILD_TESTS "Build tests" "${LANGNES_JSON_BUILD_ALL}")
+    option(LANGNES_JSON_INSTALL "Generate installation rules" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
+    option(LANGNES_JSON_PACKAGE "Enable packaging" "${LANGNES_JSON_INSTALL}")
 endmacro()
 
 # Call this before project().

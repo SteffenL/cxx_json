@@ -42,6 +42,7 @@ jobs:
             "-DCMAKE_C_COMPILER=${{ matrix.config.cc }}" \
             "-DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}" \
             "-DCMAKE_CXX_STANDARD=${{ matrix.cxx-std }}" \
+            "-DLANGNES_JSON_BUILD_DOCS=OFF" \
             "${args[@]}"
 
       - if: matrix.config.multi
@@ -95,10 +96,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: package_${{ steps.generate-artifact-name.outputs.name }}
-          path: |
-            build/*.gz
-            build/*.sha256
-            build/*.zip
+          path: build/dist
           retention-days: 1
           if-no-files-found: error
 
@@ -124,20 +122,19 @@ jobs:
 
       - name: Build documentation
         run: |
-          cmake -G Ninja -B build -S .
-          cmake --build build --target langnes_json_docs
+          cmake -G Ninja -B build -S . \
+            -DLANGNES_JSON_BUILD_ALL=OFF \
+            -DLANGNES_JSON_BUILD_DOCS=ON
+          cmake --build build
 
       - name: Create package
-        run: cpack 
+        run: cpack -G "TGZ;ZIP"
         working-directory: build
 
       - name: Upload distributable artifacts
         uses: actions/upload-artifact@v4
         with:
           name: docs
-          path: |
-            build/*.gz
-            build/*.sha256
-            build/*.zip
+          path: build/dist
           retention-days: 1
           if-no-files-found: error
