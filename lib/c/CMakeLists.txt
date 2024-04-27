@@ -92,16 +92,6 @@ if(LANGNES_JSON_INSTALL)
         FILE lib_targets.cmake
         COMPONENT langnes_json_c_cmake_platform_dependent)
 
-    #install(TARGETS langnes_json_private EXPORT langnes_json_c_lib_targets)
-
-    #install(TARGETS langnes_json_private EXPORT langnes_json_c_lib_targets)
-    #install(
-    #    FILES
-    #        "${CMAKE_CURRENT_BINARY_DIR}/header_targets.cmake"
-    #        "${CMAKE_CURRENT_BINARY_DIR}/lib_targets.cmake"
-    #    DESTINATION lib/cmake
-    #)
-
     set(CONFIG_DIR_NAME $<IF:$<CONFIG:Debug>,debug,release>)
 
     install(TARGETS langnes_json_c_shared langnes_json_c_static
@@ -117,9 +107,4 @@ if(LANGNES_JSON_INSTALL)
             DESTINATION "lib/${CONFIG_DIR_NAME}"
             COMPONENT langnes_json_lib_dev
     )
-
-    #install(TARGETS langnes_json_private EXPORT langnes_json_c_static)
-
-    #export(EXPORT langnes_json_c_header_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/header_targets.cmake")
-    #export(EXPORT langnes_json_c_lib_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/lib_targets.cmake")
 endif()
