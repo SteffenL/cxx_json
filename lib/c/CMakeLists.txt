@@ -62,16 +62,22 @@ if(LANGNES_JSON_INSTALL)
         DESTINATION "include/langnes_json"
         COMPONENT langnes_json_headers)
 
-    install(TARGETS langnes_json_c_headers EXPORT langnes_json_c_targets)
+    install(TARGETS langnes_json_c_headers EXPORT langnes_json_c_header_targets)
 
-    install(EXPORT langnes_json_c_targets
+    install(EXPORT langnes_json_c_header_targets
         DESTINATION "lib/cmake/langnes_json/c"
         NAMESPACE langnes::json::c::
-        FILE targets.cmake
-        COMPONENT langnes_json_cmake)
+        FILE header_targets.cmake
+        COMPONENT langnes_json_c_cmake_cross_platform)
+
+    install(EXPORT langnes_json_c_lib_targets
+        DESTINATION "lib/cmake/langnes_json/c"
+        NAMESPACE langnes::json::c::
+        FILE lib_targets.cmake
+        COMPONENT langnes_json_c_cmake_platform_dependent)
 
     install(TARGETS langnes_json_c_shared
-        EXPORT langnes_json_c_targets
+        EXPORT langnes_json_c_lib_targets
         RUNTIME
             DESTINATION "bin/$<CONFIG>"
             COMPONENT langnes_json_shared_lib
@@ -85,7 +91,7 @@ if(LANGNES_JSON_INSTALL)
     )
 
     install(TARGETS langnes_json_c_static
-        EXPORT langnes_json_c_targets
+        EXPORT langnes_json_c_lib_targets
         LIBRARY
             DESTINATION "lib/$<CONFIG>"
             COMPONENT langnes_json_static_lib_dev
@@ -94,5 +100,6 @@ if(LANGNES_JSON_INSTALL)
             COMPONENT langnes_json_static_lib_dev
     )
 
-    export(EXPORT langnes_json_c_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/targets.cmake")
+    export(EXPORT langnes_json_c_header_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/header_targets.cmake")
+    export(EXPORT langnes_json_c_lib_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/lib_targets.cmake")
 endif()

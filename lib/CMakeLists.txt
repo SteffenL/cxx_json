@@ -6,7 +6,6 @@ if(LANGNES_JSON_INSTALL)
         "${CMAKE_CURRENT_BINARY_DIR}/langnes_json-config-version.cmake"
         VERSION "${LANGNES_JSON_VERSION_COMPATIBILITY}"
         COMPATIBILITY SameMinorVersion)
-        #ARCH_INDEPENDENT)
 
     configure_package_config_file(
         langnes_json-config.cmake.in

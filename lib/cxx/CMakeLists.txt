@@ -16,13 +16,13 @@ if(LANGNES_JSON_INSTALL)
         DESTINATION "include/langnes_json"
         COMPONENT langnes_json_headers)
 
-    install(TARGETS langnes_json_cxx_headers EXPORT langnes_json_cxx_targets)
+    install(TARGETS langnes_json_cxx_headers EXPORT langnes_json_cxx_header_targets)
 
-    install(EXPORT langnes_json_cxx_targets
+    install(EXPORT langnes_json_cxx_header_targets
         DESTINATION "lib/cmake/langnes_json/cxx"
         NAMESPACE langnes::json::cxx::
-        FILE targets.cmake
-        COMPONENT langnes_json_cmake)
+        FILE header_targets.cmake
+        COMPONENT langnes_json_cxx_cmake_cross_platform)
 
-    export(EXPORT langnes_json_cxx_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/targets.cmake")
+    export(EXPORT langnes_json_cxx_header_targets FILE "${CMAKE_CURRENT_BINARY_DIR}/header_targets.cmake")
 endif()

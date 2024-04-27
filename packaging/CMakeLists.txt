@@ -77,6 +77,8 @@ if(LANGNES_JSON_PACKAGE_LINK)
 endif()
 
 if(LANGNES_JSON_PACKAGE_CMAKE)
+    list(APPEND CPACK_COMPONENTS_ALL langnes_json_c_cmake)
+    list(APPEND CPACK_COMPONENTS_ALL langnes_json_cxx_cmake)
     list(APPEND CPACK_COMPONENTS_ALL langnes_json_cmake)
 endif()
 
@@ -89,7 +91,9 @@ set(CPACK_COMPONENT_LANGNES_JSON_HEADERS_GROUP        development_cross_platform
 set(CPACK_COMPONENT_LANGNES_JSON_SHARED_LIB_GROUP     runtime)
 set(CPACK_COMPONENT_LANGNES_JSON_SHARED_LIB_DEV_GROUP development_platform_dependent)
 set(CPACK_COMPONENT_LANGNES_JSON_STATIC_LIB_DEV_GROUP development_platform_dependent)
-set(CPACK_COMPONENT_LANGNES_JSON_CMAKE_GROUP          development_platform_dependent)
+set(CPACK_COMPONENT_LANGNES_JSON_CMAKE_GROUP          development_cross_platform)
+set(CPACK_COMPONENT_LANGNES_JSON_C_CMAKE_GROUP        development_platform_dependent)
+set(CPACK_COMPONENT_LANGNES_JSON_CXX_CMAKE_GROUP      development_cross_platform)
 set(CPACK_COMPONENT_LANGNES_JSON_DOCS_GROUP           development_docs)
 
 include(CPack)
