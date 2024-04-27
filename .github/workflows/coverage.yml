@@ -85,8 +85,8 @@ jobs:
             --config gcovr.ci.cfg
             --json "${artifact_dir}/coverage.json"
           )
-          if [[ ! -z "${{ inputs.gcov }}" ]]; then
-            gcovr_args+=(--gcov-executable "${{ inputs.gcov }}")
+          if [[ ! -z "${{ matrix.config.gcov }}" ]]; then
+            gcovr_args+=(--gcov-executable "${{ matrix.config.gcov }}")
           fi
 
           mkdir -p "${artifact_dir}"
