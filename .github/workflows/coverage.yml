@@ -24,7 +24,7 @@ jobs:
       matrix:
         cxx-std: [11, 20]
         config:
-          - { image: macos-14,     toolchain: llvm,               compiler-name: clang,   cc: clang,    cxx: clang++,    gcov: llvm-cov gcov,    gen: Xcode, shell: bash }
+          - { image: macos-14,     toolchain: llvm,               compiler-name: clang,   cc: clang,    cxx: clang++,    gcov: llvm-cov gcov,    gen: Ninja, shell: bash }
           - { image: ubuntu-22.04, toolchain: llvm,               compiler-name: clang15, cc: clang-15, cxx: clang++-15, gcov: llvm-cov-15 gcov, gen: Ninja, shell: bash,        apt: "clang-15 clang++-15" }
           - { image: ubuntu-22.04, toolchain: gnu,                compiler-name: gcc12,   cc: gcc-12,   cxx: g++-12,     gcov: gcov-12,          gen: Ninja, shell: bash,        apt: "gcc-12 g++-12" }
           - { image: windows-2022, toolchain: msys2-gnu-ucrt64,   compiler-name: gcc,     cc: gcc,      cxx: g++,        gcov: gcov,             gen: Ninja, shell: "msys2 {0}", msys: UCRT64 }
@@ -42,7 +42,7 @@ jobs:
           apt: ${{ matrix.config.apt }}
           msys: ${{ matrix.config.msys }}
 
-      - name: Build and run tests with coverage
+      - name: Configure
         run: |
           options=()
           if [[ ! -z "${{ inputs.cmake-options }}" ]]; then
@@ -52,16 +52,18 @@ jobs:
           for option in "${options[@]}"; do
             args+=("-D${option}")
           done
-          ctest --build-and-test . build \
-            --build-generator "${{ matrix.config.gen }}" \
-            --build-config Profile \
-            --test-command ctest \
-            --output-on-failure \
-            --build-options \
+          cmake -G "${{ matrix.config.gen }}" -S . -B build \
             "-DCMAKE_C_COMPILER=${{ matrix.config.cc }}" \
             "-DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}" \
             "-DCMAKE_CXX_STANDARD=${{ matrix.cxx-std }}" \
             "${args[@]}"
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        run: ctest --output-on-failure
+        working-directory: build
 
       - name: Install gcovr
         run: pip install "gcovr==${{ inputs.gcovr-version }}"

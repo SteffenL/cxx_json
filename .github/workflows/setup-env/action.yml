@@ -22,6 +22,10 @@ runs:
           python3-pip \
           "${packages[@]}"
       shell: bash
+    - if: runner.os == 'macOS'
+      name: Install packages (brew)
+      run: brew install ninja
+      shell: bash
     - if: runner.os == 'Windows' && inputs.msys != ''
       name: Set up MSYS2
       uses: msys2/setup-msys2@v2
