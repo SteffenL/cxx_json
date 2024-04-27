@@ -10,7 +10,17 @@ jobs:
   test-coverage:
     needs: check
     uses: ./.github/workflows/coverage.yml
+    with:
+      cmake-options: LANGNES_JSON_BUILD_DOCS=OFF
 
   build:
     needs: test-coverage
     uses: ./.github/workflows/build.yml
+    with:
+      cmake-options: LANGNES_JSON_BUILD_DOCS=OFF
+
+  docs:
+    needs: test-coverage
+    uses: ./.github/workflows/docs.yml
+    with:
+      cmake-options: LANGNES_JSON_BUILD_ALL=OFF LANGNES_JSON_BUILD_DOCS=ON
