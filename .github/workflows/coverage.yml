@@ -57,6 +57,7 @@ jobs:
             --build-config Profile \
             --test-command ctest \
             --output-on-failure \
+            --build-options \
             "-DCMAKE_C_COMPILER=${{ matrix.config.cc }}" \
             "-DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}" \
             "-DCMAKE_CXX_STANDARD=${{ matrix.cxx-std }}" \
