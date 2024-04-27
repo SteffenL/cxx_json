@@ -22,5 +22,5 @@ if(LANGNES_JSON_INSTALL)
         DESTINATION "lib/cmake/langnes_json/cxx"
         NAMESPACE langnes::json::cxx::
         FILE header_targets.cmake
-        COMPONENT langnes_json_cxx_cmake_cross_platform)
+        COMPONENT langnes_json_cmake)
 endif()

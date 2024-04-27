@@ -74,26 +74,20 @@ if(LANGNES_JSON_INSTALL)
         DESTINATION "lib/cmake/langnes_json/c"
         NAMESPACE langnes::json::c::
         FILE header_targets.cmake
-        COMPONENT langnes_json_c_cmake_cross_platform)
+        COMPONENT langnes_json_cmake)
 
     install(EXPORT langnes_json_c_lib_targets
         DESTINATION "lib/cmake/langnes_json/c"
         NAMESPACE langnes::json::c::
         FILE lib_targets.cmake
-        COMPONENT langnes_json_c_cmake_platform_dependent)
+        COMPONENT langnes_json_cmake_platform_dependent)
 
     set(CONFIG_DIR_NAME $<IF:$<CONFIG:Debug>,debug,release>)
 
     install(TARGETS langnes_json_c_shared langnes_json_c_static
         EXPORT langnes_json_c_lib_targets
-        RUNTIME
-            DESTINATION "bin/${CONFIG_DIR_NAME}"
-            COMPONENT langnes_json_lib
-        LIBRARY
-            DESTINATION "lib/${CONFIG_DIR_NAME}"
-            COMPONENT langnes_json_lib
-            NAMELINK_COMPONENT langnes_json_lib_dev
-        ARCHIVE
-            DESTINATION "lib/${CONFIG_DIR_NAME}"
-            COMPONENT langnes_json_lib_dev)
+        COMPONENT langnes_json_lib
+        RUNTIME DESTINATION "bin/${CONFIG_DIR_NAME}"
+        LIBRARY DESTINATION "lib/${CONFIG_DIR_NAME}"
+        ARCHIVE DESTINATION "lib/${CONFIG_DIR_NAME}")
 endif()
