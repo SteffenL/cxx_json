@@ -30,7 +30,7 @@ jobs:
         cxx-std: [11, 20]
         config:
           - { image: macos-14,     toolchain: llvm,               compiler-name: clang,   cc: clang,    cxx: clang++,    gcov: llvm-cov gcov,    shell: bash }
-          - { image: ubuntu-22.04, toolchain: llvm,               compiler-name: clang15, cc: clang-15, cxx: clang++-15, gcov: llvm-cov-15 gcov, shell: bash,        apt: "clang-15 clang++-15" }
+          - { image: ubuntu-22.04, toolchain: llvm,               compiler-name: clang15, cc: clang-15, cxx: clang++-15, gcov: llvm-cov-15 gcov, shell: bash,        apt: "llvm-15 clang-15 clang++-15" }
           - { image: ubuntu-22.04, toolchain: gnu,                compiler-name: gcc12,   cc: gcc-12,   cxx: g++-12,     gcov: gcov-12,          shell: bash,        apt: "gcc-12 g++-12" }
           - { image: windows-2022, toolchain: msys2-gnu-ucrt64,   compiler-name: gcc,     cc: gcc,      cxx: g++,        gcov: gcov,             shell: "msys2 {0}", msys: UCRT64 }
           - { image: windows-2022, toolchain: msys2-llvm-clang64, compiler-name: clang,   cc: clang,    cxx: clang++,    gcov: llvm-cov gcov,    shell: "msys2 {0}", msys: CLANG64 }
