@@ -48,16 +48,19 @@ jobs:
           if [[ ! -z "${{ inputs.cmake-options }}" ]]; then
             options+=(${{ inputs.cmake-options }})
           fi
+          args=()
+          for option in "${options[@]}"; do
+            args+=("-D${option}")
+          done
           ctest --build-and-test . build \
             --build-generator "${{ matrix.config.gen }}" \
             --build-config Profile \
             --test-command ctest \
             --output-on-failure \
-            --build-options \
-            "CMAKE_C_COMPILER=${{ matrix.config.cc }}" \
-            "CMAKE_CXX_COMPILER=${{ matrix.config.cxx }}" \
-            "CMAKE_CXX_STANDARD=${{ matrix.cxx-std }}" \
-            "${options[@]}"
+            "-DCMAKE_C_COMPILER=${{ matrix.config.cc }}" \
+            "-DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}" \
+            "-DCMAKE_CXX_STANDARD=${{ matrix.cxx-std }}" \
+            "${args[@]}"
 
       - name: Install gcovr
         run: pip install "gcovr==${{ inputs.gcovr-version }}"
