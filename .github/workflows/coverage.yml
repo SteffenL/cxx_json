@@ -19,7 +19,7 @@ on:
       build-config:
         type: string
         description: CMake build config
-        required: true
+        required: false
         default: Profile
 jobs:
   collect:
