@@ -372,12 +372,21 @@ TEST_CASE("langnes_json_load_from_cstring - numbers") {
     REQUIRE(bad(load_cstr("+1", &result)));
     REQUIRE(bad(load_cstr("1.0ex1", &result)));
     REQUIRE(good(load_cstr("1", &result)));
+    REQUIRE(langnes_json_value_get_number_s(result) == 1);
     REQUIRE(good(load_cstr("-1", &result)));
+    REQUIRE(langnes_json_value_get_number_s(result) == -1);
+    REQUIRE(good(load_cstr("0e1", &result)));
+    REQUIRE(langnes_json_value_get_number_s(result) == 0);
     REQUIRE(good(load_cstr("1e1", &result)));
+    REQUIRE(langnes_json_value_get_number_s(result) == 10);
     REQUIRE(good(load_cstr("1E1", &result)));
+    REQUIRE(langnes_json_value_get_number_s(result) == 10);
     REQUIRE(good(load_cstr("1.0e10", &result)));
+    REQUIRE(langnes_json_value_get_number_s(result) == 10000000000);
     REQUIRE(good(load_cstr("1.0e-1", &result)));
+    REQUIRE(langnes_json_value_get_number_s(result) == 0.1);
     REQUIRE(good(load_cstr("1.0e+1", &result)));
+    REQUIRE(langnes_json_value_get_number_s(result) == 10);
 }
 
 TEST_CASE("langnes_json_load_from_cstring - special chars in string") {
