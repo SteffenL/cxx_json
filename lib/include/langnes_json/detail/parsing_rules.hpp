@@ -84,7 +84,7 @@ constexpr bool json_special_char(char c) {
            c == '\r' || c == '\t';
 }
 
-constexpr bool ascii_control_char(char c) { return c >= 0 && c <= 0x1f; }
+constexpr bool json_control_char(char c) { return c >= 0 && c <= 0x1f; }
 
 } // namespace rules
 } // namespace parsing

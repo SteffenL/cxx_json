@@ -46,7 +46,7 @@ inline std::string escape(const std::string& s, bool add_quotes = true) {
             required_length += 2;
             continue;
         }
-        if (ascii_control_char(c)) {
+        if (json_control_char(c)) {
             // '\', 'u', 4 digits
             required_length += 6;
             continue;
@@ -74,7 +74,7 @@ inline std::string escape(const std::string& s, bool add_quotes = true) {
             result += special_escape_table[static_cast<unsigned char>(c)];
             continue;
         }
-        if (ascii_control_char(c)) {
+        if (json_control_char(c)) {
             // Escape as \u00xx
             static constexpr std::array<char, 16> hex_alphabet = {
                 '0', '1', '2', '3', '4', '5', '6', '7',
