@@ -333,7 +333,7 @@ TEST_CASE("langnes_json_load_from_cstring - argument validity") {
     }
 }
 
-TEST_CASE("langnes_json_load_from_cstring - UTF-8") {
+TEST_CASE("langnes_json_load_from_cstring - Unicode characters") {
     langnes_json_value_t* result = NULL;
     REQUIRE(good(load_cstr(
         "\"foo\\u2753\\x24\\u00a3\\u0418\\u0939\\u20ac\\ud55c\"", &result)));
