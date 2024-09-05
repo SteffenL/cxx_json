@@ -32,10 +32,12 @@ public:
     expected() : expected(value_type{}) {}
 
     expected(const value_type& value) : m_value{value} {}
-    expected(value_type&& value) : m_value{std::forward<value_type>(value)} {}
+    expected(value_type&& value) noexcept
+        : m_value{std::forward<value_type>(value)} {}
 
     expected(const error_type& error) : m_error{error} {}
-    expected(error_type&& error) : m_error{std::forward<error_type>(error)} {}
+    expected(error_type&& error) noexcept
+        : m_error{std::forward<error_type>(error)} {}
 
     bool ok() const { return has_value() && !has_error(); }
     bool has_value() const { return m_value.has_value(); }
@@ -75,7 +77,8 @@ public:
 
     expected() = default;
 
-    expected(error_type&& error) : m_error{std::forward<error_type>(error)} {}
+    expected(error_type&& error) noexcept
+        : m_error{std::forward<error_type>(error)} {}
 
     bool ok() const { return !has_error(); }
 
