@@ -21,8 +21,7 @@
 namespace langnes {
 namespace json {
 namespace detail {
-namespace parsing {
-namespace rules {
+namespace token_rules {
 
 constexpr inline bool eol(std::istream& /*unused*/, char c) {
     return c == '\r' || c == '\n';
@@ -86,8 +85,7 @@ constexpr bool json_special_char(char c) {
 
 constexpr bool json_control_char(char c) { return c >= 0 && c <= 0x1f; }
 
-} // namespace rules
-} // namespace parsing
+} // namespace token_rules
 } // namespace detail
 } // namespace json
 } // namespace langnes

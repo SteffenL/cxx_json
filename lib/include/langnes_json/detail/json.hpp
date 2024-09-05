@@ -20,7 +20,7 @@
 #include "memory.hpp"
 #include "optional.hpp"
 #include "parsing.hpp"
-#include "parsing_rules.hpp"
+#include "token_rules.hpp"
 #include "utf8.hpp"
 #include "value.hpp"
 #include "value_impl.hpp"
@@ -36,7 +36,7 @@ namespace json {
 namespace detail {
 
 inline std::string escape(const std::string& s, bool add_quotes = true) {
-    using namespace parsing::rules;
+    using namespace token_rules;
     // Calculate the size of the resulting string.
     // Add space for the double quotes.
     size_t required_length = add_quotes ? 2 : 0;
@@ -101,7 +101,7 @@ inline std::string escape(const std::string& s, bool add_quotes = true) {
 
 inline void unescape_one(std::istream& is, std::ostream& os) {
     using namespace parsing;
-    using namespace rules;
+    using namespace token_rules;
     static constexpr std::array<char, 19> escape_table = {
         '\b', 0, 0, 0, '\f', 0, 0, 0, 0, 0, 0, 0, '\n', 0, 0, 0, '\r', 0, '\t'};
     char c{};
@@ -188,7 +188,7 @@ value parse_value(std::istream& is);
 
 inline optional<std::string> try_parse_string(std::istream& is) {
     using namespace parsing;
-    using namespace rules;
+    using namespace token_rules;
     if (!peek(is, dquote)) {
         return nullopt;
     }
@@ -242,7 +242,7 @@ inline bool parse_boolean(std::istream& is) {
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
 inline optional<double> try_parse_number(std::istream& is) {
     using namespace parsing;
-    using namespace rules;
+    using namespace token_rules;
     int number_sign{1};
     if (peek_next(is) == '-') {
         skip(is);
@@ -326,7 +326,7 @@ inline bool try_parse_null(std::istream& is) {
 
 inline optional<object_impl> try_parse_object(std::istream& is) {
     using namespace parsing;
-    using namespace rules;
+    using namespace token_rules;
     if (!peek(is, object_open)) {
         return nullopt;
     }
@@ -361,7 +361,7 @@ inline optional<object_impl> try_parse_object(std::istream& is) {
 
 inline optional<array_impl> try_parse_array(std::istream& is) {
     using namespace parsing;
-    using namespace rules;
+    using namespace token_rules;
     if (!peek(is, array_open)) {
         return nullopt;
     }
@@ -389,7 +389,7 @@ inline optional<array_impl> try_parse_array(std::istream& is) {
 
 inline value parse_value(std::istream& is) {
     using namespace parsing;
-    using namespace rules;
+    using namespace token_rules;
     skip_while(is, ws);
     if (auto v{try_parse_string(is)}) {
         return value{make_unique<string_impl>(std::move(*v))};
