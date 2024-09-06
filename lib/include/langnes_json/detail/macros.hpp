@@ -16,6 +16,10 @@
 
 #pragma once
 
+#ifndef LANGNES_JSON_CXX_NS
+#define LANGNES_JSON_CXX_NS ::langnes::json
+#endif
+
 #ifndef LANGNES_JSON_CXX_NS_BEGIN
 #define LANGNES_JSON_CXX_NS_BEGIN                                              \
     namespace langnes {                                                        \

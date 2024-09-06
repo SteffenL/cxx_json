@@ -25,31 +25,31 @@
 
 LANGNES_JSON_API const langnes_json_error_code_t
     langnes_json_error_parse_error = static_cast<langnes_json_error_code_t>(
-        langnes::json::error_code::parse_error);
+        LANGNES_JSON_CXX_NS::error_code::parse_error);
 
 LANGNES_JSON_API const langnes_json_error_code_t
     langnes_json_error_out_of_range = static_cast<langnes_json_error_code_t>(
-        langnes::json::error_code::out_of_range);
+        LANGNES_JSON_CXX_NS::error_code::out_of_range);
 
 LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_bad_access =
     static_cast<langnes_json_error_code_t>(
-        langnes::json::error_code::bad_access);
+        LANGNES_JSON_CXX_NS::error_code::bad_access);
 
 LANGNES_JSON_API const langnes_json_error_code_t
     langnes_json_error_invalid_state = static_cast<langnes_json_error_code_t>(
-        langnes::json::error_code::invalid_state);
+        LANGNES_JSON_CXX_NS::error_code::invalid_state);
 
 LANGNES_JSON_API const langnes_json_error_code_t
     langnes_json_error_invalid_argument =
         static_cast<langnes_json_error_code_t>(
-            langnes::json::error_code::invalid_argument);
+            LANGNES_JSON_CXX_NS::error_code::invalid_argument);
 
 LANGNES_JSON_API const langnes_json_error_code_t
     langnes_json_error_unspecified = static_cast<langnes_json_error_code_t>(
-        langnes::json::error_code::unspecified);
+        LANGNES_JSON_CXX_NS::error_code::unspecified);
 
 LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_ok =
-    static_cast<langnes_json_error_code_t>(langnes::json::error_code::ok);
+    static_cast<langnes_json_error_code_t>(LANGNES_JSON_CXX_NS::error_code::ok);
 
 LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
@@ -143,8 +143,8 @@ LANGNES_JSON_API bool langnes_json_failed(langnes_json_error_code_t ec) {
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_load_from_cstring(
     const char* input, langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!input || !result) {
             throw invalid_argument{};
@@ -155,8 +155,8 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_load_from_cstring(
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_save_to_string(
     langnes_json_value_t* json_value, langnes_json_string_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -169,8 +169,8 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_save_to_string(
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_free(langnes_json_value_t* json_value) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     if (!json_value) {
         return langnes_json_error_invalid_argument;
     }
@@ -180,8 +180,8 @@ langnes_json_value_free(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_replace(
     langnes_json_value_t* target, langnes_json_value_t* replacement) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!target || !replacement) {
             throw invalid_argument{};
@@ -194,8 +194,8 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_replace(
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_get_type(
     langnes_json_value_t* json_value, langnes_json_value_type_t* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -214,8 +214,8 @@ langnes_json_value_get_type_s(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_clone(
     langnes_json_value_t* json_value, langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -238,8 +238,8 @@ langnes_json_value_clone_s(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_string_get_cstring(
     langnes_json_string_t* str, const char** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!str || !result) {
             throw invalid_argument{};
@@ -258,8 +258,8 @@ langnes_json_string_get_cstring_s(langnes_json_string_t* str) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_string_get_length(langnes_json_string_t* str, size_t* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!str || !result) {
             throw invalid_argument{};
@@ -293,8 +293,8 @@ langnes_json_string_free(langnes_json_string_t* str) {
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_string_new_with_string(langnes_json_string_t* str,
                                           langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!str || !result) {
             throw invalid_argument{};
@@ -315,8 +315,8 @@ langnes_json_value_string_new_with_string_s(langnes_json_string_t* str) {
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_string_new_with_cstring(const char* data,
                                            langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!data || !result) {
             throw invalid_argument{};
@@ -335,8 +335,8 @@ langnes_json_value_string_new_with_cstring_s(const char* data) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_is_string(langnes_json_value_t* json_value, bool* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -354,8 +354,8 @@ langnes_json_value_is_string_s(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_get_string(
     langnes_json_value_t* json_value, langnes_json_string_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -376,8 +376,8 @@ langnes_json_value_get_string_s(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_get_cstring(
     langnes_json_value_t* json_value, const char** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -397,8 +397,8 @@ langnes_json_value_get_cstring_s(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_set_cstring(
     langnes_json_value_t* json_value, const char* cstr) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !cstr) {
             throw invalid_argument{};
@@ -413,13 +413,13 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_set_cstring(
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_number_new(double value, langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!result) {
             throw invalid_argument{};
         }
-        *result = new langnes::json::value{value};
+        *result = new LANGNES_JSON_CXX_NS::value{value};
     });
 }
 
@@ -432,8 +432,8 @@ langnes_json_value_number_new_s(double value) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_is_number(langnes_json_value_t* json_value, bool* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -451,8 +451,8 @@ langnes_json_value_is_number_s(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_get_number(
     langnes_json_value_t* json_value, double* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -471,8 +471,8 @@ langnes_json_value_get_number_s(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_set_number(langnes_json_value_t* json_value, double value) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value) {
             throw invalid_argument{};
@@ -488,13 +488,13 @@ langnes_json_value_set_number(langnes_json_value_t* json_value, double value) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_boolean_new(bool value, langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!result) {
             throw invalid_argument{};
         }
-        *result = new langnes::json::value{value};
+        *result = new LANGNES_JSON_CXX_NS::value{value};
     });
 }
 
@@ -507,8 +507,8 @@ langnes_json_value_boolean_new_s(bool value) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_is_boolean(langnes_json_value_t* json_value, bool* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -527,8 +527,8 @@ langnes_json_value_is_boolean_s(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_get_boolean(langnes_json_value_t* json_value, bool* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -547,8 +547,8 @@ langnes_json_value_get_boolean_s(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_set_boolean(langnes_json_value_t* json_value, bool value) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value) {
             throw invalid_argument{};
@@ -563,13 +563,13 @@ langnes_json_value_set_boolean(langnes_json_value_t* json_value, bool value) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_null_new(langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!result) {
             throw invalid_argument{};
         }
-        *result = new langnes::json::value{nullptr};
+        *result = new LANGNES_JSON_CXX_NS::value{nullptr};
     });
 }
 
@@ -581,8 +581,8 @@ LANGNES_JSON_API langnes_json_value_t* langnes_json_value_null_new_s() {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_is_null(langnes_json_value_t* json_value, bool* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -600,8 +600,8 @@ langnes_json_value_is_null_s(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_set_null(langnes_json_value_t* json_value) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value) {
             throw invalid_argument{};
@@ -616,8 +616,8 @@ langnes_json_value_set_null(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_object_new(langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!result) {
             throw invalid_argument{};
@@ -636,8 +636,8 @@ LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_object_new_with_members(
     langnes_json_object_member_t* members, size_t length,
     langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!members || !result) {
             // Free the member values since this function normally moves them.
@@ -663,8 +663,8 @@ langnes_json_value_object_new_with_members_s(
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_is_object(langnes_json_value_t* json_value, bool* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -683,8 +683,8 @@ langnes_json_value_is_object_s(langnes_json_value_t* json_value) {
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_object_get_value(
     langnes_json_value_t* json_object, const char* member_name,
     langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_object || !member_name || !result) {
             throw invalid_argument{};
@@ -707,8 +707,8 @@ langnes_json_value_object_get_value_s(langnes_json_value_t* json_object,
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_object_set_value(
     langnes_json_value_t* json_object, const char* member_name,
     langnes_json_value_t* member_value) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_object || !member_name || !member_value) {
             throw invalid_argument{};
@@ -721,8 +721,8 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_object_set_value(
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_set_object(langnes_json_value_t* json_object) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_object) {
             throw invalid_argument{};
@@ -735,8 +735,8 @@ LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_set_object_with_members(
     langnes_json_value_t* json_object, langnes_json_object_member_t* members,
     size_t length) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_object || !members) {
             // Free the member values since this function normally moves them.
@@ -754,8 +754,8 @@ langnes_json_value_set_object_with_members(
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_object_get_members_length(langnes_json_value_t* json_object,
                                              size_t* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_object || !result) {
             throw invalid_argument{};
@@ -776,8 +776,8 @@ LANGNES_JSON_API size_t langnes_json_value_object_get_members_length_s(
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_object_get_member(
     langnes_json_value_t* json_object, size_t index,
     langnes_json_object_member_t* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_object || !result) {
             throw invalid_argument{};
@@ -801,8 +801,8 @@ langnes_json_value_object_get_member_s(langnes_json_value_t* json_object,
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_object_clear(langnes_json_value_t* json_object) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_object) {
             throw invalid_argument{};
@@ -817,8 +817,8 @@ langnes_json_value_object_clear(langnes_json_value_t* json_object) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_array_new(langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!result) {
             throw invalid_argument{};
@@ -837,8 +837,8 @@ LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_array_new_with_elements(langnes_json_value_t** values,
                                            size_t length,
                                            langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!values || !result) {
             // Free the values since this function normally moves them.
@@ -864,8 +864,8 @@ langnes_json_value_array_new_with_elements_s(langnes_json_value_t** values,
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_is_array(langnes_json_value_t* json_value, bool* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_value || !result) {
             throw invalid_argument{};
@@ -883,8 +883,8 @@ langnes_json_value_is_array_s(langnes_json_value_t* json_value) {
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_array_get_length(
     langnes_json_value_t* json_array, size_t* result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_array || !result) {
             throw invalid_argument{};
@@ -903,8 +903,8 @@ langnes_json_value_array_get_length_s(langnes_json_value_t* json_array) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_array_clear(langnes_json_value_t* json_array) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_array) {
             throw invalid_argument{};
@@ -916,8 +916,8 @@ langnes_json_value_array_clear(langnes_json_value_t* json_array) {
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_array_push(langnes_json_value_t* json_array,
                               langnes_json_value_t* json_array_element) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_array || !json_array_element) {
             throw invalid_argument{};
@@ -932,8 +932,8 @@ langnes_json_value_array_push(langnes_json_value_t* json_array,
 
 LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_array_get_item(
     langnes_json_value_t* value, size_t index, langnes_json_value_t** result) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!value || !result) {
             throw invalid_argument{};
@@ -953,14 +953,14 @@ langnes_json_value_array_get_item_s(langnes_json_value_t* value, size_t index) {
 
 LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_set_array(langnes_json_value_t* json_array) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_array) {
             throw invalid_argument{};
         }
         *required_dynamic_cast<value*>(json_array) =
-            langnes::json::make_array();
+            LANGNES_JSON_CXX_NS::make_array();
     });
 }
 
@@ -968,8 +968,8 @@ LANGNES_JSON_API langnes_json_error_code_t
 langnes_json_value_set_array_with_elements(langnes_json_value_t* json_array,
                                            langnes_json_value_t** values,
                                            size_t length) {
-    using namespace langnes::json;
-    using namespace langnes::json::detail;
+    using namespace LANGNES_JSON_CXX_NS;
+    using namespace LANGNES_JSON_CXX_NS::detail;
     return filter_error([&] {
         if (!json_array || !values) {
             // Free the values since this function normally moves them.
