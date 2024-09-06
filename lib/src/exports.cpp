@@ -13,37 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "langnes_json/errors.h"
 #include "langnes_json/errors.hpp"
 #include "langnes_json/json.h"
 #include "langnes_json/json.hpp"
 
 #include <cstdlib>
 
-const langnes_json_error_code_t langnes_json_error_parse_error =
-    static_cast<langnes_json_error_code_t>(
+LANGNES_JSON_API const langnes_json_error_code_t
+    langnes_json_error_parse_error = static_cast<langnes_json_error_code_t>(
         langnes::json::error_code::parse_error);
 
-const langnes_json_error_code_t langnes_json_error_out_of_range =
-    static_cast<langnes_json_error_code_t>(
+LANGNES_JSON_API const langnes_json_error_code_t
+    langnes_json_error_out_of_range = static_cast<langnes_json_error_code_t>(
         langnes::json::error_code::out_of_range);
 
-const langnes_json_error_code_t langnes_json_error_bad_access =
+LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_bad_access =
     static_cast<langnes_json_error_code_t>(
         langnes::json::error_code::bad_access);
 
-const langnes_json_error_code_t langnes_json_error_invalid_state =
-    static_cast<langnes_json_error_code_t>(
+LANGNES_JSON_API const langnes_json_error_code_t
+    langnes_json_error_invalid_state = static_cast<langnes_json_error_code_t>(
         langnes::json::error_code::invalid_state);
 
-const langnes_json_error_code_t langnes_json_error_invalid_argument =
-    static_cast<langnes_json_error_code_t>(
-        langnes::json::error_code::invalid_argument);
+LANGNES_JSON_API const langnes_json_error_code_t
+    langnes_json_error_invalid_argument =
+        static_cast<langnes_json_error_code_t>(
+            langnes::json::error_code::invalid_argument);
 
-const langnes_json_error_code_t langnes_json_error_unspecified =
-    static_cast<langnes_json_error_code_t>(
+LANGNES_JSON_API const langnes_json_error_code_t
+    langnes_json_error_unspecified = static_cast<langnes_json_error_code_t>(
         langnes::json::error_code::unspecified);
 
-const langnes_json_error_code_t langnes_json_error_ok =
+LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_ok =
     static_cast<langnes_json_error_code_t>(langnes::json::error_code::ok);
 
 namespace langnes {

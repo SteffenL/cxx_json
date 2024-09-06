@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "langnes_json/errors.h"
-#include "langnes_json/errors.hpp"
 
-const langnes_json_error_code_t langnes_json_error_invalid_argument =
-    static_cast<langnes_json_error_code_t>(
-        langnes::json::error_code::invalid_argument);
+#pragma once
 
-const langnes_json_error_code_t langnes_json_error_unspecified =
-    static_cast<langnes_json_error_code_t>(
-        langnes::json::error_code::unspecified);
-
-const langnes_json_error_code_t langnes_json_error_ok =
-    static_cast<langnes_json_error_code_t>(langnes::json::error_code::ok);
+#ifndef LANGNES_JSON_API
+#if defined(LANGNES_JSON_SHARED) || defined(LANGNES_JSON_BUILD_SHARED)
+#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(LANGNES_JSON_BUILD_SHARED)
+#define LANGNES_JSON_API extern __declspec(dllexport)
+#else
+#define LANGNES_JSON_API extern __declspec(dllimport)
+#endif
+#else
+#define LANGNES_JSON_API extern __attribute__((visibility("default")))
+#endif
+#else
+#define LANGNES_JSON_API extern
+#endif
+#endif

@@ -26,24 +26,6 @@
 #include <stddef.h>
 #endif
 
-#ifndef LANGNES_JSON_API
-#if defined(LANGNES_JSON_SHARED) || defined(LANGNES_JSON_BUILD_SHARED)
-#if defined(_WIN32) || defined(__CYGWIN__)
-#if defined(LANGNES_JSON_BUILD_SHARED)
-#define LANGNES_JSON_API __declspec(dllexport)
-#else
-#define LANGNES_JSON_API __declspec(dllimport)
-#endif
-#else
-#define LANGNES_JSON_API __attribute__((visibility("default")))
-#endif
-#elif !defined(LANGNES_JSON_STATIC) && defined(__cplusplus)
-#define LANGNES_JSON_API inline
-#else
-#define LANGNES_JSON_API extern
-#endif
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
