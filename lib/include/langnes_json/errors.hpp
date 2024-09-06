@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "macros.hpp"
+#include "detail/macros.hpp"
 
 #include <exception>
 #include <string>

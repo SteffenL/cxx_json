@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "errors.hpp"
+#include "../errors.hpp"
 #include "macros.hpp"
 
 #include <string>

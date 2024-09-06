@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "macros.h"
+#include "detail/macros.h"
 
 // NOLINTBEGIN(modernize-use-using)
 /// @see error_code
