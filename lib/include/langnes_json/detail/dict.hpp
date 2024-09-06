@@ -16,12 +16,13 @@
 
 #pragma once
 
+#include "macros.hpp"
+
 #include <deque>
 #include <string>
 #include <unordered_map>
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 template<typename Key, typename Value>
@@ -124,5 +125,4 @@ private:
 };
 
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

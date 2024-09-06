@@ -16,11 +16,12 @@
 
 #pragma once
 
+#include "macros.hpp"
+
 #include <exception>
 #include <string>
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 
 /**
  * Error code.
@@ -158,5 +159,4 @@ public:
         : error{error_code::out_of_range, "Out of range: " + message} {}
 };
 
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

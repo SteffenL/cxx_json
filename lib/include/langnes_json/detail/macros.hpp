@@ -16,21 +16,14 @@
 
 #pragma once
 
-#include "macros.hpp"
-
-#include <memory>
-
-LANGNES_JSON_CXX_NS_BEGIN
-namespace detail {
-
-#ifdef __cpp_lib_make_unique
-using std::make_unique;
-#else
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args&&... args) {
-    return std::unique_ptr<T>{new T(std::forward<Args>(args)...)};
-}
+#ifndef LANGNES_JSON_CXX_NS_BEGIN
+#define LANGNES_JSON_CXX_NS_BEGIN                                              \
+    namespace langnes {                                                        \
+    namespace json {
 #endif
 
-} // namespace detail
-LANGNES_JSON_CXX_NS_END
+#ifndef LANGNES_JSON_CXX_NS_END
+#define LANGNES_JSON_CXX_NS_END                                                \
+    }                                                                          \
+    }
+#endif

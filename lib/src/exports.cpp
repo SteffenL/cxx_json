@@ -51,8 +51,7 @@ LANGNES_JSON_API const langnes_json_error_code_t
 LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_ok =
     static_cast<langnes_json_error_code_t>(langnes::json::error_code::ok);
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 template<typename To, typename From>
@@ -124,8 +123,7 @@ void set_array_elements(value& array, langnes_json_value_t** elements,
 }
 
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END
 
 extern "C" {
 

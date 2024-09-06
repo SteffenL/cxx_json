@@ -17,10 +17,11 @@
 #pragma once
 
 #include "errors.hpp"
+#include "macros.hpp"
+
 #include <type_traits>
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 struct nullopt_t {};
@@ -120,5 +121,4 @@ class optional<void> {};
 constexpr nullopt_t nullopt{};
 
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

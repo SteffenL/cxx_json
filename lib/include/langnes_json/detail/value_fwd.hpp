@@ -16,12 +16,12 @@
 
 #pragma once
 
-namespace langnes {
-namespace json {
+#include "macros.hpp"
+
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 struct value_impl_base;
 
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

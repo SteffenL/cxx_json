@@ -17,6 +17,7 @@
 #pragma once
 
 #include "errors.hpp"
+#include "macros.hpp"
 #include "memory.hpp"
 #include "optional.hpp"
 #include "parsing.hpp"
@@ -31,8 +32,7 @@
 #include <sstream>
 #include <string>
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 inline std::string escape(const std::string& s, bool add_quotes = true) {
@@ -420,5 +420,4 @@ inline value fully_parse_value(std::istream& is) {
 }
 
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

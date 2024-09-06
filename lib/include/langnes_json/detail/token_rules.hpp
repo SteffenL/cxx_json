@@ -16,10 +16,11 @@
 
 #pragma once
 
+#include "macros.hpp"
+
 #include <iosfwd>
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 namespace token_rules {
 
@@ -84,5 +85,4 @@ constexpr bool json_control_char(char c) { return c >= 0 && c <= 0x1f; }
 
 } // namespace token_rules
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

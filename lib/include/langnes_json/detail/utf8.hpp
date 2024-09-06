@@ -17,10 +17,11 @@
 #pragma once
 
 #include "errors.hpp"
+#include "macros.hpp"
+
 #include <string>
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 inline std::string to_utf8_char(size_t c) {
@@ -46,5 +47,4 @@ inline std::string to_utf8_char(size_t c) {
 }
 
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

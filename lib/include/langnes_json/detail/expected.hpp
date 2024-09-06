@@ -16,10 +16,10 @@
 
 #pragma once
 
+#include "macros.hpp"
 #include "optional.hpp"
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 template<typename Value, typename Error, typename Exception>
@@ -102,5 +102,4 @@ private:
 };
 
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

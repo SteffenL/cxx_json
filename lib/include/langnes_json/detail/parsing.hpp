@@ -17,12 +17,12 @@
 #pragma once
 
 #include "errors.hpp"
+#include "macros.hpp"
 
 #include <istream>
 #include <string>
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 namespace parsing {
 
@@ -120,5 +120,4 @@ inline void expect_exact(std::istream& is, const std::string& expected) {
 
 } // namespace parsing
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

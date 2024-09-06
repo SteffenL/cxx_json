@@ -17,6 +17,7 @@
 #pragma once
 
 #include "detail/json.hpp"
+#include "detail/macros.hpp"
 #include "detail/memory.hpp"
 #include "detail/stream.hpp"
 #include "detail/type_traits.hpp"
@@ -26,8 +27,7 @@
 #include <sstream>
 #include <string>
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 template<typename Container>
@@ -156,5 +156,4 @@ inline value make_array(Args&&... elements) noexcept {
     return value{std::move(impl)};
 }
 
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

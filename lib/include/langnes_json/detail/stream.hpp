@@ -16,12 +16,13 @@
 
 #pragma once
 
+#include "macros.hpp"
+
 #include <istream>
 #include <streambuf>
 #include <string>
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 class string_streambuf : public std::streambuf {
@@ -107,5 +108,4 @@ inline string_istream make_istream(Container&& data) noexcept {
 }
 
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

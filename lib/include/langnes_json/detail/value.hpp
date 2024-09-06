@@ -17,6 +17,7 @@
 #pragma once
 
 #include "dict.hpp"
+#include "macros.hpp"
 #include "type_traits.hpp"
 #include "value_fwd.hpp"
 
@@ -29,8 +30,7 @@ struct langnes_json_value_t {
     virtual ~langnes_json_value_t() = default;
 };
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 class value : public langnes_json_value_t {
@@ -102,5 +102,4 @@ private:
 };
 
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

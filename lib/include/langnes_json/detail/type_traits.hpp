@@ -16,10 +16,11 @@
 
 #pragma once
 
+#include "macros.hpp"
+
 #include <type_traits>
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 template<typename T>
@@ -35,5 +36,4 @@ template<bool Condition, typename T = void>
 using enable_if_t = typename std::enable_if<Condition, T>::type;
 
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END

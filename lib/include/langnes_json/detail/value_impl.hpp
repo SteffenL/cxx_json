@@ -18,6 +18,7 @@
 
 #include "dict.hpp"
 #include "errors.hpp"
+#include "macros.hpp"
 #include "memory.hpp"
 #include "type_traits.hpp"
 #include "value.hpp"
@@ -27,8 +28,7 @@
 #include <string>
 #include <type_traits>
 
-namespace langnes {
-namespace json {
+LANGNES_JSON_CXX_NS_BEGIN
 namespace detail {
 
 struct value_impl_base {
@@ -337,5 +337,4 @@ inline value::type value::get_type() const noexcept {
 inline value value::clone() const noexcept { return value{m_impl->clone()}; }
 
 } // namespace detail
-} // namespace json
-} // namespace langnes
+LANGNES_JSON_CXX_NS_END
