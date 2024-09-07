@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "../errors.hpp"
+#include "errors.hpp"
 #include <type_traits>
 
 namespace langnes {

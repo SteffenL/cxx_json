@@ -21,6 +21,7 @@
 #include "detail/stream.hpp"
 #include "detail/type_traits.hpp"
 
+#include <cstring>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -81,6 +82,16 @@ inline value load(Stream&& is) {
  */
 inline value load(const char* data, size_t length) {
     return load(detail::make_istream(data, length));
+}
+
+/**
+ * Loads JSON from a null-terminated character array.
+ *
+ * @param data The JSON document data.
+ * @return The JSON value.
+ */
+inline value load(const char* data) {
+    return load(detail::make_istream(data, std::strlen(data)));
 }
 
 /**

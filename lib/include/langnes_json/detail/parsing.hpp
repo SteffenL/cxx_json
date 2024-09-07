@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "../errors.hpp"
+#include "errors.hpp"
 
 #include <istream>
 #include <string>
@@ -62,7 +62,7 @@ inline char get_next(std::istream& is) {
 }
 
 template<typename Predicate>
-bool peek(std::istream& is, Predicate&& predicate) {
+bool peek(std::istream& is, Predicate predicate) {
     auto c{peek_next(is)};
     return predicate(is, c);
 }
@@ -70,12 +70,12 @@ bool peek(std::istream& is, Predicate&& predicate) {
 inline void skip(std::istream& is) { get_next(is); }
 
 template<typename Predicate>
-bool next(std::istream& is, char& c, Predicate&& predicate) {
+bool next(std::istream& is, char& c, Predicate predicate) {
     return predicate(is, c = get_next(is));
 }
 
 template<typename Predicate>
-void expect(std::istream& is, Predicate&& predicate) {
+void expect(std::istream& is, Predicate predicate) {
     if (!predicate(is, get_next(is))) {
         throw unexpected_token{};
     }
@@ -85,13 +85,13 @@ inline void expect_fully_consumed(std::istream& is) {
     try {
         peek_next(is);
         throw unexpected_token{};
-    } catch (const reached_end&) {
+    } catch (const reached_end&) { // NOLINT(bugprone-empty-catch)
         // We want to be at the end of the stream
     }
 }
 
 template<typename Predicate>
-void skip_while(std::istream& is, Predicate&& predicate) {
+void skip_while(std::istream& is, Predicate predicate) {
     is.peek();
     while (is.good() && predicate(is, peek_next(is))) {
         skip(is);

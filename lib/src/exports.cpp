@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "langnes_json/errors.h"
-#include "langnes_json/errors.hpp"
 #include "langnes_json/json.h"
 #include "langnes_json/json.hpp"
+#include "langnes_json/detail/macros.h"
 
 #include <cstdlib>
+#include <exception>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
 
 LANGNES_JSON_API const langnes_json_error_code_t
     langnes_json_error_parse_error = static_cast<langnes_json_error_code_t>(
@@ -61,7 +65,7 @@ To required_dynamic_cast(From p) noexcept {
 }
 
 template<typename WorkFn>
-langnes_json_error_code_t filter_error(WorkFn&& do_work) noexcept {
+langnes_json_error_code_t filter_error(WorkFn do_work) noexcept {
     try {
         do_work();
         return langnes_json_error_ok;

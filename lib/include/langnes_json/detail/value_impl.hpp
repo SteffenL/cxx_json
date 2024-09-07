@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "../errors.hpp"
+#include "errors.hpp"
 #include "dict.hpp"
 #include "memory.hpp"
 #include "type_traits.hpp"

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "../errors.hpp"
+#include "errors.hpp"
 #include "memory.hpp"
 #include "optional.hpp"
 #include "parsing.hpp"

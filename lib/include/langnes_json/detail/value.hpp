@@ -33,8 +33,6 @@ namespace langnes {
 namespace json {
 namespace detail {
 
-struct value_impl_base;
-
 class value : public langnes_json_value_t {
 public:
     enum class type { object, array, string, number, boolean, null };

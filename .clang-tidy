@@ -14,9 +14,11 @@ Checks: >
     -cppcoreguidelines-avoid-magic-numbers,
     -cppcoreguidelines-owning-memory,
     -hicpp-special-member-functions,
+    -misc-include-cleaner,
     -misc-no-recursion,
     -modernize-pass-by-value,
     -modernize-use-trailing-return-type,
+    -performance-enum-size,
     -readability-magic-numbers,
 CheckOptions:
   - key:   cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor

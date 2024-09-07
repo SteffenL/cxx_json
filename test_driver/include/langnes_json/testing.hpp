@@ -53,6 +53,7 @@ struct auto_test_reg {
 #define MAKE_TEST_CASE_NAME(name, counter) MAKE_TEST_CASE_NAME2(name, counter)
 
 #define TEST_CASE_INTERNAL(name, counter)                                      \
+    /* NOLINTNEXTLINE(misc-use-anonymous-namespace) */                         \
     static void MAKE_TEST_CASE_NAME(langnes_json_test_driver_case_,            \
                                     counter)();                                \
     namespace {                                                                \
@@ -60,6 +61,7 @@ struct auto_test_reg {
         langnes_json_test_driver_case_reg_, counter){                          \
         {name, MAKE_TEST_CASE_NAME(langnes_json_test_driver_case_, counter)}}; \
     }                                                                          \
+    /* NOLINTNEXTLINE(misc-use-anonymous-namespace) */                         \
     static void MAKE_TEST_CASE_NAME(langnes_json_test_driver_case_, counter)()
 
 #define TEST_CASE(name) TEST_CASE_INTERNAL(name, __LINE__)
