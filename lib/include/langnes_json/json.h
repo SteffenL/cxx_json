@@ -117,7 +117,7 @@ LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_get_cstring(
     langnes_json_value_t* json_value, const char** result);
 LANGNES_JSON_API const char*
 langnes_json_value_get_cstring_s(langnes_json_value_t* json_value);
-LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_set_string(
+LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_set_cstring(
     langnes_json_value_t* json_value, const char* data);
 
 //

@@ -394,15 +394,15 @@ langnes_json_value_get_cstring_s(langnes_json_value_t* json_value) {
     return result;
 }
 
-LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_set_string(
-    langnes_json_value_t* json_value, const char* data) {
+LANGNES_JSON_API langnes_json_error_code_t langnes_json_value_set_cstring(
+    langnes_json_value_t* json_value, const char* cstr) {
     using namespace langnes::json;
     using namespace langnes::json::detail;
     return filter_error([&] {
-        if (!json_value || !data) {
+        if (!json_value || !cstr) {
             throw invalid_argument{};
         }
-        *required_dynamic_cast<value*>(json_value) = data;
+        *required_dynamic_cast<value*>(json_value) = cstr;
     });
 }
 
