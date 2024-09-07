@@ -170,6 +170,7 @@ macro(langnes_json_add_options)
     option(LANGNES_JSON_BUILD_EXAMPLES "Build examples" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
     option(LANGNES_JSON_BUILD_TESTS "Build tests" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
     option(LANGNES_JSON_BUILD_PACKAGE "Build package" "${LANGNES_JSON_IS_TOP_LEVEL_BUILD}")
+    option(LANGNES_JSON_INSTALL_TARGETS "Install targets" "${LANGNES_JSON_BUILD_PACKAGE}")
 endmacro()
 
 # Call this before project().

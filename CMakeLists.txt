@@ -23,7 +23,10 @@ if(LANGNES_JSON_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
+if(LANGNES_JSON_INSTALL_TARGETS)
+    langnes_json_install()
+endif()
+
 if(LANGNES_JSON_BUILD_PACKAGE)
     add_subdirectory(packaging)
-    langnes_json_install()
 endif()
