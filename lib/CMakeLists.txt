@@ -12,6 +12,7 @@ endif()
 
 add_library(langnes_json_headers INTERFACE)
 add_library(langnes::json ALIAS langnes_json_headers)
+add_library(langnes::json::headers ALIAS langnes_json_headers)
 
 target_include_directories(
     langnes_json_headers
@@ -28,7 +29,7 @@ target_compile_features(langnes_json_headers INTERFACE cxx_std_11)
 #
 
 add_library(langnes_json_static STATIC src/exports.cpp)
-add_library(langnes::json_static ALIAS langnes_json_static)
+add_library(langnes::json::static ALIAS langnes_json_static)
 
 target_link_libraries(langnes_json_static PUBLIC langnes::json PRIVATE langnes_json_private)
 target_compile_definitions(langnes_json_static PUBLIC LANGNES_JSON_STATIC)
@@ -50,7 +51,7 @@ set_target_properties(langnes_json_static PROPERTIES
 #
 
 add_library(langnes_json_shared SHARED src/exports.cpp)
-add_library(langnes::json_shared ALIAS langnes_json_shared)
+add_library(langnes::json::shared ALIAS langnes_json_shared)
 
 target_link_libraries(langnes_json_shared PUBLIC langnes::json PRIVATE langnes_json_private)
 target_compile_definitions(langnes_json_shared INTERFACE LANGNES_JSON_SHARED PRIVATE LANGNES_JSON_BUILD_SHARED)

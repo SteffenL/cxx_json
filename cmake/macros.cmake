@@ -138,7 +138,7 @@ macro(langnes_json_install)
 
     install(EXPORT langnes_json_targets
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/langnes_json"
-        NAMESPACE langnes_json::
+        NAMESPACE langnes::json::
         FILE langnes_json-targets.cmake
         COMPONENT langnes_json_development)
 
