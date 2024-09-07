@@ -21,26 +21,26 @@
 // NOLINTNEXTLINE(modernize-use-using)
 typedef int langnes_json_error_code_t;
 
-/// \see langnes::json::error_code::parse_error
+/// @see langnes::json::error_code::parse_error
 LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_parse_error;
 
-/// \see langnes::json::error::out_of_range
+/// @see langnes::json::error::out_of_range
 LANGNES_JSON_API const langnes_json_error_code_t
     langnes_json_error_out_of_range;
 
-/// \see langnes::json::error::bad_access
+/// @see langnes::json::error::bad_access
 LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_bad_access;
 
-/// \see langnes::json::error::invalid_state
+/// @see langnes::json::error::invalid_state
 LANGNES_JSON_API const langnes_json_error_code_t
     langnes_json_error_invalid_state;
 
-/// \see langnes::json::error::invalid_argument
+/// @see langnes::json::error::invalid_argument
 LANGNES_JSON_API const langnes_json_error_code_t
     langnes_json_error_invalid_argument;
 
-/// \see langnes::json::error::unspecified
+/// @see langnes::json::error::unspecified
 LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_unspecified;
 
-/// \see langnes::json::error::ok
+/// @see langnes::json::error::ok
 LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_ok;
