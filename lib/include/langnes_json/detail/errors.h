@@ -21,6 +21,10 @@
 // NOLINTNEXTLINE(modernize-use-using)
 typedef int langnes_json_error_code_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @see langnes::json::error_code::parse_error
 LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_parse_error;
 
@@ -44,3 +48,7 @@ LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_unspecified;
 
 /// @see langnes::json::error::ok
 LANGNES_JSON_API const langnes_json_error_code_t langnes_json_error_ok;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
