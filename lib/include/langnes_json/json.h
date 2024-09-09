@@ -17,7 +17,6 @@
 #pragma once
 
 #include "detail/macros.h"
-#include "detail/types.h"
 #include "errors.h"
 
 #ifdef __cplusplus
@@ -26,6 +25,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 #endif
+
+// NOLINTBEGIN(modernize-use-using)
+typedef struct langnes_json_value_t langnes_json_value_t;
+typedef struct langnes_json_string_t langnes_json_string_t;
+
+typedef enum {
+    langnes_json_value_type_object,
+    langnes_json_value_type_array,
+    langnes_json_value_type_string,
+    langnes_json_value_type_number,
+    langnes_json_value_type_boolean,
+    langnes_json_value_type_null
+} langnes_json_value_type_t;
+// NOLINTEND(modernize-use-using)
 
 #ifdef __cplusplus
 extern "C" {
