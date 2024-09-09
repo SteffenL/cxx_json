@@ -15,7 +15,6 @@
  */
 #include "langnes_json/json.h"
 #include "langnes_json/json.hpp"
-#include "langnes_json/detail/macros.h"
 
 #include <cstdlib>
 #include <exception>

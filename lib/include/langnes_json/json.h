@@ -17,6 +17,7 @@
 #pragma once
 
 #include "detail/errors.h"
+#include "detail/macros.h"
 #include "detail/types.h"
 
 #ifdef __cplusplus
