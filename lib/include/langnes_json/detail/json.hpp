@@ -17,13 +17,13 @@
 #pragma once
 
 #include "../errors.hpp"
+#include "../value.hpp"
 #include "macros.hpp"
 #include "memory.hpp"
 #include "optional.hpp"
 #include "parsing.hpp"
 #include "token_rules.hpp"
 #include "utf8.hpp"
-#include "value.hpp"
 #include "value_impl.hpp"
 
 #include <array>

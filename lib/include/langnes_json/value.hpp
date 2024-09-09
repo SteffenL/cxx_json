@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include "dict.hpp"
-#include "macros.hpp"
-#include "type_traits.hpp"
-#include "value_fwd.hpp"
+#include "detail/dict.hpp"
+#include "detail/macros.hpp"
+#include "detail/type_traits.hpp"
+#include "detail/value_fwd.hpp"
 
 #include <deque>
 #include <memory>
@@ -31,7 +31,6 @@ struct langnes_json_value_t {
 };
 
 LANGNES_JSON_CXX_NS_BEGIN
-namespace detail {
 
 class value : public langnes_json_value_t {
 public:
@@ -40,33 +39,35 @@ public:
     value() noexcept;
     value(const value& rhs) noexcept;
     value(value&& rhs) noexcept;
-    explicit value(std::unique_ptr<value_impl_base>&& impl) noexcept;
+    explicit value(std::unique_ptr<detail::value_impl_base>&& impl) noexcept;
     explicit value(const char* data) noexcept;
     explicit value(const std::string& data) noexcept;
     explicit value(std::string&& data) noexcept;
     explicit value(std::nullptr_t) noexcept;
     ~value() override = default;
 
-    template<typename T, typename std::enable_if<
-                             (std::is_integral<T>::value &&
-                              !std::is_same<remove_cvref_t<T>, bool>::value) ||
-                             std::is_floating_point<T>::value>::type* = nullptr>
+    template<typename T,
+             typename std::enable_if<
+                 (std::is_integral<T>::value &&
+                  !std::is_same<detail::remove_cvref_t<T>, bool>::value) ||
+                 std::is_floating_point<T>::value>::type* = nullptr>
     explicit value(T from) noexcept;
 
-    template<typename T, typename std::enable_if<std::is_same<
-                             remove_cvref_t<T>, bool>::value>::type* = nullptr>
+    template<typename T,
+             typename std::enable_if<std::is_same<
+                 detail::remove_cvref_t<T>, bool>::value>::type* = nullptr>
     explicit value(T from) noexcept;
 
     const std::string& as_string() const;
     double as_number() const;
     bool as_boolean() const;
-    const dict<std::string, value>& as_object() const;
+    const detail::dict<std::string, value>& as_object() const;
     const std::deque<value>& as_array() const;
 
     std::string& as_string();
     double& as_number();
     bool& as_boolean();
-    dict<std::string, value>& as_object();
+    detail::dict<std::string, value>& as_object();
     std::deque<value>& as_array();
 
     bool is_type(value::type type) const noexcept;
@@ -77,14 +78,16 @@ public:
     bool is_array() const noexcept;
     bool is_null() const noexcept;
 
-    template<typename T, typename std::enable_if<
-                             (std::is_integral<T>::value &&
-                              !std::is_same<remove_cvref_t<T>, bool>::value) ||
-                             std::is_floating_point<T>::value>::type* = nullptr>
+    template<typename T,
+             typename std::enable_if<
+                 (std::is_integral<T>::value &&
+                  !std::is_same<detail::remove_cvref_t<T>, bool>::value) ||
+                 std::is_floating_point<T>::value>::type* = nullptr>
     value& operator=(T from) noexcept;
 
-    template<typename T, typename std::enable_if<std::is_same<
-                             remove_cvref_t<T>, bool>::value>::type* = nullptr>
+    template<typename T,
+             typename std::enable_if<std::is_same<
+                 detail::remove_cvref_t<T>, bool>::value>::type* = nullptr>
     value& operator=(T from) noexcept;
 
     value& operator=(const value& rhs) noexcept;
@@ -98,8 +101,7 @@ public:
     value clone() const noexcept;
 
 private:
-    std::unique_ptr<value_impl_base> m_impl;
+    std::unique_ptr<detail::value_impl_base> m_impl;
 };
 
-} // namespace detail
 LANGNES_JSON_CXX_NS_END

@@ -16,12 +16,12 @@
 
 #pragma once
 
-#include "dict.hpp"
 #include "../errors.hpp"
+#include "../value.hpp"
+#include "dict.hpp"
 #include "macros.hpp"
 #include "memory.hpp"
 #include "type_traits.hpp"
-#include "value.hpp"
 
 #include <deque>
 #include <memory>
@@ -150,7 +150,10 @@ private:
     std::deque<value> m_elements;
 };
 
+} // namespace detail
+
 inline const std::string& value::as_string() const {
+    using namespace detail;
     if (!m_impl->is_type(value::type::string)) {
         throw bad_access{};
     }
@@ -158,6 +161,7 @@ inline const std::string& value::as_string() const {
 }
 
 inline double value::as_number() const {
+    using namespace detail;
     if (!m_impl->is_type(value::type::number)) {
         throw bad_access{};
     }
@@ -165,13 +169,15 @@ inline double value::as_number() const {
 }
 
 inline bool value::as_boolean() const {
+    using namespace detail;
     if (!m_impl->is_type(value::type::boolean)) {
         throw bad_access{};
     }
     return dynamic_cast<const boolean_impl*>(m_impl.get())->data();
 }
 
-inline const dict<std::string, value>& value::as_object() const {
+inline const detail::dict<std::string, value>& value::as_object() const {
+    using namespace detail;
     if (!m_impl->is_type(value::type::object)) {
         throw bad_access{};
     }
@@ -179,6 +185,7 @@ inline const dict<std::string, value>& value::as_object() const {
 }
 
 inline const std::deque<value>& value::as_array() const {
+    using namespace detail;
     if (!m_impl->is_type(value::type::array)) {
         throw bad_access{};
     }
@@ -187,26 +194,30 @@ inline const std::deque<value>& value::as_array() const {
 
 inline std::string& value::as_string() {
     if (!m_impl->is_type(value::type::string)) {
+        using namespace detail;
         throw bad_access{};
     }
-    return dynamic_cast<string_impl*>(m_impl.get())->data();
+    return dynamic_cast<detail::string_impl*>(m_impl.get())->data();
 }
 
 inline double& value::as_number() {
     if (!m_impl->is_type(value::type::number)) {
+        using namespace detail;
         throw bad_access{};
     }
-    return dynamic_cast<number_impl*>(m_impl.get())->data();
+    return dynamic_cast<detail::number_impl*>(m_impl.get())->data();
 }
 
 inline bool& value::as_boolean() {
+    using namespace detail;
     if (!m_impl->is_type(value::type::boolean)) {
         throw bad_access{};
     }
     return dynamic_cast<boolean_impl*>(m_impl.get())->data();
 }
 
-inline dict<std::string, value>& value::as_object() {
+inline detail::dict<std::string, value>& value::as_object() {
+    using namespace detail;
     if (!m_impl->is_type(value::type::object)) {
         throw bad_access{};
     }
@@ -214,6 +225,7 @@ inline dict<std::string, value>& value::as_object() {
 }
 
 inline std::deque<value>& value::as_array() {
+    using namespace detail;
     if (!m_impl->is_type(value::type::array)) {
         throw bad_access{};
     }
@@ -248,7 +260,8 @@ inline bool value::is_null() const noexcept {
     return is_type(value::type::null);
 }
 
-inline value::value() noexcept : m_impl{make_unique<null_impl>()} {}
+inline value::value() noexcept
+    : m_impl{detail::make_unique<detail::null_impl>()} {}
 
 inline value::value(const value& rhs) noexcept {
     this->m_impl = rhs.m_impl->clone();
@@ -256,44 +269,49 @@ inline value::value(const value& rhs) noexcept {
 
 inline value::value(value&& rhs) noexcept : m_impl{std::move(rhs.m_impl)} {}
 
-inline value::value(std::unique_ptr<value_impl_base>&& impl) noexcept
+inline value::value(std::unique_ptr<detail::value_impl_base>&& impl) noexcept
     : m_impl{std::move(impl)} {}
 
 inline value::value(const char* data) noexcept
-    : m_impl{make_unique<string_impl>(data)} {}
+    : m_impl{detail::make_unique<detail::string_impl>(data)} {}
 
 inline value::value(const std::string& data) noexcept
-    : m_impl{make_unique<string_impl>(data)} {}
+    : m_impl{detail::make_unique<detail::string_impl>(data)} {}
 
 inline value::value(std::string&& data) noexcept
-    : m_impl{make_unique<string_impl>(std::move(data))} {}
+    : m_impl{detail::make_unique<detail::string_impl>(std::move(data))} {}
 
 inline value::value(std::nullptr_t) noexcept
-    : m_impl{make_unique<null_impl>()} {}
+    : m_impl{detail::make_unique<detail::null_impl>()} {}
 
 template<typename T,
-         enable_if_t<(std::is_integral<T>::value &&
-                      !std::is_same<remove_cvref_t<T>, bool>::value) ||
-                     std::is_floating_point<T>::value>*>
+         detail::enable_if_t<
+             (std::is_integral<T>::value &&
+              !std::is_same<detail::remove_cvref_t<T>, bool>::value) ||
+             std::is_floating_point<T>::value>*>
 value::value(T from) noexcept
-    : m_impl{make_unique<number_impl>(std::forward<T>(from))} {}
+    : m_impl{detail::make_unique<detail::number_impl>(std::forward<T>(from))} {}
 
-template<typename T, enable_if_t<std::is_same<remove_cvref_t<T>, bool>::value>*>
+template<typename T, detail::enable_if_t<
+                         std::is_same<detail::remove_cvref_t<T>, bool>::value>*>
 value::value(T from) noexcept
-    : m_impl{make_unique<boolean_impl>(std::forward<T>(from))} {}
+    : m_impl{detail::make_unique<detail::boolean_impl>(std::forward<T>(from))} {
+}
 
 template<typename T,
-         enable_if_t<(std::is_integral<T>::value &&
-                      !std::is_same<remove_cvref_t<T>, bool>::value) ||
-                     std::is_floating_point<T>::value>*>
+         detail::enable_if_t<
+             (std::is_integral<T>::value &&
+              !std::is_same<detail::remove_cvref_t<T>, bool>::value) ||
+             std::is_floating_point<T>::value>*>
 value& value::operator=(T from) noexcept {
-    m_impl = make_unique<number_impl>(std::forward<T>(from));
+    m_impl = detail::make_unique<detail::number_impl>(std::forward<T>(from));
     return *this;
 }
 
-template<typename T, enable_if_t<std::is_same<remove_cvref_t<T>, bool>::value>*>
+template<typename T, detail::enable_if_t<
+                         std::is_same<detail::remove_cvref_t<T>, bool>::value>*>
 value& value::operator=(T from) noexcept {
-    m_impl = make_unique<boolean_impl>(std::forward<T>(from));
+    m_impl = detail::make_unique<detail::boolean_impl>(std::forward<T>(from));
     return *this;
 }
 
@@ -311,21 +329,25 @@ inline value& value::operator=(value&& rhs) noexcept {
 }
 
 inline value& value::operator=(const char* rhs) noexcept {
+    using namespace detail;
     m_impl = make_unique<string_impl>(rhs);
     return *this;
 }
 
 inline value& value::operator=(const std::string& rhs) noexcept {
+    using namespace detail;
     m_impl = make_unique<string_impl>(rhs);
     return *this;
 }
 
 inline value& value::operator=(std::string&& rhs) noexcept {
+    using namespace detail;
     m_impl = make_unique<string_impl>(std::move(rhs));
     return *this;
 }
 
 inline value& value::operator=(std::nullptr_t) noexcept {
+    using namespace detail;
     m_impl = make_unique<null_impl>();
     return *this;
 }
@@ -336,5 +358,4 @@ inline value::type value::get_type() const noexcept {
 
 inline value value::clone() const noexcept { return value{m_impl->clone()}; }
 
-} // namespace detail
 LANGNES_JSON_CXX_NS_END

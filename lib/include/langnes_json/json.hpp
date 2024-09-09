@@ -21,6 +21,7 @@
 #include "detail/memory.hpp"
 #include "detail/stream.hpp"
 #include "detail/type_traits.hpp"
+#include "value.hpp"
 
 #include <cstring>
 #include <memory>
@@ -55,8 +56,6 @@ constexpr const char* pre_release{"-dev"};
 /// Build metadata prefixed with "+".
 constexpr const char* build_metadata{""};
 }; // namespace library_version
-
-using value = detail::value;
 
 /**
  * Loads JSON from a stream.
