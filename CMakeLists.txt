@@ -27,6 +27,6 @@ if(LANGNES_JSON_INSTALL_TARGETS)
     langnes_json_install()
 endif()
 
-if(LANGNES_JSON_BUILD_PACKAGE)
+if(LANGNES_JSON_ENABLE_PACKAGING)
     add_subdirectory(packaging)
 endif()
