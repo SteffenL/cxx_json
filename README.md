@@ -17,12 +17,11 @@ Name                            | Description
 
 ## CMake Targets
 
-Name                     | Description
-----                     | -----------
-`langnes::json`          | Same as `langnes::json::headers`.
-`langnes::json::headers` | Header library (C++).
-`langnes::json::shared`  | Shared library (C).
-`langnes::json::static`  | Static library (C).
+Name                   | Description
+----                   | -----------
+`langnes::json`        | Header library (C++).
+`langnes::json_shared` | Shared library (C).
+`langnes::json_static` | Static library (C).
 
 ## Examples
 
@@ -48,7 +47,7 @@ add_executable(example_cxx main.cpp)
 target_link_libraries(example_cxx PRIVATE langnes::json)
 
 add_executable(example_c main.c)
-target_link_libraries(example_c PRIVATE langnes::json::static)
+target_link_libraries(example_c PRIVATE langnes::json_static)
 ```
 
 `main.cpp`:
