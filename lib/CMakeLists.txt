@@ -2,7 +2,7 @@
 add_library(langnes_json_private INTERFACE)
 langnes_json_target_enable_warnings(langnes_json_private INTERFACE)
 set_target_properties(langnes_json_private PROPERTIES
-    EXPORT_NAME private)
+    EXPORT_NAME json_private)
 
 if(MSVC)
     target_compile_options(langnes_json_private INTERFACE /utf-8)
