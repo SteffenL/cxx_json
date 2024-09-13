@@ -14,11 +14,13 @@ runs:
       name: Install packages (APT)
       run: |
         packages=(${{ inputs.apt }})
+        sudo apt-get update
         sudo apt-get install --no-install-recommends -y \
           cmake \
           ninja-build \
           python3 \
           python3-lxml \
+          python3-markupsafe \
           python3-pip \
           "${packages[@]}"
       shell: bash
@@ -34,5 +36,6 @@ runs:
           ninja:p
           python:p
           python-lxml:p
+          python-markupsafe:p
           python-pip:p
           toolchain:p
